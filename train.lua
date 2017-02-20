@@ -1,10 +1,13 @@
+----------------------------------------------------------------------------
+-- srepare require elements
 require 'torch'
 require 'nn'
 require 'optim'
 
+-- set default option
 opt = {
    dataset = 'folder',       -- imagenet / lsun / folder
-   batchSize = 64,
+   batchSize = 100,
    loadSize = 96,
    fineSize = 64,
    nz = 100,               -- #  of dim for Z
@@ -15,18 +18,17 @@ opt = {
    lr = 0.0002,            -- initial learning rate for adam
    beta1 = 0.5,            -- momentum term of adam
    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
-   display = 1,            -- display samples while training. 0 = false
-   display_id = 10,        -- display window id.
    gpu = 1,                -- gpu = 0 is CPU mode. gpu=X is GPU mode on GPU X
    name = 'dcgan-sr-test',
    noise = 'normal',       -- uniform / normal
 }
 
+-- check live opt settings
 -- one-line argument parser. parses enviroment variables to override the defaults
 for k,v in pairs(opt) do opt[k] = tonumber(os.getenv(k)) or os.getenv(k) or opt[k] end
 print(opt)
-if opt.display == 0 then opt.display = false end
 
+-- set threads
 opt.manualSeed = torch.random(1, 10000) -- fix seed
 print("Random Seed: " .. opt.manualSeed)
 torch.manualSeed(opt.manualSeed)
@@ -37,7 +39,9 @@ torch.setdefaulttensortype('torch.FloatTensor')
 local DataLoader = paths.dofile('data/data.lua')
 local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
+
 ----------------------------------------------------------------------------
+
 local function weights_init(m)
    local name = torch.type(m)
    if name:find('Convolution') then
@@ -139,8 +143,6 @@ end
 local parametersD, gradParametersD = netD:getParameters()
 local parametersG, gradParametersG = netG:getParameters()
 
-if opt.display then disp = require 'display' end
-
 noise_vis = noise:clone()
 if opt.noise == 'uniform' then
     noise_vis:uniform(-1, 1)
@@ -206,7 +208,6 @@ end
 -- train
 for epoch = 1, opt.niter do
    epoch_tm:reset()
-   local counter = 0
    for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
       tm:reset()
       -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
@@ -214,15 +215,6 @@ for epoch = 1, opt.niter do
 
       -- (2) Update G network: maximize log(D(G(z)))
       optim.adam(fGx, parametersG, optimStateG)
-
-      -- display
-      counter = counter + 1
-      if counter % 10 == 0 and opt.display then
-          local fake = netG:forward(noise_vis)
-          local real = data:getBatch()
-          disp.image(fake, {win=opt.display_id, title=opt.name})
-          disp.image(real, {win=opt.display_id * 3, title=opt.name})
-      end
 
       -- logging
       if ((i-1) / opt.batchSize) % 1 == 0 then
@@ -246,7 +238,7 @@ for epoch = 1, opt.niter do
 end
 
 
-local images = net:forward(noise)
+local images = netG:forward(noise)
 print('Images size: ', images:size(1)..' x '..images:size(2) ..' x '..images:size(3)..' x '..images:size(4))
 images:add(1):mul(0.5)
 print('Min, Max, Mean, Stdv', images:min(), images:max(), images:mean(), images:std())
