@@ -65,12 +65,16 @@ local SpatialBatchNormalization = nn.SpatialBatchNormalization
 local SpatialConvolution = nn.SpatialConvolution
 local SpatialFullConvolution = nn.SpatialFullConvolution
 
+print('preparing library of nn complete!!!')
+
 -- set network of Generator
 local netG = nn.Sequential()
 netG:add(SpatialFullConvolution(nc, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
 ---- 
 netG:apply(weights_init)
+
+print('netG complete!!!')
 
 -- set network of Discriminator
 local netD = nn.Sequential()
@@ -94,6 +98,8 @@ netD:add(nn.View(1):setNumInputDims(3))
 ---- state size: 1
 ----
 netD:apply(weights_init)
+
+print('netD complete!!!')
 
 -- set criterion
 local criterion = nn.BCECriterion()
