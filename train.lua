@@ -165,7 +165,7 @@ function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
     print('calPSNR cp 1')
     if MSE > 0 then
-        local PSNR = 10 * log(255*255/MSE) / log(10)
+        local PSNR = 10 * log(1*1/MSE) / log(10)
     else
         local PSNR = 99
     end
@@ -185,6 +185,7 @@ local fDx = function(x)
     data_tm:reset(); data_tm:resume()
 
     local real_none = data:getBatch()
+    real_none:cuda()
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
@@ -209,7 +210,6 @@ local fDx = function(x)
     print('fDx cp 2.2')
 
     print(real_none[{ {1}, {}, {}, {}}])
-    print(fake_none[{ {1}, {}, {}, {}}])
 
     for i = 1, opt.batchSize do
         errVal_PSNR[{ {i} }] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }])
