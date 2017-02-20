@@ -67,22 +67,8 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 
 -- set network of Generator
 local netG = nn.Sequential()
----- input is Z, going into a convolution
-netG:add(SpatialFullConvolution(nz, ngf * 8, 4, 4))
-netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.ReLU(true))
----- state size: (ngf*8) x 4 x 4
-netG:add(SpatialFullConvolution(ngf * 8, ngf * 4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
----- state size: (ngf*4) x 8 x 8
-netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
----- state size: (ngf*2) x 16 x 16
-netG:add(SpatialFullConvolution(ngf * 2, ngf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
----- state size: (ngf) x 32 x 32
-netG:add(SpatialFullConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialFullConvolution(nc, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
----- state size: (nc) x 64 x 64
 ---- 
 netG:apply(weights_init)
 
@@ -156,45 +142,34 @@ end
 
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
-   gradParametersD:zero()
+    gradParametersD:zero()
 
     -- train with real
     data_tm:reset(); data_tm:resume()
-    local real_original = data:getBatch()
 
-    -- make real_reduce
-    local real_reduce = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
+    local real_none = data:getBatch()
+
+    -- generate real_reduced
+    local real_reduced = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.fineSize/2 do
         for j = 1, opt.fineSize/2 do
-            real_reduce[{ {}, {}, {i}, {j} }] = (real_original[{ {}, {}, {2*i-1}, {2*j-1} }] + real_original[{ {}, {}, {2*i}, {2*j-1} }] + real_original[{ {}, {}, {2*i-1}, {2*j} }] + real_original[{ {}, {}, {2*i}, {2*j} }]) / 4
+            real_reduced[{ {}, {}, {i}, {j} }] = (real_none[{ {}, {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {}, {2*i}, {2*j-1} }] + real_none[{ {}, {}, {2*i-1}, {2*j} }] + real_none[{ {}, {}, {2*i}, {2*j} }]) / 4
         end
     end
 
-   data_tm:stop()
-   input:copy(real_original)
-   label:fill(real_label)
+    data_tm:stop()
 
-   local output = netD:forward(input)
-   local errD_real = criterion:forward(output, label)
-   local df_do = criterion:backward(output, label)
-   netD:backward(input, df_do)
+    -- input:copy(real_none)
+    -- label:fill(real_label)
 
-   -- train with fake
-   if opt.noise == 'uniform' then -- regenerate random noise
-       noise:uniform(-1, 1)
-   elseif opt.noise == 'normal' then
-       noise:normal(0, 1)
-   end
-   local fake = netG:forward(noise)
-   input:copy(fake)
-   label:fill(fake_label)
+    local fake_none = netG:forward(real_none)
 
-   local output = netD:forward(input)
-   local errD_fake = criterion:forward(output, label)
-   local df_do = criterion:backward(output, label)
-   netD:backward(input, df_do)
+    local errVal_fake = netD:forward(fake_none)
+    local errVal_real = netD:forward(real_none)
 
-   errD = errD_real + errD_fake
+    local errD = criterion:forward(errVal_fake, errVal_real)
+    local df_do = criterion:backward(errVal_fake, errVal_real)
+    netD:backward(fake_none, df_do)
 
    return errD, gradParametersD
 end
