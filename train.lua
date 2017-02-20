@@ -170,6 +170,7 @@ function calPSNR(img1, img2)
         local PSNR = 99
     end
     print('calPSNR cp 2')
+    print(PSNR)
     return PSNR
 end
 
@@ -211,7 +212,7 @@ local fDx = function(x)
     print(real_none[{ {1}, {}, {}, {}}])
 
     for i = 1, opt.batchSize do
-        errVal_PSNR[{ {i} }] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+        errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
     print('fDx cp 5')
 
