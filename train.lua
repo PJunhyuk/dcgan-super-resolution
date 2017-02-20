@@ -212,7 +212,7 @@ local fDx = function(x)
     -- label:fill(real_label)
 
     print('fDx cp 2')
-    inputG:copy(real_none)
+    inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
     print('fDx cp 2.1')
 
