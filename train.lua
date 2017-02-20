@@ -84,8 +84,6 @@ netG:add(nn.Tanh())
 ---- 
 netG:apply(weights_init)
 
-print('netG complete!!!')
-
 -- set network of Discriminator
 local netD = nn.Sequential()
 ---- input is (nc) x 64 x 64
@@ -108,8 +106,6 @@ netD:add(nn.View(1):setNumInputDims(3))
 ---- state size: 1
 ----
 netD:apply(weights_init)
-
-print('netD complete!!!')
 
 -- set criterion
 local criterion = nn.BCECriterion()
@@ -159,28 +155,26 @@ elseif opt.noise == 'normal' then
     noise_vis:normal(0, 1)
 end
 
-print('checkpoint 2 complete!!!')
-
 function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
-    print('calPSNR cp 1')
     local PSNR
     if MSE > 0 then
         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
     else
         PSNR = 99
     end
-    print('calPSNR cp 2')
-    print(PSNR)
     return PSNR
 end
 
 local errVal_PSNR = torch.Tensor(opt.batchSize)
 errVal_PSNR = errVal_PSNR:cuda()
 
+local real_none_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
+real_none_sample = data:getBatch()[1]
+image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
+
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
-    print('fDx cp 1')
     gradParametersD:zero()
 
     -- train with real
@@ -198,39 +192,26 @@ local fDx = function(x)
 
     data_tm:stop()
 
-    -- input:copy(real_none)
-    -- label:fill(real_label)
-
-    print('fDx cp 2')
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
-    print('fDx cp 2.1')
 
     inputD:copy(fake_none)
     local errVal_fake = netD:forward(inputD)
-    print('fDx cp 2.2')
-
-    print(real_none[{ {1}, {}, {}, {}}])
 
     for i = 1, opt.batchSize do
         errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
-    print('fDx cp 5')
 
     local errD = criterion:forward(errVal_fake, errVal_PSNR)
-    print('fDx cp 6')
     local df_do = criterion:backward(errVal_fake, errVal_PSNR)
-    print('fDx cp 3')
     netD:backward(fake_none, df_do)
 
-    print('fDx cp 4')
     return errD, gradParametersD
 end
 
 -- create closure to evaluate f(X) and df/dX of generator
 local fGx = function(x)
    gradParametersG:zero()
-   print('fGx cp 1')
 
    --[[ the three lines below were already executed in fDx, so save computation
    noise:uniform(-1, 1) -- regenerate random noise
@@ -238,30 +219,21 @@ local fGx = function(x)
    input:copy(fake) ]]--
 
    local output = netD.output -- netD:forward(input) was already executed in fDx, so save computation
-   print('fGx cp 2')
    errG = criterion:forward(output, errVal_PSNR)
-   print('fGx cp 3')
    local df_do = criterion:backward(output, errVal_PSNR)
-   print('fGx cp 4')
    local df_dg = netD:updateGradInput(inputD, df_do)
-   print('fGx cp 5')
 
    netG:backward(inputG, df_dg)
-   print('fGx cp 6')
    return errG, gradParametersG
 end
 
-print('Lets train!!!')
-
 -- train
 for epoch = 1, opt.niter do
-    print('cp#206!!!')
     epoch_tm:reset()
     for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
         tm:reset()
         -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         optim.adam(fDx, parametersD, optimStateD)
-        print('cp#212!!!')
 
         -- (2) Update G network: maximize log(D(G(z)))
         optim.adam(fGx, parametersG, optimStateG)
@@ -287,10 +259,17 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
+real_none_sample:cuda()
+local real_reduced_sample = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
+for i = 1, opt.fineSize/2 do
+    for j = 1, opt.fineSize/2 do
+        real_reduced_sample[{ {}, {}, {i}, {j} }] = (real_none_sample[{ {}, {}, {2*i-1}, {2*j-1} }] + real_none_sample[{ {}, {}, {2*i}, {2*j-1} }] + real_none_sample[{ {}, {}, {2*i-1}, {2*j} }] + real_none_sample[{ {}, {}, {2*i}, {2*j} }]) / 4
+    end
+end
+image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-local images = netG:forward(noise)
-print('Images size: ', images:size(1)..' x '..images:size(2) ..' x '..images:size(3)..' x '..images:size(4))
-images:add(1):mul(0.5)
-print('Min, Max, Mean, Stdv', images:min(), images:max(), images:mean(), images:std())
-image.save(opt.name .. '.png', image.toDisplayTensor(images))
-print('Saved image to: ', opt.name .. '.png')
+local images = netG:forward(real_reduced_sample)
+-- print('Images size: ', images:size(1)..' x '..images:size(2) ..' x '..images:size(3)..' x '..images:size(4))
+-- images:add(1):mul(0.5)
+-- print('Min, Max, Mean, Stdv', images:min(), images:max(), images:mean(), images:std())
+image.save('fake_none.png', image.toDisplayTensor(images))
