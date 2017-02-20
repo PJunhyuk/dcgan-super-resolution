@@ -3,6 +3,7 @@
 require 'torch'
 require 'nn'
 require 'optim'
+require 'image'
 
 -- set default option
 opt = {
