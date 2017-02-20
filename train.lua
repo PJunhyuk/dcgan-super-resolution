@@ -138,6 +138,7 @@ if opt.gpu > 0 then
    require 'cunn'
    cutorch.setDevice(opt.gpu)
    input = input:cuda();  noise = noise:cuda();  label = label:cuda()
+   inputG = inputG:cuda(); inputD = inputD:cuda()
 
    if pcall(require, 'cudnn') then
       require 'cudnn'
