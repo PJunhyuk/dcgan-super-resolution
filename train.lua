@@ -209,6 +209,7 @@ local fDx = function(x)
     print('fDx cp 2.2')
 
     print(real_none[{ {1}, {}, {}, {}}])
+    print(fake_none[{ {1}, {}, {}, {}}])
 
     for i = 1, opt.batchSize do
         errVal_PSNR[{ {i} }] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }])
