@@ -21,7 +21,6 @@ opt = {
    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
    gpu = 1,                -- gpu = 0 is CPU mode. gpu=X is GPU mode on GPU X
    name = 'dcgan-sr-test-1',
-   noise = 'normal',       -- uniform / normal
 }
 
 -- check live opt settings
@@ -120,7 +119,6 @@ optimStateD = {
 local input = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local inputG = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
 local inputD = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
-local noise = torch.Tensor(opt.batchSize, nz, 1, 1)
 local errD, errG
 local epoch_tm = torch.Timer()
 local tm = torch.Timer()
@@ -130,7 +128,7 @@ local data_tm = torch.Timer()
 if opt.gpu > 0 then
    require 'cunn'
    cutorch.setDevice(opt.gpu)
-   input = input:cuda();  noise = noise:cuda();
+   input = input:cuda();
    inputG = inputG:cuda(); inputD = inputD:cuda()
 
    if pcall(require, 'cudnn') then
@@ -144,13 +142,6 @@ end
 
 local parametersD, gradParametersD = netD:getParameters()
 local parametersG, gradParametersG = netG:getParameters()
-
-noise_vis = noise:clone()
-if opt.noise == 'uniform' then
-    noise_vis:uniform(-1, 1)
-elseif opt.noise == 'normal' then
-    noise_vis:normal(0, 1)
-end
 
 function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
