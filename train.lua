@@ -146,6 +146,45 @@ end
 
 print('checkpoint 2 complete!!!')
 
+local function RGBMSE(x1, x2)
+   x1 = iproc.float2byte(x1):float()
+   x2 = iproc.float2byte(x2):float()
+   return (x1 - x2):pow(2):mean()
+end
+local function CHMSE(x1, x2, ch)
+   x1 = iproc.float2byte(x1):float()
+   x2 = iproc.float2byte(x2):float()
+   return (x1[ch] - x2[ch]):pow(2):mean()
+end
+local function YMSE(x1, x2)
+   if opt.range_bug == 1 then
+      local x1_2 = rgb2y_matlab(x1)
+      local x2_2 = rgb2y_matlab(x2)
+      return (x1_2 - x2_2):pow(2):mean()
+   else
+      local x1_2 = image.rgb2y(x1):mul(255.0)
+      local x2_2 = image.rgb2y(x2):mul(255.0)
+      return (x1_2 - x2_2):pow(2):mean()
+   end
+end
+local function MSE(x1, x2, color)
+   if color == "y" then
+      return YMSE(x1, x2)
+   elseif color == "r" then
+      return CHMSE(x1, x2, 1)
+   elseif color == "g" then
+      return CHMSE(x1, x2, 2)
+   elseif color == "b" then
+      return CHMSE(x1, x2, 3)
+   else
+      return RGBMSE(x1, x2)
+   end
+end
+local function PSNR(x1, x2, color)
+   local mse = math.max(MSE(x1, x2, color), 1)
+   return 10 * math.log10((255.0 * 255.0) / mse)
+end
+
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
     print('fDx cp 1')
@@ -173,10 +212,15 @@ local fDx = function(x)
     local fake_none = netG:forward(real_none)
 
     local errVal_fake = netD:forward(fake_none)
-    local errVal_real = netD:forward(real_none)
 
-    local errD = criterion:forward(errVal_fake, errVal_real)
-    local df_do = criterion:backward(errVal_fake, errVal_real)
+    local errVal_PSNR = torch.Tensor(opt.batchSize)
+
+    for i = 1, opt.batchSize do
+        errVal_PSNR[{ {i} }] = PSNR(real_none[{ {i}, {}, {}, {}}], fake_none[{ {i}, {}, {}, {}}], 'rgb')
+    end
+
+    local errD = criterion:forward(errVal_fake, errVal_PSNR)
+    local df_do = criterion:backward(errVal_fake, errVal_PSNR)
     print('fDx cp 3')
     netD:backward(fake_none, df_do)
 
