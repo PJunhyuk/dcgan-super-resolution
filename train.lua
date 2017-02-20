@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------
--- srepare require elements
+-- prepare require elements
 require 'torch'
 require 'nn'
 require 'optim'
@@ -20,7 +20,7 @@ opt = {
    beta1 = 0.5,            -- momentum term of adam
    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
    gpu = 1,                -- gpu = 0 is CPU mode. gpu=X is GPU mode on GPU X
-   name = 'dcgan-sr-test',
+   name = 'dcgan-sr-test-1',
    noise = 'normal',       -- uniform / normal
 }
 
@@ -40,8 +40,12 @@ torch.setdefaulttensortype('torch.FloatTensor')
 local DataLoader = paths.dofile('data/data.lua')
 local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
-
 ----------------------------------------------------------------------------
+print(data)
+print(data:getBatch()[1])
+image.save(opt.name .. '.png', image.toDisplayTensor(data:getBatch()[1]))
+
+quit()
 
 local function weights_init(m)
    local name = torch.type(m)
@@ -61,53 +65,56 @@ local ngf = opt.ngf
 local real_label = 1
 local fake_label = 0
 
+-- simplify library of nn
 local SpatialBatchNormalization = nn.SpatialBatchNormalization
 local SpatialConvolution = nn.SpatialConvolution
 local SpatialFullConvolution = nn.SpatialFullConvolution
 
+-- set network of Generator
 local netG = nn.Sequential()
--- input is Z, going into a convolution
+---- input is Z, going into a convolution
 netG:add(SpatialFullConvolution(nz, ngf * 8, 4, 4))
 netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.ReLU(true))
--- state size: (ngf*8) x 4 x 4
+---- state size: (ngf*8) x 4 x 4
 netG:add(SpatialFullConvolution(ngf * 8, ngf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
--- state size: (ngf*4) x 8 x 8
+---- state size: (ngf*4) x 8 x 8
 netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
--- state size: (ngf*2) x 16 x 16
+---- state size: (ngf*2) x 16 x 16
 netG:add(SpatialFullConvolution(ngf * 2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- state size: (ngf) x 32 x 32
+---- state size: (ngf) x 32 x 32
 netG:add(SpatialFullConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
--- state size: (nc) x 64 x 64
-
+---- state size: (nc) x 64 x 64
+---- 
 netG:apply(weights_init)
 
+-- set network of Discriminator
 local netD = nn.Sequential()
-
--- input is (nc) x 64 x 64
+---- input is (nc) x 64 x 64
 netD:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
 netD:add(nn.LeakyReLU(0.2, true))
--- state size: (ndf) x 32 x 32
+---- state size: (ndf) x 32 x 32
 netD:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*2) x 16 x 16
+---- state size: (ndf*2) x 16 x 16
 netD:add(SpatialConvolution(ndf * 2, ndf * 4, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*4) x 8 x 8
+---- state size: (ndf*4) x 8 x 8
 netD:add(SpatialConvolution(ndf * 4, ndf * 8, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*8) x 4 x 4
+---- state size: (ndf*8) x 4 x 4
 netD:add(SpatialConvolution(ndf * 8, 1, 4, 4))
 netD:add(nn.Sigmoid())
--- state size: 1 x 1 x 1
+---- state size: 1 x 1 x 1
 netD:add(nn.View(1):setNumInputDims(3))
--- state size: 1
-
+---- state size: 1
+----
 netD:apply(weights_init)
 
+-- set criterion
 local criterion = nn.BCECriterion()
 ---------------------------------------------------------------------------
 optimStateG = {
@@ -127,6 +134,7 @@ local epoch_tm = torch.Timer()
 local tm = torch.Timer()
 local data_tm = torch.Timer()
 ----------------------------------------------------------------------------
+-- convert elements to gpu version
 if opt.gpu > 0 then
    require 'cunn'
    cutorch.setDevice(opt.gpu)
@@ -240,9 +248,9 @@ for epoch = 1, opt.niter do
                  errG and errG or -1, errD and errD or -1))
       end
    end
-   paths.mkdir('checkpoints')
    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
    parametersG, gradParametersG = nil, nil
+--    paths.mkdir('checkpoints')
 --    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
 --    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
    parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
