@@ -42,8 +42,10 @@ local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
 ----------------------------------------------------------------------------
 print(data)
-print(data:getBatch())
 print(data:getBatch()[1])
+image.save(opt.name .. '.png', image.toDisplayTensor(data:getBatch()[1]))
+
+quit()
 
 local function weights_init(m)
    local name = torch.type(m)
