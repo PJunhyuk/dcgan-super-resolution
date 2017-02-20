@@ -210,7 +210,8 @@ local fDx = function(x)
     -- label:fill(real_label)
 
     print('fDx cp 2')
-    local fake_none = netG:forward(real_none)
+    inputG:copy(real_none)
+    local fake_none = netG:forward(inputG)
     print('fDx cp 2.1')
 
     local errVal_fake = netD:forward(fake_none)
