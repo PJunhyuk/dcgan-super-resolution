@@ -113,6 +113,8 @@ optimStateD = {
 }
 ----------------------------------------------------------------------------
 local input = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
+local inputG = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
+local inputD = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local noise = torch.Tensor(opt.batchSize, nz, 1, 1)
 local label = torch.Tensor(opt.batchSize)
 local errD, errG
@@ -214,7 +216,8 @@ local fDx = function(x)
     local fake_none = netG:forward(inputG)
     print('fDx cp 2.1')
 
-    local errVal_fake = netD:forward(fake_none)
+    inputD:copy(fake_none)
+    local errVal_fake = netD:forward(inputD)
     print('fDx cp 2.2')
 
     local errVal_PSNR = torch.Tensor(opt.batchSize)
