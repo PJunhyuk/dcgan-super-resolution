@@ -163,7 +163,7 @@ print('checkpoint 2 complete!!!')
 
 function calPSNR(img1, img2, i)
     MSE = ((img1[{ {i}, {}, {}, {} }] - img2[{ {i}, {}, {}, {} }]):pow(2)):sum() / (img2:size(2)*img2:size(3)*img2:size(4))
-    if(MSE > 0)
+    if MSE > 0 then
         PSNR = 10 * log(255*255/MSE) / log(10)
     else
         PSNR = 99
