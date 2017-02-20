@@ -218,8 +218,10 @@ local fDx = function(x)
     for i = 1, opt.batchSize do
         errVal_PSNR[{ {i} }] = PSNR(real_none[{ {i}, {}, {}, {}}], fake_none[{ {i}, {}, {}, {}}], 'rgb')
     end
+    print('fDx cp 5')
 
     local errD = criterion:forward(errVal_fake, errVal_PSNR)
+    print('fDx cp 6')
     local df_do = criterion:backward(errVal_fake, errVal_PSNR)
     print('fDx cp 3')
     netD:backward(fake_none, df_do)
