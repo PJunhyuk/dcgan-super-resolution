@@ -246,17 +246,14 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
-real_none_sample:cuda()
-local real_reduced_sample = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
+local real_reduced_sample = torch.Tensor(3, opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
     for j = 1, opt.fineSize/2 do
-        real_reduced_sample[{ {}, {}, {i}, {j} }] = (real_none_sample[{ {}, {}, {2*i-1}, {2*j-1} }] + real_none_sample[{ {}, {}, {2*i}, {2*j-1} }] + real_none_sample[{ {}, {}, {2*i-1}, {2*j} }] + real_none_sample[{ {}, {}, {2*i}, {2*j} }]) / 4
+        real_reduced_sample[{{}, {i}, {j} }] = (real_none_sample[{{}, {2*i-1}, {2*j-1} }] + real_none_sample[{{}, {2*i}, {2*j-1} }] + real_none_sample[{{}, {2*i-1}, {2*j} }] + real_none_sample[{{}, {2*i}, {2*j} }]) / 4
     end
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-local images = netG:forward(real_reduced_sample)
--- print('Images size: ', images:size(1)..' x '..images:size(2) ..' x '..images:size(3)..' x '..images:size(4))
--- images:add(1):mul(0.5)
--- print('Min, Max, Mean, Stdv', images:min(), images:max(), images:mean(), images:std())
-image.save('fake_none.png', image.toDisplayTensor(images))
+real_reduced_sample:cuda()
+local fake_none_sample = netG:forward(real_reduced_sample)
+image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
