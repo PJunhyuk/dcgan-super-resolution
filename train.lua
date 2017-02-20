@@ -169,12 +169,12 @@ local fDx = function(x)
    local real_small = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
    for i = 1, opt.fineSize/2 do
        for j = 1, opt.fineSize/2 do
-           real_small{ , , i, j} = (real{ , , 2*i-1, 2*j-1} + real{ , , 2*i-1, 2*j} + real{ , , 2*i, 2*j-1} + real{ , , 2*i, 2*j})/4
+           real_small[{ {}, {}, {i}, {j} }] = (real_small[{ {}, {}, {2*i-1}, {2*j-1} }] + real_small[{ {}, {}, {2*i}, {2*j-1} }] + real_small[{ {}, {}, {2*i-1}, {2*j} }] + real_small[{ {}, {}, {2*i}, {2*j} }]) / 4
        end
    end
 
-   print(real{1, , , })
-   print(real_small{1, , , })
+   print(real[{ {1}, {}, {}, {}}])
+   print(real_small[{ {1}, {}, {}, {}}])
 
    data_tm:stop()
    input:copy(real)
