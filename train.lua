@@ -41,9 +41,6 @@ local DataLoader = paths.dofile('data/data.lua')
 local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
 ----------------------------------------------------------------------------
-print(data)
-print(data:getBatch()[1])
-image.save(opt.name .. '.png', image.toDisplayTensor(data:getBatch()[1]))
 
 quit()
 
