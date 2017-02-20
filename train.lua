@@ -161,8 +161,8 @@ end
 
 print('checkpoint 2 complete!!!')
 
-function calPSNR(img1, img2, i)
-    MSE = ((img1[{ {i}, {}, {}, {} }] - img2[{ {i}, {}, {}, {} }]):pow(2)):sum() / (img2:size(2)*img2:size(3)*img2:size(4))
+function calPSNR(img1, img2)
+    local MSE = ((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum() / (img2:size(2)*img2:size(3)*img2:size(4))
     if MSE > 0 then
         PSNR = 10 * log(255*255/MSE) / log(10)
     else
@@ -209,7 +209,7 @@ local fDx = function(x)
     print('fDx cp 2.3')
 
     for i = 1, opt.batchSize do
-        errVal_PSNR[{ {i} }] = calPSNR(real_none, fake_none, i)
+        errVal_PSNR[{ {i} }] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }])
     end
     print('fDx cp 5')
 
