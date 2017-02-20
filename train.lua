@@ -4,6 +4,7 @@ require 'torch'
 require 'nn'
 require 'optim'
 require 'image'
+local iproc = require 'iproc'
 
 -- set default option
 opt = {
