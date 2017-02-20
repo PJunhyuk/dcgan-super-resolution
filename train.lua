@@ -19,7 +19,6 @@ opt = {
    lr = 0.0002,            -- initial learning rate for adam
    beta1 = 0.5,            -- momentum term of adam
    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
-   gpu = 1,                -- gpu = 0 is CPU mode. gpu=X is GPU mode on GPU X
    name = 'dcgan-sr-test-1',
 }
 
@@ -77,7 +76,6 @@ netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
 netG:add(SpatialFullConvolution(ngf * 2, nc, 9, 9, 1, 1, 0, 0))
 netG:add(nn.Tanh())
 -- nc x 64 x 64
-
 ---- 
 netG:apply(weights_init)
 
@@ -124,28 +122,23 @@ local epoch_tm = torch.Timer()
 local tm = torch.Timer()
 local data_tm = torch.Timer()
 ----------------------------------------------------------------------------
--- convert elements to gpu version
-if opt.gpu > 0 then
-   require 'cunn'
-   cutorch.setDevice(opt.gpu)
-   input = input:cuda();
-   inputG = inputG:cuda(); inputD = inputD:cuda()
+-- to use GPU
+require 'cunn'
+cutorch.setDevice(1) -- use GPU
+input = input:cuda();
+inputG = inputG:cuda(); inputD = inputD:cuda()
 
-   if pcall(require, 'cudnn') then
-      require 'cudnn'
-      cudnn.benchmark = true
-      cudnn.convert(netG, cudnn)
-      cudnn.convert(netD, cudnn)
-   end
-   netD:cuda();           netG:cuda();           criterion:cuda()
+if pcall(require, 'cudnn') then
+    require 'cudnn'
+    cudnn.benchmark = true
+    cudnn.convert(netG, cudnn)
+    cudnn.convert(netD, cudnn)
 end
-
-local parametersD, gradParametersD = netD:getParameters()
-local parametersG, gradParametersG = netG:getParameters()
-
+netD:cuda();           netG:cuda();           criterion:cuda()
+----------------------------------------------------------------------------
+-- calPSNR function
 function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
-    local PSNR
     if MSE > 0 then
         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
     else
@@ -153,6 +146,10 @@ function calPSNR(img1, img2)
     end
     return PSNR
 end
+----------------------------------------------------------------------------
+
+local parametersD, gradParametersD = netD:getParameters()
+local parametersG, gradParametersG = netG:getParameters()
 
 local errVal_PSNR = torch.Tensor(opt.batchSize)
 errVal_PSNR = errVal_PSNR:cuda()
@@ -191,6 +188,7 @@ local fDx = function(x)
     end
 
     local errD = criterion:forward(errVal_fake, errVal_PSNR)
+    print('errVal_PSNR: ' .. errVal_PSNR[1])
     print('errD: ' .. errD)
     local df_do = criterion:backward(errVal_fake, errVal_PSNR)
     netD:backward(fake_none, df_do)
