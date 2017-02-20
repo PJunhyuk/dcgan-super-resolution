@@ -210,10 +210,13 @@ local fDx = function(x)
 
     print('fDx cp 2')
     local fake_none = netG:forward(real_none)
+    print('fDx cp 2.1')
 
     local errVal_fake = netD:forward(fake_none)
+    print('fDx cp 2.2')
 
     local errVal_PSNR = torch.Tensor(opt.batchSize)
+    print('fDx cp 2.3')
 
     for i = 1, opt.batchSize do
         errVal_PSNR[{ {i} }] = PSNR(real_none[{ {i}, {}, {}, {}}], fake_none[{ {i}, {}, {}, {}}], 'rgb')
