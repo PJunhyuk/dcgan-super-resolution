@@ -4,7 +4,6 @@ require 'torch'
 require 'nn'
 require 'optim'
 require 'image'
-local iproc = require 'iproc'
 
 -- set default option
 opt = {
@@ -162,43 +161,33 @@ end
 
 print('checkpoint 2 complete!!!')
 
-local function RGBMSE(x1, x2)
-   x1 = iproc.float2byte(x1):float()
-   x2 = iproc.float2byte(x2):float()
-   return (x1 - x2):pow(2):mean()
-end
-local function CHMSE(x1, x2, ch)
-   x1 = iproc.float2byte(x1):float()
-   x2 = iproc.float2byte(x2):float()
-   return (x1[ch] - x2[ch]):pow(2):mean()
-end
-local function YMSE(x1, x2)
-   if opt.range_bug == 1 then
-      local x1_2 = rgb2y_matlab(x1)
-      local x2_2 = rgb2y_matlab(x2)
-      return (x1_2 - x2_2):pow(2):mean()
-   else
-      local x1_2 = image.rgb2y(x1):mul(255.0)
-      local x2_2 = image.rgb2y(x2):mul(255.0)
-      return (x1_2 - x2_2):pow(2):mean()
+-- Calcul du PSNR entre 2 images
+function PSNR(true_frame, pred)
+
+   local eps = 0.0001
+  -- if true_frame:size(1) == 1 then true_frame = true_frame[1] end
+  -- if pred:size(1) == 1 then pred = pred[1] end
+
+   local prediction_error = 0
+   for i = 1, pred:size(2) do
+          for j = 1, pred:size(3) do
+            for c = 1, pred:size(1) do
+            -- put image from -1 to 1 to 0 and 255
+            prediction_error = prediction_error +
+              (pred[c][i][j] - true_frame[c][i][j])^2
+            end
+          end
    end
-end
-local function MSE(x1, x2, color)
-   if color == "y" then
-      return YMSE(x1, x2)
-   elseif color == "r" then
-      return CHMSE(x1, x2, 1)
-   elseif color == "g" then
-      return CHMSE(x1, x2, 2)
-   elseif color == "b" then
-      return CHMSE(x1, x2, 3)
+   --MSE
+   prediction_error=128*128*prediction_error/(pred:size(1)*pred:size(2)*pred:size(3))
+
+   --PSNR
+   if prediction_error>eps then
+      prediction_error = 10*torch.log((255*255)/ prediction_error)/torch.log(10)
    else
-      return RGBMSE(x1, x2)
+      prediction_error = 10*torch.log((255*255)/ eps)/torch.log(10)
    end
-end
-local function PSNR(x1, x2, color)
-   local mse = math.max(MSE(x1, x2, color), 1)
-   return 10 * math.log10((255.0 * 255.0) / mse)
+   return prediction_error
 end
 
 -- create closure to evaluate f(X) and df/dX of discriminator
