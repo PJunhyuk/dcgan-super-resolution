@@ -65,8 +65,6 @@ local SpatialBatchNormalization = nn.SpatialBatchNormalization
 local SpatialConvolution = nn.SpatialConvolution
 local SpatialFullConvolution = nn.SpatialFullConvolution
 
-print('preparing library of nn complete!!!')
-
 -- set network of Generator
 local netG = nn.Sequential()
 netG:add(SpatialFullConvolution(nc, nc, 4, 4, 2, 2, 1, 1))
@@ -146,6 +144,8 @@ elseif opt.noise == 'normal' then
     noise_vis:normal(0, 1)
 end
 
+print('checkpoint 2 complete!!!')
+
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
     gradParametersD:zero()
@@ -199,19 +199,23 @@ local fGx = function(x)
    return errG, gradParametersG
 end
 
+print('Lets train!!!')
+
 -- train
 for epoch = 1, opt.niter do
-   epoch_tm:reset()
-   for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
-      tm:reset()
-      -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-      optim.adam(fDx, parametersD, optimStateD)
+    print('cp#206!!!')
+    epoch_tm:reset()
+    for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
+        tm:reset()
+        -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
+        optim.adam(fDx, parametersD, optimStateD)
+        print('cp#212!!!')
 
-      -- (2) Update G network: maximize log(D(G(z)))
-      optim.adam(fGx, parametersG, optimStateG)
+        -- (2) Update G network: maximize log(D(G(z)))
+        optim.adam(fGx, parametersG, optimStateG)
 
-      -- logging
-      if ((i-1) / opt.batchSize) % 1 == 0 then
+        -- logging
+        if ((i-1) / opt.batchSize) % 1 == 0 then
          print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
                    .. '  Err_G: %.4f  Err_D: %.4f'):format(
                  epoch, ((i-1) / opt.batchSize),
