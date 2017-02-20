@@ -41,7 +41,7 @@ local DataLoader = paths.dofile('data/data.lua')
 local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
 ----------------------------------------------------------------------------
-print(DataLoader:get(1, 1))
+print(data:checkSample(1, 1))
 
 local function weights_init(m)
    local name = torch.type(m)

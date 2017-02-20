@@ -96,4 +96,8 @@ function data:size()
    return self._size
 end
 
+function data:checkSample(i1, i2)
+    return trainLoader:get(i1, i2)
+end
+
 return data
