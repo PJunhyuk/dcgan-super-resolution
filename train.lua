@@ -42,8 +42,6 @@ local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
 ----------------------------------------------------------------------------
 
-quit()
-
 local function weights_init(m)
    local name = torch.type(m)
    if name:find('Convolution') then
