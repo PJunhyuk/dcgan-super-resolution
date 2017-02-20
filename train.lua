@@ -254,6 +254,5 @@ for i = 1, opt.fineSize/2 do
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-real_reduced_sample:cuda()
 local fake_none_sample = netG:forward(real_reduced_sample)
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
