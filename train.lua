@@ -233,7 +233,7 @@ for epoch = 1, opt.niter do
                  epoch, ((i-1) / opt.batchSize),
                  math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
                  tm:time().real, data_tm:time().real,
-                 errG and errG or -1, errD and errD or -1))
+                 errG, errD))
       end
    end
    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
