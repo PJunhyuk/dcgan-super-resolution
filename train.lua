@@ -148,6 +148,7 @@ print('checkpoint 2 complete!!!')
 
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
+    print('fDx cp 1')
     gradParametersD:zero()
 
     -- train with real
@@ -168,6 +169,7 @@ local fDx = function(x)
     -- input:copy(real_none)
     -- label:fill(real_label)
 
+    print('fDx cp 2')
     local fake_none = netG:forward(real_none)
 
     local errVal_fake = netD:forward(fake_none)
@@ -175,9 +177,11 @@ local fDx = function(x)
 
     local errD = criterion:forward(errVal_fake, errVal_real)
     local df_do = criterion:backward(errVal_fake, errVal_real)
+    print('fDx cp 3')
     netD:backward(fake_none, df_do)
 
-   return errD, gradParametersD
+    print('fDx cp 4')
+    return errD, gradParametersD
 end
 
 -- create closure to evaluate f(X) and df/dX of generator
