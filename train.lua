@@ -42,8 +42,8 @@ local data = DataLoader.new(opt.nThreads, opt.dataset, opt)
 print("Dataset: " .. opt.dataset, " Size: ", data:size())
 ----------------------------------------------------------------------------
 print(data)
-print(data.getBatch())
-print(data.getBatch()[1])
+print(data:getBatch())
+print(data:getBatch()[1])
 
 local function weights_init(m)
    local name = torch.type(m)
