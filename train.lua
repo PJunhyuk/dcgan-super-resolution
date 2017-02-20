@@ -174,7 +174,7 @@ function PSNR(true_frame, pred)
             for c = 1, pred:size(2) do
             -- put image from -1 to 1 to 0 and 255
             prediction_error = prediction_error +
-              (pred[c][i][j] - true_frame[c][i][j])^2
+              (pred[1][c][i][j] - true_frame[1][c][i][j])^2
             end
           end
    end
