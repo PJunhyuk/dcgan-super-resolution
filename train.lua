@@ -165,7 +165,7 @@ function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
     print('calPSNR cp 1')
     if MSE > 0 then
-        local PSNR = 10 * log(1*1/MSE) / log(10)
+        local PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
     else
         local PSNR = 99
     end
