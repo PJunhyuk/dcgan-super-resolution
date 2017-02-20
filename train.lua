@@ -154,7 +154,20 @@ elseif opt.noise == 'normal' then
     noise_vis:normal(0, 1)
 end
 
+------------------
 print('check!')
+local real = data:getBatch()
+local real_small = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
+for i = 1, opt.fineSize/2 do
+    for j = 1, opt.fineSize/2 do
+        real_small[{ {}, {}, {i}, {j} }] = (real[{ {}, {}, {2*i-1}, {2*j-1} }] + real[{ {}, {}, {2*i}, {2*j-1} }] + real[{ {}, {}, {2*i-1}, {2*j} }] + real[{ {}, {}, {2*i}, {2*j} }]) / 4
+    end
+end
+print(real[{ {1}, {}, {}, {}}])
+print(real_small[{ {1}, {}, {}, {}}])
+image.save('real.png', image.toDisplayTensor(real[{ {1}, {}, {}, {}}]))
+image.save('real_small.png', image.toDisplayTensor(real_small[{ {1}, {}, {}, {}}]))
+-----------------
 
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
@@ -163,16 +176,6 @@ local fDx = function(x)
    -- train with real
    data_tm:reset(); data_tm:resume()
    local real = data:getBatch()
-
-   local real_small = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
-   for i = 1, opt.fineSize/2 do
-       for j = 1, opt.fineSize/2 do
-           real_small[{ {}, {}, {i}, {j} }] = (real[{ {}, {}, {2*i-1}, {2*j-1} }] + real[{ {}, {}, {2*i}, {2*j-1} }] + real[{ {}, {}, {2*i-1}, {2*j} }] + real[{ {}, {}, {2*i}, {2*j} }]) / 4
-       end
-   end
-
-   print(real[{ {1}, {}, {}, {}}])
-   print(real_small[{ {1}, {}, {}, {}}])
 
    data_tm:stop()
    input:copy(real)
