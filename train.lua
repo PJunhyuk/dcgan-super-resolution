@@ -190,6 +190,9 @@ function PSNR(true_frame, pred)
    return prediction_error
 end
 
+local errVal_PSNR = torch.Tensor(opt.batchSize)
+errVal_PSNR = errVal_PSNR:cuda()
+
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
     print('fDx cp 1')
@@ -222,8 +225,6 @@ local fDx = function(x)
     local errVal_fake = netD:forward(inputD)
     print('fDx cp 2.2')
 
-    local errVal_PSNR = torch.Tensor(opt.batchSize)
-    errVal_PSNR = errVal_PSNR:cuda()
     print('fDx cp 2.3')
 
     for i = 1, opt.batchSize do
@@ -245,19 +246,24 @@ end
 -- create closure to evaluate f(X) and df/dX of generator
 local fGx = function(x)
    gradParametersG:zero()
+   print('fGx cp 1')
 
    --[[ the three lines below were already executed in fDx, so save computation
    noise:uniform(-1, 1) -- regenerate random noise
    local fake = netG:forward(noise)
    input:copy(fake) ]]--
-   label:fill(real_label) -- fake labels are real for generator cost
 
    local output = netD.output -- netD:forward(input) was already executed in fDx, so save computation
-   errG = criterion:forward(output, label)
-   local df_do = criterion:backward(output, label)
-   local df_dg = netD:updateGradInput(input, df_do)
+   print('fGx cp 2')
+   errG = criterion:forward(output, errVal_PSNR)
+   print('fGx cp 3')
+   local df_do = criterion:backward(output, errVal_PSNR)
+   print('fGx cp 4')
+   local df_dg = netD:updateGradInput(inputD, df_do)
+   print('fGx cp 5')
 
-   netG:backward(noise, df_dg)
+   netG:backward(inputG, df_dg)
+   print('fGx cp 6')
    return errG, gradParametersG
 end
 
