@@ -169,9 +169,9 @@ function PSNR(true_frame, pred)
   -- if pred:size(1) == 1 then pred = pred[1] end
 
    local prediction_error = 0
-   for i = 1, pred:size(2) do
-          for j = 1, pred:size(3) do
-            for c = 1, pred:size(1) do
+   for i = 1, pred:size(3) do
+          for j = 1, pred:size(4) do
+            for c = 1, pred:size(2) do
             -- put image from -1 to 1 to 0 and 255
             prediction_error = prediction_error +
               (pred[c][i][j] - true_frame[c][i][j])^2
@@ -179,7 +179,7 @@ function PSNR(true_frame, pred)
           end
    end
    --MSE
-   prediction_error=128*128*prediction_error/(pred:size(1)*pred:size(2)*pred:size(3))
+   prediction_error=128*128*prediction_error/(pred:size(2)*pred:size(3)*pred:size(4))
 
    --PSNR
    if prediction_error>eps then
