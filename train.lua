@@ -57,8 +57,6 @@ local nc = 3
 local nz = opt.nz
 local ndf = opt.ndf
 local ngf = opt.ngf
-local real_label = 1
-local fake_label = 0
 
 -- simplify library of nn
 local SpatialBatchNormalization = nn.SpatialBatchNormalization
@@ -123,7 +121,6 @@ local input = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local inputG = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
 local inputD = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local noise = torch.Tensor(opt.batchSize, nz, 1, 1)
-local label = torch.Tensor(opt.batchSize)
 local errD, errG
 local epoch_tm = torch.Timer()
 local tm = torch.Timer()
@@ -133,7 +130,7 @@ local data_tm = torch.Timer()
 if opt.gpu > 0 then
    require 'cunn'
    cutorch.setDevice(opt.gpu)
-   input = input:cuda();  noise = noise:cuda();  label = label:cuda()
+   input = input:cuda();  noise = noise:cuda();
    inputG = inputG:cuda(); inputD = inputD:cuda()
 
    if pcall(require, 'cudnn') then
