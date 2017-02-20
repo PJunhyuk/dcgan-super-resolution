@@ -223,11 +223,13 @@ local fDx = function(x)
     print('fDx cp 2.2')
 
     local errVal_PSNR = torch.Tensor(opt.batchSize)
+    errVal_PSNR = errVal_PSNR:cuda()
     print('fDx cp 2.3')
 
     for i = 1, opt.batchSize do
-        errVal_PSNR[{ {i} }] = PSNR(real_none[{ {i}, {}, {}, {}}], fake_none[{ {i}, {}, {}, {}}], 'rgb')
+        errVal_PSNR[{ {i} }] = PSNR(real_none[{ {i}, {}, {}, {}}], fake_none[{ {i}, {}, {}, {}}])
     end
+    print(errVal_PSNR)
     print('fDx cp 5')
 
     local errD = criterion:forward(errVal_fake, errVal_PSNR)
