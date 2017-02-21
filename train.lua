@@ -144,7 +144,8 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
     if MSE > 0 then
-        PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
+        -- PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
+        PSNR = torch.log(1*1/MSE) / torch.log(10)
     else
         PSNR = 99
     end
@@ -216,8 +217,8 @@ local fGx = function(x)
     input:copy(fake) ]]--
 
     label:fill(0)
+    print(label)
     local output = netD.output -- output: output_fake
-    print(output)
     errG = criterion:forward(output, label)
     print('errG: ' .. errG)
     local df_do = criterion:backward(output, label)
