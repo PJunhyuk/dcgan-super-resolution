@@ -101,7 +101,7 @@ netD:add(nn.View(1):setNumInputDims(3))
 netD:apply(weights_init)
 
 -- set criterion
-local criterion = nn.BCECriterion()
+local criterion = nn.MSECriterion()
 ---------------------------------------------------------------------------
 optimStateG = {
    learningRate = opt.lr,
