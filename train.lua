@@ -129,7 +129,7 @@ local fake_label = 0
 require 'cunn'
 cutorch.setDevice(1) -- use GPU
 input = input:cuda();
-inputG = inputG:cuda(); inputD = inputD:cuda()
+inputG = inputG:cuda(); inputD = inputD:cuda(); label = label:cuda()
 real_none = real_none:cuda()
 
 if pcall(require, 'cudnn') then
