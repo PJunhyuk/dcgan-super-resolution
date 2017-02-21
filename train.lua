@@ -254,11 +254,8 @@ for i = 1, opt.fineSize/2 do
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
--- local inputG_sample = torch.Tensor(1, 3, opt.fineSize/2, opt.fineSize/2)
--- inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
--- inputG_sample:cuda()
-local inputG_sample = torch.Tensor(3, opt.fineSize/2, opt.fineSize/2)
-inputG_sample:copy(real_reduced_sample)
+local inputG_sample = torch.Tensor(1, 3, opt.fineSize/2, opt.fineSize/2)
+inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
 inputG_sample = inputG_sample:cuda()
 
 print(inputG_sample)
