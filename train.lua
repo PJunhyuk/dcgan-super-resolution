@@ -168,12 +168,12 @@ local fDx = function(x)
     data_tm:stop()
 
     -- train with real
-    inputD:copy(real_none)
-    label:fill(real_label)
-    local output = netD:forward(inputD) -- output_real
-    local errD_real = criterion:forward(output, label)
-    local df_do = criterion:backward(output, label)
-    netD:backward(inputD, df_do)
+    -- inputD:copy(real_none)
+    -- label:fill(real_label)
+    -- local output = netD:forward(inputD) -- output_real
+    -- local errD_real = criterion:forward(output, label)
+    -- local df_do = criterion:backward(output, label)
+    -- netD:backward(inputD, df_do)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
@@ -187,21 +187,21 @@ local fDx = function(x)
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
 
+    -- calculate PSNR
+    for i = 1, opt.batchSize do
+        errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+    end
+
     -- train with fake
     inputD:copy(fake_none)
-    label:fill(fake_label)
     local output = netD:forward(inputD) -- output_fake
-    local errD_fake = criterion:forward(output, label)
+    label:copy(errVal_PSNR:float())
+    local errD = criterion:forward(output, label)
     local df_do = criterion:backward(output, label)
     netD:backward(input, df_do)
 
-    errD = errD_real + errD_fake
-
     return errD, gradParametersD
 
-    -- for i = 1, opt.batchSize do
-    --     errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
-    -- end
 end
 
 -- create closure to evaluate f(X) and df/dX of generator
@@ -212,14 +212,14 @@ local fGx = function(x)
    noise:uniform(-1, 1) -- regenerate random noise
    local fake = netG:forward(noise)
    input:copy(fake) ]]--
-   label:fill(real_label)
 
-   local output = netD.output
+   label:fill(0)
+   local output = netD.output -- output_fake
    errG = criterion:forward(output, label)
    local df_do = criterion:backward(output, label)
-   local df_dg = netD:updateGradInput(inputD, df_do)
+   local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
 
-   netG:backward(inputG, df_dg)
+   netG:backward(inputG, df_dg) -- inputG: real_reduced
    return errG, gradParametersG
 end
 
