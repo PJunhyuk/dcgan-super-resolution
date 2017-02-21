@@ -80,8 +80,8 @@ local netG = nn.Sequential()
 -- nc x 32 x 32
 netG:add(SpatialConvolution(nc, ngf, 5, 5))
 -- ngf x 28 x 28
-netD:add(SpatialConvolution(ngf, ngf * 2, 4, 4, 2, 2, 1, 1))
-netD:add(SpatialBatchNormalization(ngf * 2)):add(nn.LeakyReLU(0.2, true))
+netG:add(SpatialConvolution(ngf, ngf * 2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.LeakyReLU(0.2, true))
 -- ngf*2 x 14 x 14
 netG:add(SpatialFullConvolution(ngf * 2, ngf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
