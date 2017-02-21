@@ -193,8 +193,9 @@ local fDx = function(x)
 
     -- train with fake
     inputD:copy(fake_none)
-    local output = netD:forward(inputD) -- output_fake
+    local output = netD:forward(inputD) -- output: output_fake
     label:copy(errVal_PSNR)
+    print(output)
     print(label)
     errD = criterion:forward(output, label)
     print('errD: ' .. errD)
@@ -215,7 +216,8 @@ local fGx = function(x)
     input:copy(fake) ]]--
 
     label:fill(0)
-    local output = netD.output -- output_fake
+    local output = netD.output -- output: output_fake
+    print(output)
     errG = criterion:forward(output, label)
     print('errG: ' .. errG)
     local df_do = criterion:backward(output, label)
