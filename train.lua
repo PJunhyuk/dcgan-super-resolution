@@ -196,10 +196,7 @@ local fDx = function(x)
     inputD:copy(fake_none)
     local output = netD:forward(inputD) -- output: output_fake
     label:copy(errVal_PSNR)
-    print(output)
-    print(label)
     errD = criterion:forward(output, label)
-    print('errD: ' .. errD)
     local df_do = criterion:backward(output, label)
     netD:backward(input, df_do)
 
@@ -217,10 +214,8 @@ local fGx = function(x)
     input:copy(fake) ]]--
 
     label:fill(0)
-    print(label)
     local output = netD.output -- output: output_fake
     errG = criterion:forward(output, label)
-    print('errG: ' .. errG)
     local df_do = criterion:backward(output, label)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
 
