@@ -7,18 +7,18 @@ require 'image'
 
 -- set default option
 opt = {
-   dataset = 'folder',       -- imagenet / lsun / folder
-   batchSize = 100,
-   loadSize = 96,
-   fineSize = 64,
-   ngf = 12,               -- #  of gen filters in first conv layer
-   ndf = 64,               -- #  of discrim filters in first conv layer
-   nThreads = 4,           -- #  of data loading threads to use
-   niter = 1,             -- #  of iter at starting learning rate
-   lr = 0.0002,            -- initial learning rate for adam
-   beta1 = 0.5,            -- momentum term of adam
-   ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
-   name = 'dcgan-sr-test-1',
+    dataset = 'folder',       -- imagenet / lsun / folder
+    batchSize = 100,
+    loadSize = 96,
+    fineSize = 64,
+    ngf = 12,               -- #  of gen filters in first conv layer
+    ndf = 64,               -- #  of discrim filters in first conv layer
+    nThreads = 4,           -- #  of data loading threads to use
+    niter = 1,             -- #  of iter at starting learning rate
+    lr = 0.0002,            -- initial learning rate for adam
+    beta1 = 0.5,            -- momentum term of adam
+    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
+    name = 'dcgan-sr-test-1',
 }
 
 -- check live opt settings
@@ -40,14 +40,14 @@ print("Dataset: " .. opt.dataset, " Size: ", data:size())
 ----------------------------------------------------------------------------
 
 local function weights_init(m)
-   local name = torch.type(m)
-   if name:find('Convolution') then
-      m.weight:normal(0.0, 0.02)
-      m:noBias()
-   elseif name:find('BatchNormalization') then
-      if m.weight then m.weight:normal(1.0, 0.02) end
-      if m.bias then m.bias:fill(0) end
-   end
+    local name = torch.type(m)
+    if name:find('Convolution') then
+        m.weight:normal(0.0, 0.02)
+        m:noBias()
+    elseif name:find('BatchNormalization') then
+        if m.weight then m.weight:normal(1.0, 0.02) end
+        if m.bias then m.bias:fill(0) end
+    end
 end
 
 local nc = 3
@@ -104,12 +104,12 @@ netD:apply(weights_init)
 local criterion = nn.MSECriterion()
 ---------------------------------------------------------------------------
 optimStateG = {
-   learningRate = opt.lr,
-   beta1 = opt.beta1,
+    learningRate = opt.lr,
+    beta1 = opt.beta1,
 }
 optimStateD = {
-   learningRate = opt.lr,
-   beta1 = opt.beta1,
+    learningRate = opt.lr,
+    beta1 = opt.beta1,
 }
 ----------------------------------------------------------------------------
 local input = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
@@ -151,6 +151,10 @@ function calPSNR(img1, img2)
     end
     return PSNR
 end
+
+function calMSE(img1, img2)
+    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
+end
 ----------------------------------------------------------------------------
 
 local parametersD, gradParametersD = netD:getParameters()
@@ -189,7 +193,8 @@ local fDx = function(x)
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
-        errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+        -- errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
 
     -- train with fake
@@ -242,16 +247,16 @@ for epoch = 1, opt.niter do
                  math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
                  tm:time().real, data_tm:time().real,
                  errG and errG or -1, errD and errD or -1))
-      end
-   end
-   parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
-   parametersG, gradParametersG = nil, nil
---    paths.mkdir('checkpoints')
---    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
---    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
-   parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
-   parametersG, gradParametersG = netG:getParameters()
-   print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
+        end
+    end
+    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
+    parametersG, gradParametersG = nil, nil
+    -- paths.mkdir('checkpoints')
+    -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
+    -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
+    parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
+    parametersG, gradParametersG = netG:getParameters()
+    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
             epoch, opt.niter, epoch_tm:time().real))
 end
 
@@ -272,4 +277,9 @@ inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
 inputG_sample = inputG_sample:cuda()
 
 local fake_none_sample = netG:forward(inputG_sample)
+
+print('MSE: ' .. calMSE(real_none_sample[{ {1}, {}, {}, {} }], fake_none_sample[{ {1}, {}, {}, {} }]:float()))
+print(real_none_sample)
+print(fake_none_sample)
+
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
