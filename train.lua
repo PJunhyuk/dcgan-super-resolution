@@ -101,7 +101,7 @@ netD:add(nn.View(1):setNumInputDims(3))
 netD:apply(weights_init)
 
 -- set criterion
-local criterion = nn.MSECriterion()
+local criterion = nn.BCECriterion()
 ---------------------------------------------------------------------------
 optimStateG = {
    learningRate = opt.lr,
@@ -267,9 +267,12 @@ for i = 1, opt.fineSize/2 do
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-local inputG_sample = torch.Tensor(1, 3, opt.fineSize/2, opt.fineSize/2)
-inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
-inputG_sample = inputG_sample:cuda()
+-- local inputG_sample = torch.Tensor(1, 3, opt.fineSize/2, opt.fineSize/2)
+-- inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
+-- inputG_sample = inputG_sample:cuda()
 
-local fake_none_sample = netG:forward(inputG_sample)
+-- local fake_none_sample = netG:forward(inputG_sample)
+
+real_reduced_sample:cuda()
+local fake_none_sample = netG:forward(real_reduced_sample)
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
