@@ -195,7 +195,9 @@ local fDx = function(x)
     inputD:copy(fake_none)
     local output = netD:forward(inputD) -- output_fake
     label:copy(errVal_PSNR)
-    local errD = criterion:forward(output, label)
+    print('label: ' .. label)
+    errD = criterion:forward(output, label)
+    print('errD: ' .. errD)
     local df_do = criterion:backward(output, label)
     netD:backward(input, df_do)
 
@@ -205,21 +207,22 @@ end
 
 -- create closure to evaluate f(X) and df/dX of generator
 local fGx = function(x)
-   gradParametersG:zero()
+    gradParametersG:zero()
 
-   --[[ the three lines below were already executed in fDx, so save computation
-   noise:uniform(-1, 1) -- regenerate random noise
-   local fake = netG:forward(noise)
-   input:copy(fake) ]]--
+    --[[ the three lines below were already executed in fDx, so save computation
+    noise:uniform(-1, 1) -- regenerate random noise
+    local fake = netG:forward(noise)
+    input:copy(fake) ]]--
 
-   label:fill(0)
-   local output = netD.output -- output_fake
-   errG = criterion:forward(output, label)
-   local df_do = criterion:backward(output, label)
-   local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
+    label:fill(0)
+    local output = netD.output -- output_fake
+    errG = criterion:forward(output, label)
+    print('errG: ' .. errG)
+    local df_do = criterion:backward(output, label)
+    local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
 
-   netG:backward(inputG, df_dg) -- inputG: real_reduced
-   return errG, gradParametersG
+    netG:backward(inputG, df_dg) -- inputG: real_reduced
+    return errG, gradParametersG
 end
 
 -- train
