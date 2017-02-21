@@ -153,7 +153,7 @@ function calPSNR(img1, img2)
 end
 
 function calMSE(img1, img2)
-    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
+    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3)*img2:size(4))
 end
 ----------------------------------------------------------------------------
 
@@ -278,8 +278,6 @@ inputG_sample = inputG_sample:cuda()
 
 local fake_none_sample = netG:forward(inputG_sample)
 
-print(real_none_sample)
-print(fake_none_sample)
-print('MSE: ' .. calMSE(real_none_sample[{ {}, {}, {} }], fake_none_sample[{ {1}, {}, {}, {} }]:float()))
+print('MSE: ' .. calMSE(inputG_sample:float(), fake_none_sample:float()))
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
