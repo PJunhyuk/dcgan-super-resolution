@@ -246,7 +246,7 @@ for epoch = 1, opt.niter do
         -- logging
         if ((i-1) / opt.batchSize) % 1 == 0 then
          print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
-                   .. '  Err_G: %.4f  Err_D: %.4f'):format(
+                   .. '  Err_G: %.16f  Err_D: %.4f'):format(
                  epoch, ((i-1) / opt.batchSize),
                  math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
                  tm:time().real, data_tm:time().real,
@@ -282,6 +282,6 @@ inputG_sample = inputG_sample:cuda()
 
 local fake_none_sample = netG:forward(inputG_sample)
 
-print('MSE: ' .. calMSENEW(inputG_sample:float(), fake_none_sample:float()))
+-- print('MSE: ' .. calMSENEW(inputG_sample:float(), fake_none_sample:float()))
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
