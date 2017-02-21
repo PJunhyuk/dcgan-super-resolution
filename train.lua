@@ -115,16 +115,22 @@ optimStateD = {
 local input = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local inputG = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
 local inputD = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
+local real_none = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local errD, errG
 local epoch_tm = torch.Timer()
 local tm = torch.Timer()
 local data_tm = torch.Timer()
+
+local label = torch.Tensor(opt.batchSize)
+local real_label = 1
+local fake_label = 0
 ----------------------------------------------------------------------------
 -- to use GPU
 require 'cunn'
 cutorch.setDevice(1) -- use GPU
 input = input:cuda();
 inputG = inputG:cuda(); inputD = inputD:cuda()
+real_none = real_none:cuda()
 
 if pcall(require, 'cudnn') then
     require 'cudnn'
@@ -156,10 +162,18 @@ errVal_PSNR = errVal_PSNR:cuda()
 local fDx = function(x)
     gradParametersD:zero()
 
-    -- train with real
+    -- get real_none from dataset
     data_tm:reset(); data_tm:resume()
+    real_none = data:getBatch()
+    data_tm:stop()
 
-    local real_none = data:getBatch()
+    -- train with real
+    inputD:copy(real_none)
+    label:fill(real_label)
+    local output = netD:forward(inputD) -- output_real
+    local errD_real = criterion:forward(output, label)
+    local df_do = criterion:backward(output, label)
+    netD:backward(inputD, df_do)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
@@ -169,25 +183,25 @@ local fDx = function(x)
         end
     end
 
-    data_tm:stop()
-
+    -- generate fake_none
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
 
+    -- train with fake
     inputD:copy(fake_none)
-    local errVal_fake = netD:forward(inputD)
+    label:fill(fake_label)
+    local output = netD:forward(inputD) -- output_fake
+    local errD_fake = criterion:forward(output, label)
+    local df_do = criterion:backward(output, label)
+    netD:backward(input, df_do)
 
-    for i = 1, opt.batchSize do
-        errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
-    end
-
-    local errD = criterion:forward(errVal_fake, errVal_PSNR)
-    print('errVal_PSNR: ' .. errVal_PSNR[1])
-    print('errD: ' .. errD)
-    local df_do = criterion:backward(errVal_fake, errVal_PSNR)
-    netD:backward(fake_none, df_do)
+    errD = errD_real + errD_fake
 
     return errD, gradParametersD
+
+    -- for i = 1, opt.batchSize do
+    --     errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+    -- end
 end
 
 -- create closure to evaluate f(X) and df/dX of generator
@@ -198,10 +212,11 @@ local fGx = function(x)
    noise:uniform(-1, 1) -- regenerate random noise
    local fake = netG:forward(noise)
    input:copy(fake) ]]--
+   label:fill(real_label)
 
-   local output = netD.output -- netD:forward(input) was already executed in fDx, so save computation
-   errG = criterion:forward(output, errVal_PSNR)
-   local df_do = criterion:backward(output, errVal_PSNR)
+   local output = netD.output
+   errG = criterion:forward(output, label)
+   local df_do = criterion:backward(output, label)
    local df_dg = netD:updateGradInput(inputD, df_do)
 
    netG:backward(inputG, df_dg)
