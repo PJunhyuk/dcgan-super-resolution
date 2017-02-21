@@ -278,8 +278,8 @@ inputG_sample = inputG_sample:cuda()
 
 local fake_none_sample = netG:forward(inputG_sample)
 
-print('MSE: ' .. calMSE(real_none_sample[{ {1}, {}, {}, {} }], fake_none_sample[{ {1}, {}, {}, {} }]:float()))
 print(real_none_sample)
 print(fake_none_sample)
+print('MSE: ' .. calMSE(real_none_sample[{ {}, {}, {} }], fake_none_sample[{ {1}, {}, {}, {} }]:float()))
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
