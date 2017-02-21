@@ -155,6 +155,10 @@ end
 function calMSE(img1, img2)
     return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3)*img2:size(4))
 end
+
+function calMSENEW(img1, img2)
+    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {}, {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3)*img1:size(4))
+end
 ----------------------------------------------------------------------------
 
 local parametersD, gradParametersD = netD:getParameters()
@@ -278,6 +282,6 @@ inputG_sample = inputG_sample:cuda()
 
 local fake_none_sample = netG:forward(inputG_sample)
 
-print('MSE: ' .. calMSE(inputG_sample:float(), fake_none_sample:float()))
+print('MSE: ' .. calMSENEW(inputG_sample:float(), fake_none_sample:float()))
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
