@@ -74,11 +74,13 @@ local netG = nn.Sequential()
 -- netG:add(SpatialFullConvolution(ngf * 2, nc, 9, 9, 1, 1, 0, 0))
 -- netG:add(nn.Tanh())
 -- -- nc x 64 x 64
-netG:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ndf)):add(nn.LeakyReLU(0.2, true))
-netG:add(SpatialFullConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
+
+netG:add(SpatialFullConvolution(ngf, ngf * 2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
-netG:add(SpatialFullConvolution(ndf * 2, nc, 4, 4, 2, 2, 1, 1))
+
+netG:add(SpatialFullConvolution(ngf * 2, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
 ---- 
 netG:apply(weights_init)
