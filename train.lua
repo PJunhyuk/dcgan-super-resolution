@@ -12,7 +12,7 @@ opt = {
    loadSize = 96,
    fineSize = 64,
    nz = 100,               -- #  of dim for Z
-   ngf = 64,               -- #  of gen filters in first conv layer
+   ngf = 3,               -- #  of gen filters in first conv layer
    ndf = 64,               -- #  of discrim filters in first conv layer
    nThreads = 4,           -- #  of data loading threads to use
    niter = 1,             -- #  of iter at starting learning rate
@@ -260,6 +260,8 @@ image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample)
 local inputG_sample = torch.Tensor(3, opt.fineSize/2, opt.fineSize/2)
 inputG_sample:copy(real_reduced_sample)
 inputG_sample:cuda()
+
+print(inputG_sample)
 
 local fake_none_sample = netG:forward(inputG_sample)
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
