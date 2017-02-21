@@ -195,7 +195,7 @@ local fDx = function(x)
     inputD:copy(fake_none)
     local output = netD:forward(inputD) -- output_fake
     label:copy(errVal_PSNR)
-    print('label: ' .. label)
+    print(label)
     errD = criterion:forward(output, label)
     print('errD: ' .. errD)
     local df_do = criterion:backward(output, label)
