@@ -11,8 +11,7 @@ opt = {
    batchSize = 100,
    loadSize = 96,
    fineSize = 64,
-   nz = 100,               -- #  of dim for Z
-   ngf = 3,               -- #  of gen filters in first conv layer
+   ngf = 12,               -- #  of gen filters in first conv layer
    ndf = 64,               -- #  of discrim filters in first conv layer
    nThreads = 4,           -- #  of data loading threads to use
    niter = 1,             -- #  of iter at starting learning rate
@@ -52,7 +51,6 @@ local function weights_init(m)
 end
 
 local nc = 3
-local nz = opt.nz
 local ndf = opt.ndf
 local ngf = opt.ngf
 
@@ -154,10 +152,6 @@ local parametersG, gradParametersG = netG:getParameters()
 local errVal_PSNR = torch.Tensor(opt.batchSize)
 errVal_PSNR = errVal_PSNR:cuda()
 
-local real_none_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
-real_none_sample = data:getBatch()[1]
-image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
-
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
     gradParametersD:zero()
@@ -246,6 +240,10 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
+local real_none_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
+real_none_sample = data:getBatch()[1]
+image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
+
 local real_reduced_sample = torch.Tensor(3, opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
     for j = 1, opt.fineSize/2 do
@@ -257,8 +255,6 @@ image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample)
 local inputG_sample = torch.Tensor(1, 3, opt.fineSize/2, opt.fineSize/2)
 inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
 inputG_sample = inputG_sample:cuda()
-
-print(inputG_sample)
 
 local fake_none_sample = netG:forward(inputG_sample)
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
