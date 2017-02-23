@@ -96,13 +96,13 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
-netG:add(SpatialFullConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- ngf x 64 x 64
-netG:add(SpatialFullConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- ngf*2 x 128 x 128
-netG:add(SpatialConvolution(ngf*2, nc, 4, 4, 2, 2, 1, 1))
+-- ngf*2 x 64 x 64
+netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
+-- ngf x 128 x 128
+netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
 -- nc x 64 x 64
 
