@@ -357,12 +357,10 @@ for i = 1, opt.fineSize/2 do
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-local inputG_sample = torch.Tensor(1, opt.fineSize/2, opt.fineSize/2)
-inputG_sample[{{1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
+local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
+inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
 inputG_sample = inputG_sample:cuda()
 
 local fake_none_sample = netG:forward(inputG_sample)
-
-print('MSE/4: ' .. calMSE(inputG_sample:float(), fake_none_sample:float()))
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
