@@ -228,7 +228,7 @@ end
 local parametersD, gradParametersD = netD:getParameters()
 local parametersG, gradParametersG = netG:getParameters()
 
-local errVal_PSNR = torch.Tensor(opt.batchSize)
+local errVal_MSE = torch.Tensor(opt.batchSize)
 
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
@@ -239,24 +239,22 @@ local fDx = function(x)
     real_color = data:getBatch()
     data_tm:stop()
 
+    -- change dataset rgb2gray
     for i = 1, opt.batchSize do
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
 
-    -- train with original
-    -- for i = 1, opt.batchSize do
-    --     for j = 1, opt.fineSize do
-    --         for k = 1, opt.fineSize do
-    --             inputD[{ {i}, {1}, {j}, {k} }] = real_none[{ {i}, {j}, {k} }]
-    --         end
-    --     end
-    -- end
+    -- train with real
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
-    local outputD = netD:forward(inputD)
+    local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
     label:fill(0)
-    local errD_real = criterion:forward(outputD, label)
+    local errD_real = criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
+
+    print('outputD')
+    print(outputD)
+    print('errD_real'); print(errD_real)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -271,22 +269,28 @@ local fDx = function(x)
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
 
-    -- calculate PSNR
+    -- calculate MSE
     for i = 1, opt.batchSize do
-        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {} }]:float(), fake_none[{ {i}, {}, {} }]:float())
+        errVal_MSE[i] = calMSE(real_none[{ {i}, {}, {} }]:float(), fake_none[{ {i}, {}, {} }]:float())
     end
 
     -- train with fake
     inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
-    outputD = netD:forward(inputD) -- output: output_fake
-
-    label:copy(errVal_PSNR)
-    local errD_fake = criterion:forward(outputD, label)
+    local outputD = netD:forward(inputD) -- inputD: fake_none / outputD: output_fake
+    label:copy(errVal_MSE)
+    local errD_fake = criterion:forward(outputD, label) -- output_fake & errVal_MSE
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    errD = errD_real + errD_fake
+    print('outputD')
+    print(outputD)
+    print('errVal_MSE')
+    print(errVal_MSE)
+    print('errD_fake'); print(errD_fake)
 
+    -- conclusion
+    errD = errD_real + errD_fake
+    print('errD'); print(errD)
     return errD, gradParametersD
 end
 
@@ -300,12 +304,16 @@ local fGx = function(x)
     input:copy(fake) ]]--
 
     label:fill(0)
-    local output = netD.output -- output: output_fake
-    errG = criterion:forward(output, label)
-    local df_do = criterion:backward(output, label)
+    local outputD = netD.output -- outputD: output_fake
+    errG = criterion:forward(outputD, label) -- output_fake & 0
+    local df_do = criterion:backward(outputD, label)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
-
     netG:backward(inputG, df_dg) -- inputG: real_reduced
+
+    print('outputD')
+    print(outputD)
+    print('errG'); print(errG)
+
     return errG, gradParametersG
 end
 
