@@ -177,8 +177,8 @@ optimStateD = {
 }
 ----------------------------------------------------------------------------
 local input = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
-local inputG = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
-local inputD = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+local inputG = torch.Tensor(opt.batchSize, nc, opt.fineSize/2, opt.fineSize/2)
+local inputD = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
 local real_none = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 local real_color = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local errD, errG
@@ -243,7 +243,14 @@ local fDx = function(x)
     data_tm:stop()
 
     -- train with original
-    inputD:copy(real_none)
+    -- for i = 1, opt.batchSize do
+    --     for j = 1, opt.fineSize do
+    --         for k = 1, opt.fineSize do
+    --             inputD[{ {i}, {1}, {j}, {k} }] = real_none[{ {i}, {j}, {k} }]
+    --         end
+    --     end
+    -- end
+    inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD)
     label:fill(0)
     local errD_real = criterion:forward(outputD, label)
@@ -259,7 +266,7 @@ local fDx = function(x)
     end
 
     -- generate fake_none
-    inputG:copy(real_reduced)
+    inputG[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
 
     -- calculate PSNR
@@ -268,7 +275,7 @@ local fDx = function(x)
     end
 
     -- train with fake
-    inputD:copy(fake_none)
+    inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
     outputD = netD:forward(inputD) -- output: output_fake
 
     label:copy(errVal_PSNR)
