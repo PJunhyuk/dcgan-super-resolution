@@ -213,6 +213,14 @@ local fDx = function(x)
     real_none = data:getBatch()
     data_tm:stop()
 
+    -- train with original
+    inputD:copy(real_none)
+    local output = netD:forward(inputD)
+    label:fill(0)
+    local errD_real = criterion:forward(output, label)
+    local df_do = criterion:backward(output, label)
+    netD:backward(inputD, df_do)
+
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.fineSize/2 do
@@ -221,38 +229,25 @@ local fDx = function(x)
         end
     end
 
-    -- print('real_none')
-    -- print(real_none[{ {1}, {}, {}, {} }])
-
-    -- print('real_reduced')
-    -- print(real_reduced[{ {1}, {}, {}, {} }])
-
     -- generate fake_none
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
-
-    -- print('fake_none')
-    -- print(fake_none[{ {1}, {}, {}, {} }])
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
         errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
 
-    -- print('errVal_MSE')
-    -- print(errVal_PSNR[1])
-
     -- train with fake
     inputD:copy(fake_none)
-    local output = netD:forward(inputD) -- output: output_fake
-
-    -- print('output_fake')
-    -- print(output[1])
+    output = netD:forward(inputD) -- output: output_fake
 
     label:copy(errVal_PSNR)
-    errD = criterion:forward(output, label)
+    local errD_fake = criterion:forward(output, label)
     local df_do = criterion:backward(output, label)
-    netD:backward(input, df_do)
+    netD:backward(inputD, df_do)
+
+    errD = errD_real + errD_fake
 
     return errD, gradParametersD
 end
