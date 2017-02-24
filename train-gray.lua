@@ -72,10 +72,7 @@ function rgb2gray(im)
 	z = z:add(0.72, g)
 	z = z:add(0.07, b)
 
-    local zk = torch.Tensor(1, w, h):zero()
-
-    zk[{ {1}, {}, {} }] = z[{ {}, {} }]
-	return zk
+    return z
 end
 
 local nc = 1
@@ -304,57 +301,57 @@ local fGx = function(x)
 end
 
 -- train
-for epoch = 1, opt.niter do
-    epoch_tm:reset()
-    for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
-        tm:reset()
-        -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-        optim.adam(fDx, parametersD, optimStateD)
+-- for epoch = 1, opt.niter do
+--     epoch_tm:reset()
+--     for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
+--         tm:reset()
+--         -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
+--         optim.adam(fDx, parametersD, optimStateD)
 
-        -- (2) Update G network: maximize log(D(G(z)))
-        optim.adam(fGx, parametersG, optimStateG)
+--         -- (2) Update G network: maximize log(D(G(z)))
+--         optim.adam(fGx, parametersG, optimStateG)
 
-        -- logging
-        if ((i-1) / opt.batchSize) % 1 == 0 then
-         print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
-                   .. '  Err_G: %.16f  Err_D: %.4f'):format(
-                 epoch, ((i-1) / opt.batchSize),
-                 math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
-                 tm:time().real, data_tm:time().real,
-                 errG and errG or -1, errD and errD or -1))
-        end
-    end
-    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
-    parametersG, gradParametersG = nil, nil
-    -- paths.mkdir('checkpoints')
-    -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
-    -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
-    parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
-    parametersG, gradParametersG = netG:getParameters()
-    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
-            epoch, opt.niter, epoch_tm:time().real))
-end
+--         -- logging
+--         if ((i-1) / opt.batchSize) % 1 == 0 then
+--          print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
+--                    .. '  Err_G: %.16f  Err_D: %.4f'):format(
+--                  epoch, ((i-1) / opt.batchSize),
+--                  math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
+--                  tm:time().real, data_tm:time().real,
+--                  errG and errG or -1, errD and errD or -1))
+--         end
+--     end
+--     parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
+--     parametersG, gradParametersG = nil, nil
+--     -- paths.mkdir('checkpoints')
+--     -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
+--     -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
+--     parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
+--     parametersG, gradParametersG = netG:getParameters()
+--     print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
+--             epoch, opt.niter, epoch_tm:time().real))
+-- end
 
 local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
 real_none_color_sample = data:getBatch()[1]
-local real_none_sample = torch.Tensor(nc, opt.fineSize, opt.fineSize)
+local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
-local real_reduced_sample = torch.Tensor(nc, opt.fineSize/2, opt.fineSize/2)
+local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
     for j = 1, opt.fineSize/2 do
-        real_reduced_sample[{{}, {i}, {j} }] = (real_none_sample[{{}, {2*i-1}, {2*j-1} }] + real_none_sample[{{}, {2*i}, {2*j-1} }] + real_none_sample[{{}, {2*i-1}, {2*j} }] + real_none_sample[{{}, {2*i}, {2*j} }]) / 4
+        real_reduced_sample[{ {i}, {j} }] = (real_none_sample[{ {2*i-1}, {2*j-1} }] + real_none_sample[{ {2*i}, {2*j-1} }] + real_none_sample[{ {2*i-1}, {2*j} }] + real_none_sample[{ {2*i}, {2*j} }]) / 4
     end
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-local inputG_sample = torch.Tensor(1, nc, opt.fineSize/2, opt.fineSize/2)
-inputG_sample[{{1}, {}, {}, {}}] = real_reduced_sample[{ {}, {}, {}}]
+local inputG_sample = torch.Tensor(1, opt.fineSize/2, opt.fineSize/2)
+inputG_sample[{{1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
 inputG_sample = inputG_sample:cuda()
 
-local fake_none_sample = netG:forward(inputG_sample)
+-- local fake_none_sample = netG:forward(inputG_sample)
 
 -- print('MSE: ' .. calMSENEW(inputG_sample:float(), fake_none_sample:float()))
 
-image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
+-- image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
