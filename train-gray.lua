@@ -50,7 +50,7 @@ local function weights_init(m)
     end
 end
 
-local nc = 3
+local nc = 1
 local ndf = opt.ndf
 local ngf = opt.ngf
 
@@ -155,6 +155,7 @@ local input = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
 local inputG = torch.Tensor(opt.batchSize, nc, opt.fineSize/2, opt.fineSize/2)
 local inputD = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
 local real_none = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
+local real_color = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local errD, errG
 local epoch_tm = torch.Timer()
 local tm = torch.Timer()
@@ -210,7 +211,10 @@ local fDx = function(x)
 
     -- get real_none from dataset
     data_tm:reset(); data_tm:resume()
-    real_none = data:getBatch()
+    real_color = data:getBatch()
+    for i = 1, opt.batchSize do
+        real_none[{ {i}, {}, {}, {} }] = rgb2gray(real_color[i])
+    end
     data_tm:stop()
 
     -- train with original
@@ -303,8 +307,10 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
+local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
+real_none_color_sample = data:getBatch()[1]
 local real_none_sample = torch.Tensor(nc, opt.fineSize, opt.fineSize)
-real_none_sample = data:getBatch()[1]
+real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
 local real_reduced_sample = torch.Tensor(nc, opt.fineSize/2, opt.fineSize/2)
