@@ -222,17 +222,17 @@ local fDx = function(x)
     end
 
     print('real_none')
-    print(real_none[ {1}, {}, {}, {} ])
+    print(real_none[{ {1}, {}, {}, {} }])
 
     print('real_reduced')
-    print(real_reduced[ {1}, {}, {}, {} ])
+    print(real_reduced[{ {1}, {}, {}, {} }])
 
     -- generate fake_none
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
 
     print('fake_none')
-    print(fake_none[ {1}, {}, {}, {} ])
+    print(fake_none[{ {1}, {}, {}, {} }])
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
