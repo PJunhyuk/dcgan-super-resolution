@@ -179,7 +179,7 @@ optimStateD = {
 local input = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
 local inputG = torch.Tensor(opt.batchSize, nc, opt.fineSize/2, opt.fineSize/2)
 local inputD = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
-local real_none = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
+local real_none = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 local real_color = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local errD, errG
 local epoch_tm = torch.Timer()
@@ -217,11 +217,11 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 -- end
 
 function calMSE(img1, img2)
-    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3)*img2:size(4))
+    return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3))
 end
 
 function calMSENEW(img1, img2)
-    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {}, {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3)*img1:size(4))
+    return (((img1[{ {1}, {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3))
 end
 ----------------------------------------------------------------------------
 
@@ -238,7 +238,7 @@ local fDx = function(x)
     data_tm:reset(); data_tm:resume()
     real_color = data:getBatch()
     for i = 1, opt.batchSize do
-        real_none[{ {i}, {}, {}, {} }] = rgb2gray(real_color[i])
+        real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
     data_tm:stop()
 
@@ -251,10 +251,10 @@ local fDx = function(x)
     netD:backward(inputD, df_do)
 
     -- generate real_reduced
-    local real_reduced = torch.Tensor(opt.batchSize, nc, opt.fineSize/2, opt.fineSize/2)
+    local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.fineSize/2 do
         for j = 1, opt.fineSize/2 do
-            real_reduced[{ {}, {}, {i}, {j} }] = (real_none[{ {}, {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {}, {2*i}, {2*j-1} }] + real_none[{ {}, {}, {2*i-1}, {2*j} }] + real_none[{ {}, {}, {2*i}, {2*j} }]) / 4
+            real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
     end
 
@@ -264,7 +264,7 @@ local fDx = function(x)
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
-        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {} }], fake_none[{ {i}, {}, {} }]:float())
     end
 
     -- train with fake
@@ -335,10 +335,12 @@ end
 local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
 real_none_color_sample = data:getBatch()[1]
 image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_sample))
+print(real_none_color_sample)
 
 local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
+print(real_none_sample)
 
 local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
@@ -347,6 +349,7 @@ for i = 1, opt.fineSize/2 do
     end
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
+print(real_reduced_sample)
 
 local inputG_sample = torch.Tensor(1, opt.fineSize/2, opt.fineSize/2)
 inputG_sample[{{1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
