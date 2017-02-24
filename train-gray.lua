@@ -237,10 +237,16 @@ local fDx = function(x)
     -- get real_none from dataset
     data_tm:reset(); data_tm:resume()
     real_color = data:getBatch()
+    data_tm:stop()
+
     for i = 1, opt.batchSize do
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
-    data_tm:stop()
+
+    print('real_color')
+    print(real_color[1])
+    print('real_none')
+    print(real_none[1])
 
     -- train with original
     -- for i = 1, opt.batchSize do
