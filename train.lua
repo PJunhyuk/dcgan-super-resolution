@@ -221,33 +221,33 @@ local fDx = function(x)
         end
     end
 
-    print('real_none')
-    print(real_none[{ {1}, {}, {}, {} }])
+    -- print('real_none')
+    -- print(real_none[{ {1}, {}, {}, {} }])
 
-    print('real_reduced')
-    print(real_reduced[{ {1}, {}, {}, {} }])
+    -- print('real_reduced')
+    -- print(real_reduced[{ {1}, {}, {}, {} }])
 
     -- generate fake_none
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
 
-    print('fake_none')
-    print(fake_none[{ {1}, {}, {}, {} }])
+    -- print('fake_none')
+    -- print(fake_none[{ {1}, {}, {}, {} }])
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
         errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
 
-    print('errVal_MSE')
-    print(errVal_PSNR[1])
+    -- print('errVal_MSE')
+    -- print(errVal_PSNR[1])
 
     -- train with fake
     inputD:copy(fake_none)
     local output = netD:forward(inputD) -- output: output_fake
 
-    print('output_fake')
-    print(output[1])
+    -- print('output_fake')
+    -- print(output[1])
 
     label:copy(errVal_PSNR)
     errD = criterion:forward(output, label)
