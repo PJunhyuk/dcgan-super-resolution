@@ -176,9 +176,9 @@ optimStateD = {
     beta1 = opt.beta1,
 }
 ----------------------------------------------------------------------------
-local input = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
-local inputG = torch.Tensor(opt.batchSize, nc, opt.fineSize/2, opt.fineSize/2)
-local inputD = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
+local input = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+local inputG = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
+local inputD = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 local real_none = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 local real_color = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local errD, errG
@@ -244,10 +244,10 @@ local fDx = function(x)
 
     -- train with original
     inputD:copy(real_none)
-    local output = netD:forward(inputD)
+    local outputD = netD:forward(inputD)
     label:fill(0)
-    local errD_real = criterion:forward(output, label)
-    local df_do = criterion:backward(output, label)
+    local errD_real = criterion:forward(outputD, label)
+    local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
     -- generate real_reduced
@@ -269,11 +269,11 @@ local fDx = function(x)
 
     -- train with fake
     inputD:copy(fake_none)
-    output = netD:forward(inputD) -- output: output_fake
+    outputD = netD:forward(inputD) -- output: output_fake
 
     label:copy(errVal_PSNR)
-    local errD_fake = criterion:forward(output, label)
-    local df_do = criterion:backward(output, label)
+    local errD_fake = criterion:forward(outputD, label)
+    local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
     errD = errD_real + errD_fake
@@ -301,46 +301,44 @@ local fGx = function(x)
 end
 
 -- train
--- for epoch = 1, opt.niter do
---     epoch_tm:reset()
---     for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
---         tm:reset()
---         -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
---         optim.adam(fDx, parametersD, optimStateD)
+for epoch = 1, opt.niter do
+    epoch_tm:reset()
+    for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
+        tm:reset()
+        -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
+        optim.adam(fDx, parametersD, optimStateD)
 
---         -- (2) Update G network: maximize log(D(G(z)))
---         optim.adam(fGx, parametersG, optimStateG)
+        -- (2) Update G network: maximize log(D(G(z)))
+        optim.adam(fGx, parametersG, optimStateG)
 
---         -- logging
---         if ((i-1) / opt.batchSize) % 1 == 0 then
---          print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
---                    .. '  Err_G: %.16f  Err_D: %.4f'):format(
---                  epoch, ((i-1) / opt.batchSize),
---                  math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
---                  tm:time().real, data_tm:time().real,
---                  errG and errG or -1, errD and errD or -1))
---         end
---     end
---     parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
---     parametersG, gradParametersG = nil, nil
---     -- paths.mkdir('checkpoints')
---     -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
---     -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
---     parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
---     parametersG, gradParametersG = netG:getParameters()
---     print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
---             epoch, opt.niter, epoch_tm:time().real))
--- end
+        -- logging
+        if ((i-1) / opt.batchSize) % 1 == 0 then
+         print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
+                   .. '  Err_G: %.16f  Err_D: %.4f'):format(
+                 epoch, ((i-1) / opt.batchSize),
+                 math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
+                 tm:time().real, data_tm:time().real,
+                 errG and errG or -1, errD and errD or -1))
+        end
+    end
+    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
+    parametersG, gradParametersG = nil, nil
+    -- paths.mkdir('checkpoints')
+    -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
+    -- torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
+    parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
+    parametersG, gradParametersG = netG:getParameters()
+    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
+            epoch, opt.niter, epoch_tm:time().real))
+end
 
 local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
 real_none_color_sample = data:getBatch()[1]
 image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_sample))
-print(real_none_color_sample)
 
 local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
-print(real_none_sample)
 
 local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
@@ -349,14 +347,13 @@ for i = 1, opt.fineSize/2 do
     end
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
-print(real_reduced_sample)
 
 local inputG_sample = torch.Tensor(1, opt.fineSize/2, opt.fineSize/2)
 inputG_sample[{{1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
 inputG_sample = inputG_sample:cuda()
 
--- local fake_none_sample = netG:forward(inputG_sample)
+local fake_none_sample = netG:forward(inputG_sample)
 
--- print('MSE: ' .. calMSENEW(inputG_sample:float(), fake_none_sample:float()))
+print('MSE/4: ' .. calMSE(inputG_sample:float(), fake_none_sample:float()))
 
--- image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
+image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
