@@ -334,6 +334,8 @@ end
 
 local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
 real_none_color_sample = data:getBatch()[1]
+image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_sample))
+
 local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
