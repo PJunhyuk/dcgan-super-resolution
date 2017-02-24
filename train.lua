@@ -140,6 +140,7 @@ netD:apply(weights_init)
 
 -- set criterion
 local criterion = nn.MSECriterion()
+criterion.sizeAverage = false
 ---------------------------------------------------------------------------
 optimStateG = {
     learningRate = opt.lr,
@@ -182,17 +183,16 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 function calPSNR(img1, img2)
     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
     if MSE > 0 then
-        -- PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
-        PSNR = torch.log(1*1/MSE) / torch.log(10)
+        PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
     else
         PSNR = 99
     end
     return PSNR
 end
 
-function calMSE(img1, img2)
-    return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3)*img2:size(4))
-end
+-- function calMSE(img1, img2)
+--     return (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3)*img2:size(4))
+-- end
 
 function calMSENEW(img1, img2)
     return (((img1[{ {1}, {}, {}, {} }] - img2[{ {}, {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3)*img1:size(4))
@@ -235,8 +235,7 @@ local fDx = function(x)
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
-        -- errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
-        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
+        errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
 
     -- train with fake
