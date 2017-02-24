@@ -260,13 +260,10 @@ local fDx = function(x)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
-    print(#real_reduced)
-    print(#real_none)
-    for k = 1, opt.batchSize do
-        for i = 1, opt.fineSize/2 do
-            for j = 1, opt.fineSize/2 do
-                real_reduced[{ {k}, {i}, {j} }] = (real_none[{ {k}, {2*i-1}, {2*j-1} }] + real_none[{ {k}, {2*i}, {2*j-1} }] + real_none[{ {k}, {2*i-1}, {2*j} }] + real_none[{ {k}, {2*i}, {2*j} }]) / 4
-            end
+    real_reduced = real_reduced:cuda()
+    for i = 1, opt.fineSize/2 do
+        for j = 1, opt.fineSize/2 do
+            real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
     end
 
