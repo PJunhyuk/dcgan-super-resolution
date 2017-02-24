@@ -87,6 +87,22 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 -- set network of Generator
 -- local netG = nn.Sequential()
 -- -- nc x 32 x 32
+-- netG:add(SpatialFullConvolution(nc, ngf * 8, 9, 9, 1, 1, 0, 0))
+-- netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.ReLU(true))
+-- -- ngf*8 x 40 x 40
+-- netG:add(SpatialFullConvolution(ngf * 8, ngf * 4, 9, 9, 1, 1, 0, 0))
+-- netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
+-- -- ngf*4 x 48 x 48
+-- netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 9, 9, 1, 1, 0, 0))
+-- netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
+-- -- ngf*2 x 56 x 56
+-- netG:add(SpatialFullConvolution(ngf * 2, nc, 9, 9, 1, 1, 0, 0))
+-- netG:add(nn.Tanh())
+-- -- nc x 64 x 64
+
+-- set network of Generator
+-- local netG = nn.Sequential()
+-- -- nc x 32 x 32
 -- netG:add(SpatialConvolution(nc, ngf, 5, 5))
 -- -- ngf x 28 x 28
 -- netG:add(SpatialConvolution(ngf, ngf * 2, 4, 4, 2, 2, 1, 1))
@@ -103,48 +119,23 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 -- -- nc x 64 x 64
 
 -- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 32 x 32
--- netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*8)):add(nn.ReLU(true))
--- -- ngf*8 x 64 x 64
--- netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
--- -- ngf*4 x 128 x 128
--- netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- -- ngf*2 x 256 x 256
--- netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
--- -- ngf x 128 x 128
--- netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
--- netG:add(nn.Tanh())
--- -- nc x 64 x 64
-
--- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
-netG:add(SpatialConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
--- ngf x 16 x 16
-netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*2)):add(nn.LeakyReLU(0.2, true))
--- ngf*2 x 8 x 8
-netG:add(SpatialConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*4)):add(nn.LeakyReLU(0.2, true))
--- ngf*4 x 4 x 4
-netG:add(SpatialFullConvolution(ngf*4, ngf*3, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*3)):add(nn.ReLU(true))
--- ngf*3 x 8 x 8
-netG:add(SpatialFullConvolution(ngf*3, ngf*2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*8)):add(nn.ReLU(true))
+-- ngf*8 x 64 x 64
+netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
+-- ngf*4 x 128 x 128
+netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- ngf*2 x 16 x 16
-netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- ngf x 32 x 32
-netG:add(SpatialFullConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
--- nc x 16 x 16
+-- ngf*2 x 256 x 256
+netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
+-- ngf x 128 x 128
+netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
+netG:add(nn.Tanh())
+-- nc x 64 x 64
 
 ---- 
 netG:apply(weights_init)
@@ -257,13 +248,13 @@ local fDx = function(x)
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
     label:fill(0)
-    local errD_real = criterion:forward(outputD, label) * 1000 -- output_real & 0
+    local errD_real = criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
     -- print('outputD')
     -- print(outputD)
-    print('errD_real'); print(errD_real)
+    -- print('errD_real'); print(errD_real)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -295,7 +286,7 @@ local fDx = function(x)
     -- print(outputD)
     -- print('errVal_MSE')
     -- print(errVal_MSE)
-    print('errD_fake'); print(errD_fake)
+    -- print('errD_fake'); print(errD_fake)
 
     -- conclusion
     errD = errD_real + errD_fake
