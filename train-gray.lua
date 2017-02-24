@@ -65,13 +65,17 @@ function rgb2gray(im)
 	local g = im:select(1, 2)
 	local b = im:select(1, 3)
 
-	local z = torch.Tensor(1, w, h):zero()
+	local z = torch.Tensor(w, h):zero()
 
 	-- z = z + 0.21r
 	z = z:add(0.21, r)
 	z = z:add(0.72, g)
 	z = z:add(0.07, b)
-	return z
+
+    local zk = torch.Tensor(1, w, h):zero()
+
+    zk[{ {1}, {}, {} }] = z[{ {}, {} }]
+	return zk
 end
 
 local nc = 1
