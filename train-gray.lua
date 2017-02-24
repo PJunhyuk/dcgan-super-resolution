@@ -217,7 +217,7 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 -- end
 
 function calMSE(img1, img2)
-    return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4*img2:size(2)*img2:size(3))
+    return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(2) * img2:size(3))
 end
 
 function calMSENEW(img1, img2)
@@ -268,6 +268,15 @@ local fDx = function(x)
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
+
+    print('real_none[{ {1}, {}, {} }]')
+    print(real_none[{ {1}, {}, {} }])
+    print('real_none[{ {1}, {}, {} }]:float()')
+    print(real_none[{ {1}, {}, {} }]:float())
+    print('fake_none[{ {1}, {}, {} }]:float()')
+    print(fake_none[{ {1}, {}, {} }]:float())
+    print(fake_none:size(2))
+    print(fake_none:size(3))
 
     -- calculate MSE
     for i = 1, opt.batchSize do
