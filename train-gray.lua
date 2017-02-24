@@ -121,7 +121,7 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 -- netG:add(nn.Tanh())
 -- -- nc x 64 x 64
 
-set network of Generator
+-- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
 netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
