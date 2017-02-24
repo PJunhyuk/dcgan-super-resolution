@@ -140,7 +140,7 @@ netD:apply(weights_init)
 
 -- set criterion
 local criterion = nn.MSECriterion()
-criterion.sizeAverage = false
+-- criterion.sizeAverage = false
 ---------------------------------------------------------------------------
 optimStateG = {
     learningRate = opt.lr,
@@ -213,14 +213,6 @@ local fDx = function(x)
     real_none = data:getBatch()
     data_tm:stop()
 
-    -- train with real
-    -- inputD:copy(real_none)
-    -- label:fill(real_label)
-    -- local output = netD:forward(inputD) -- output_real
-    -- local errD_real = criterion:forward(output, label)
-    -- local df_do = criterion:backward(output, label)
-    -- netD:backward(inputD, df_do)
-
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, 3, opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.fineSize/2 do
@@ -229,25 +221,40 @@ local fDx = function(x)
         end
     end
 
+    print('real_none')
+    print(real_none[ {1}, {}, {}, {} ])
+
+    print('real_reduced')
+    print(real_reduced[ {1}, {}, {}, {} ])
+
     -- generate fake_none
     inputG:copy(real_reduced)
     local fake_none = netG:forward(inputG)
+
+    print('fake_none')
+    print(fake_none[ {1}, {}, {}, {} ])
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
         errVal_PSNR[i] = calPSNR(real_none[{ {i}, {}, {}, {} }], fake_none[{ {i}, {}, {}, {} }]:float())
     end
 
+    print('errVal_PSNR')
+    print(errVal_PSNR[1])
+
     -- train with fake
     inputD:copy(fake_none)
     local output = netD:forward(inputD) -- output: output_fake
+
+    print('output_fake')
+    print(output[1])
+
     label:copy(errVal_PSNR)
     errD = criterion:forward(output, label)
     local df_do = criterion:backward(output, label)
     netD:backward(input, df_do)
 
     return errD, gradParametersD
-
 end
 
 -- create closure to evaluate f(X) and df/dX of generator
