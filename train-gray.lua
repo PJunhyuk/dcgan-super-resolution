@@ -248,7 +248,7 @@ local fDx = function(x)
 
     -- print('outputD')
     -- print(outputD)
-    -- print('errD_real'); print(errD_real)
+    print('errD_real'); print(errD_real)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -280,7 +280,7 @@ local fDx = function(x)
     -- print(outputD)
     -- print('errVal_MSE')
     -- print(errVal_MSE)
-    -- print('errD_fake'); print(errD_fake)
+    print('errD_fake'); print(errD_fake)
 
     -- conclusion
     errD = errD_real + errD_fake
