@@ -124,12 +124,27 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
-netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*8)):add(nn.ReLU(true))
--- ngf*8 x 64 x 64
-netG:add(SpatialConvolution(ngf*8, nc, 1, 1))
-netG:add(nn.Tanh())
--- nc x 64 x 64
+netG:add(SpatialConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
+-- ngf x 16 x 16
+netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*2)):add(nn.LeakyReLU(0.2, true))
+-- ngf*2 x 8 x 8
+netG:add(SpatialConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*4)):add(nn.LeakyReLU(0.2, true))
+-- ngf*4 x 4 x 4
+netG:add(SpatialFullConvolution(ngf*4, ngf*3, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*3)):add(nn.ReLU(true))
+-- ngf*3 x 8 x 8
+netG:add(SpatialFullConvolution(ngf*3, ngf*2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
+-- ngf*2 x 16 x 16
+netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
+-- ngf x 32 x 32
+netG:add(SpatialFullConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
+-- nc x 16 x 16
 
 ---- 
 netG:apply(weights_init)
