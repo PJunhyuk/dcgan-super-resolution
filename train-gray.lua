@@ -273,7 +273,7 @@ local fDx = function(x)
 
     -- calculate PSNR
     for i = 1, opt.batchSize do
-        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {} }], fake_none[{ {i}, {}, {} }]:float())
+        errVal_PSNR[i] = calMSE(real_none[{ {i}, {}, {} }]:float(), fake_none[{ {i}, {}, {} }]:float())
     end
 
     -- train with fake
