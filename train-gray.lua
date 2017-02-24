@@ -243,11 +243,6 @@ local fDx = function(x)
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
 
-    print('real_color')
-    print(real_color[1])
-    print('real_none')
-    print(real_none[1])
-
     -- train with original
     -- for i = 1, opt.batchSize do
     --     for j = 1, opt.fineSize do
@@ -265,9 +260,13 @@ local fDx = function(x)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
-    for i = 1, opt.fineSize/2 do
-        for j = 1, opt.fineSize/2 do
-            real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
+    print(#real_reduced)
+    print(#real_none)
+    for k = 1, opt.batchSize do
+        for i = 1, opt.fineSize/2 do
+            for j = 1, opt.fineSize/2 do
+                real_reduced[{ {k}, {i}, {j} }] = (real_none[{ {k}, {2*i-1}, {2*j-1} }] + real_none[{ {k}, {2*i}, {2*j-1} }] + real_none[{ {k}, {2*i-1}, {2*j} }] + real_none[{ {k}, {2*i}, {2*j} }]) / 4
+            end
         end
     end
 
