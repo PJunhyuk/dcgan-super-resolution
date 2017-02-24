@@ -65,7 +65,7 @@ function rgb2gray(im)
 	local g = im:select(1, 2)
 	local b = im:select(1, 3)
 
-	local z = torch.Tensor(w, h):zero()
+	local z = torch.Tensor(1, w, h):zero()
 
 	-- z = z + 0.21r
 	z = z:add(0.21, r)
