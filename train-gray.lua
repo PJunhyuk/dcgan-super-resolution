@@ -252,9 +252,9 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    print('outputD')
-    print(outputD)
-    print('errD_real'); print(errD_real)
+    -- print('outputD')
+    -- print(outputD)
+    -- print('errD_real'); print(errD_real)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -282,15 +282,15 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    print('outputD')
-    print(outputD)
-    print('errVal_MSE')
-    print(errVal_MSE)
-    print('errD_fake'); print(errD_fake)
+    -- print('outputD')
+    -- print(outputD)
+    -- print('errVal_MSE')
+    -- print(errVal_MSE)
+    -- print('errD_fake'); print(errD_fake)
 
     -- conclusion
     errD = errD_real + errD_fake
-    print('errD'); print(errD)
+    -- print('errD'); print(errD)
     return errD, gradParametersD
 end
 
@@ -310,9 +310,9 @@ local fGx = function(x)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
     netG:backward(inputG, df_dg) -- inputG: real_reduced
 
-    print('outputD')
-    print(outputD)
-    print('errG'); print(errG)
+    -- print('outputD')
+    -- print(outputD)
+    -- print('errG'); print(errG)
 
     return errG, gradParametersG
 end
