@@ -268,7 +268,7 @@ local fDx = function(x)
     end
 
     -- generate fake_none
-    inputG[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
+    inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
 
     -- calculate PSNR
