@@ -11,7 +11,7 @@ opt = {
     batchSize = 100,
     loadSize = 96,
     fineSize = 64,
-    ngf = 32,               -- #  of gen filters in first conv layer
+    ngf = 12,               -- #  of gen filters in first conv layer
     ndf = 64,               -- #  of discrim filters in first conv layer
     nThreads = 4,           -- #  of data loading threads to use
     niter = 1,             -- #  of iter at starting learning rate
@@ -136,25 +136,6 @@ netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
 -- nc x 64 x 64
-
--- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 32 x 32
--- netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*8)):add(nn.ReLU(true))
--- -- ngf*8 x 64 x 64
--- netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
--- -- ngf*4 x 128 x 128
--- netG:add(SpatialFullConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
--- -- nc x 256 x 256
--- netG:add(nn.SpatialMaxPooling(2,2,2,2))
--- -- nc x 128 x 128
--- netG:add(nn.SpatialMaxPooling(2,2,2,2))
--- -- nc x 64 x 64
--- netG:add(nn.Tanh())
--- -- nc x 64 x 64
 
 ---- 
 netG:apply(weights_init)
