@@ -374,7 +374,10 @@ print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_non
 print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
 
 local model = nn.BatchNormalization(64)
-fake_none_sample = model:forward(fake_none_sample[{ {1}, {1}, {}, {} }])
+local temp = torch.Tensor(opt.fineSize, opt.fineSize)
+temp = fake_none_sample[{ {1}, {1}, {}, {} }]
+temp = model:forward(temp)
+fake_none_sample[{ {1}, {1}, {}, {} }] = temp
 
 image.save('fake_none_sample_3.png', image.toDisplayTensor(fake_none_sample))
 
