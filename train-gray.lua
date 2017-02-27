@@ -220,9 +220,9 @@ function calMSE(img1, img2)
     return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
 end
 
-function calMSENEW(img1, img2)
-    return (((img1[{ {1}, {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3))
-end
+-- function calMSENEW(img1, img2)
+--     return (((img1[{ {1}, {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3))
+-- end
 ----------------------------------------------------------------------------
 
 local parametersD, gradParametersD = netD:getParameters()
@@ -348,6 +348,9 @@ local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
+print('real_none_sample')
+print(real_none_sample)
+
 local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
     for j = 1, opt.fineSize/2 do
@@ -355,6 +358,9 @@ for i = 1, opt.fineSize/2 do
     end
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
+
+print('real_reduced_sample')
+print(real_reduced_sample)
 
 local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
 inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
@@ -364,20 +370,5 @@ local fake_none_sample = netG:forward(inputG_sample)
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
-real_none_sample:fill(0.1)
-image.save('image_0.1.png', image.toDisplayTensor(real_none_sample))
-
-real_none_sample:fill(0.2)
-image.save('image_0.2.png', image.toDisplayTensor(real_none_sample))
-
-real_none_sample:fill(0.3)
-image.save('image_0.3.png', image.toDisplayTensor(real_none_sample))
-
-real_none_sample:fill(-0.1)
-image.save('image_-0.1.png', image.toDisplayTensor(real_none_sample))
-
-real_none_sample:fill(-0.2)
-image.save('image_-0.2.png', image.toDisplayTensor(real_none_sample))
-
-real_none_sample:fill(-0.3)
-image.save('image_-0.3.png', image.toDisplayTensor(real_none_sample))
+print('fake_sample')
+print(fake_none_sample)
