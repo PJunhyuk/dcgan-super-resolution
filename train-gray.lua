@@ -252,9 +252,8 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    -- print('outputD')
-    -- print(outputD)
-    -- print('errD_real'); print(errD_real)
+    print('outputD')
+    print(outputD)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -282,11 +281,10 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    -- print('outputD')
-    -- print(outputD)
-    -- print('errVal_MSE')
-    -- print(errVal_MSE)
-    -- print('errD_fake'); print(errD_fake)
+    print('outputD')
+    print(outputD)
+    print('errVal_MSE')
+    print(errVal_MSE)
 
     print(('errD_real: %.8f  errD_fake: %.8f'):format(errD_real, errD_fake))
 
@@ -300,11 +298,6 @@ end
 local fGx = function(x)
     gradParametersG:zero()
 
-    --[[ the three lines below were already executed in fDx, so save computation
-    noise:uniform(-1, 1) -- regenerate random noise
-    local fake = netG:forward(noise)
-    input:copy(fake) ]]--
-
     label:fill(0)
     local outputD = netD.output -- outputD: output_fake
     errG = criterion:forward(outputD, label) -- output_fake & 0
@@ -312,9 +305,8 @@ local fGx = function(x)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
     netG:backward(inputG, df_dg) -- inputG: real_reduced
 
-    -- print('outputD')
-    -- print(outputD)
-    -- print('errG'); print(errG)
+    print('outputD')
+    print(outputD)
 
     return errG, gradParametersG
 end
@@ -374,3 +366,12 @@ inputG_sample = inputG_sample:cuda()
 local fake_none_sample = netG:forward(inputG_sample)
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
+
+real_none_sample:fill(0)
+image.save('image_0.png', image.toDisplayTensor(real_none_sample))
+
+real_none_sample:fill(-1)
+image.save('image_-1.png', image.toDisplayTensor(real_none_sample))
+
+real_none_sample:fill(1)
+image.save('image_1.png', image.toDisplayTensor(real_none_sample))
