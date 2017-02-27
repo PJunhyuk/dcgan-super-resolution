@@ -373,16 +373,10 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
 print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
 
-fake_none_sample:add(0.1)
+local model = nn.BatchNormalization(64)
+fake_none_sample = model:forward(fake_none_sample)
 
-image.save('fake_none_sample_1.png', image.toDisplayTensor(fake_none_sample))
+image.save('fake_none_sample_3.png', image.toDisplayTensor(fake_none_sample))
 
-print(('fake_none_sample_1-max: %.8f  fake_none_sample_1-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
-print(('fake_none_sample_1-sum: %.8f  fake_none_sample_1-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
-
-fake_none_sample:div(2)
-
-image.save('fake_none_sample_2.png', image.toDisplayTensor(fake_none_sample))
-
-print(('fake_none_sample_2-max: %.8f  fake_none_sample_2-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
-print(('fake_none_sample_2-sum: %.8f  fake_none_sample_2-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
+print(('fake_none_sample_3-max: %.8f  fake_none_sample_3-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
+print(('fake_none_sample_3-sum: %.8f  fake_none_sample_3-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
