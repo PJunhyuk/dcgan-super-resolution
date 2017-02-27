@@ -305,9 +305,6 @@ local fGx = function(x)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
     netG:backward(inputG, df_dg) -- inputG: real_reduced
 
-    print('outputD')
-    print(outputD)
-
     return errG, gradParametersG
 end
 
@@ -367,11 +364,20 @@ local fake_none_sample = netG:forward(inputG_sample)
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
-real_none_sample:fill(0)
-image.save('image_0.png', image.toDisplayTensor(real_none_sample))
+real_none_sample:fill(0.1)
+image.save('image_0.1.png', image.toDisplayTensor(real_none_sample))
 
-real_none_sample:fill(-1)
-image.save('image_-1.png', image.toDisplayTensor(real_none_sample))
+real_none_sample:fill(0.2)
+image.save('image_0.2.png', image.toDisplayTensor(real_none_sample))
 
-real_none_sample:fill(1)
-image.save('image_1.png', image.toDisplayTensor(real_none_sample))
+real_none_sample:fill(0.3)
+image.save('image_0.3.png', image.toDisplayTensor(real_none_sample))
+
+real_none_sample:fill(-0.1)
+image.save('image_-0.1.png', image.toDisplayTensor(real_none_sample))
+
+real_none_sample:fill(-0.2)
+image.save('image_-0.2.png', image.toDisplayTensor(real_none_sample))
+
+real_none_sample:fill(-0.3)
+image.save('image_-0.3.png', image.toDisplayTensor(real_none_sample))
