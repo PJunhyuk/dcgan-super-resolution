@@ -348,8 +348,8 @@ local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
-print('real_none_sample')
-print(real_none_sample)
+print(('real_none_sample-max: %.8f  real_none_sample-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
+print(('real_none_sample-sum: %.8f  real_none_sample-std: %.8f'):format(real_none_sample:sum(), real_none_sample:std()))
 
 local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
@@ -359,8 +359,8 @@ for i = 1, opt.fineSize/2 do
 end
 image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
-print('real_reduced_sample')
-print(real_reduced_sample)
+print(('real_reduced_sample-max: %.8f  real_reduced_sample-min: %.8f'):format(real_reduced_sample:max(), real_reduced_sample:min()))
+print(('real_reduced_sample-sum: %.8f  real_reduced_sample-std: %.8f'):format(real_reduced_sample:sum(), real_reduced_sample:std()))
 
 local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
 inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
@@ -370,5 +370,5 @@ local fake_none_sample = netG:forward(inputG_sample)
 
 image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
-print('fake_sample')
-print(fake_none_sample)
+print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
+print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
