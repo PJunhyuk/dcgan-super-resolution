@@ -288,7 +288,7 @@ local fDx = function(x)
     -- print(errVal_MSE)
     -- print('errD_fake'); print(errD_fake)
 
-    print('errD_real: %.8f  errD_fake: %.8f'):format(errD_real, errD_fake)
+    print(('errD_real: %.8f  errD_fake: %.8f'):format(errD_real, errD_fake))
 
     -- conclusion
     errD = errD_real + errD_fake
