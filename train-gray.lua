@@ -263,8 +263,8 @@ local fDx = function(x)
     -- train with real
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
-    label:fill(0.001)
-    local errD_real = criterion:forward(outputD, label) -- output_real & 0.001
+    label:fill(0)
+    local errD_real = criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
@@ -283,14 +283,17 @@ local fDx = function(x)
             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
     end
-
     for i = 1, opt.batchSize do
         real_reduced[i] = normalizeImg2(real_reduced[i])
     end
 
+
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
+    for i = 1, opt.batchSize do
+        fake_none[i] = normalizeImg2(fake_none[i])
+    end
 
     -- calculate MSE
     for i = 1, opt.batchSize do
