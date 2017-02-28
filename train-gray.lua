@@ -290,12 +290,12 @@ local fDx = function(x)
     for i = 1, opt.batchSize do
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
+    real_none_temp = real_none[1]
 
     for i = 1, opt.batchSize do
         real_none[i] = normalizeImg2(real_none[i])
     end
 
-    real_none_temp = real_none[1]
 
     -- train with real
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
@@ -441,8 +441,10 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 -- print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
 -- print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
 
-
+real_none_temp = normalizeImg2(real_none_temp)
 image.save('real_none_temp.png', image.toDisplayTensor(real_none_temp))
+
+print(real_none_temp)
 
 local real_reduced_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
