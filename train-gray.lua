@@ -75,6 +75,12 @@ function rgb2gray(im)
     return z
 end
 
+function normalizeImg(img1)
+    local img_avg = img1:sum() / (img1:size(3)*img1:size(4))
+    img1:add(-img_avg):div(img1:std())
+    return img1
+end
+
 local nc = 1
 local ndf = opt.ndf
 local ngf = opt.ngf
@@ -373,11 +379,7 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
 print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
 
-local model = nn.BatchNormalization(64)
-local temp = torch.Tensor(opt.fineSize, opt.fineSize)
-temp = fake_none_sample[{ {1}, {1}, {}, {} }]
-temp = model:forward(temp)
-fake_none_sample[{ {1}, {1}, {}, {} }] = temp
+fake_none_sample = normalizeImg(fake_none_sample)
 
 image.save('fake_none_sample_3.png', image.toDisplayTensor(fake_none_sample))
 
