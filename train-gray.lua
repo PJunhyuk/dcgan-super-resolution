@@ -96,6 +96,7 @@ local SpatialBatchNormalization = nn.SpatialBatchNormalization
 local SpatialConvolution = nn.SpatialConvolution
 local SpatialFullConvolution = nn.SpatialFullConvolution
 local SpatialMaxPooling = nn.SpatialMaxPooling
+local SpatialAveragePooling = nn.SpatialAveragePooling
 
 -- set network of Generator
 -- local netG = nn.Sequential()
@@ -143,11 +144,13 @@ netG:add(SpatialBatchNormalization(ngf*4))
 netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*2))
 -- ngf*2 x 256 x 256
-netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 -- netG:add(SpatialMaxPooling(2, 2, 2, 2))
+netG:add(SpatialAveragePooling(2, 2, 2, 2))
 -- ngf x 128 x 128
-netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 -- netG:add(SpatialMaxPooling(2, 2, 2, 2))
+netG:add(SpatialAveragePooling(2, 2, 2, 2))
 -- netG:add(nn.Tanh())
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
