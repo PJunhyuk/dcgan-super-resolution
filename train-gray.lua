@@ -165,7 +165,7 @@ netG:add(SpatialConvolution(ndf * 2, ndf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ndf*4) x 4 x 4
 netG:add(SpatialConvolution(ndf * 4, ndf * 8, 4, 4))
-netG:add(nn.tanh())
+netG:add(nn.Tanh())
 -- state size: (ndf*8) x 1 x 1
 netG:add(SpatialFullConvolution(ndf * 8, ngf * 8, 4, 4))
 netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.ReLU(true))
