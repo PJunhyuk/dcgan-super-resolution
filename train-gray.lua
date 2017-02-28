@@ -234,7 +234,7 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 -- end
 
 function calMSE(img1, img2)
-    return 100*(((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
+    return 10*(((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
 end
 
 ----------------------------------------------------------------------------
