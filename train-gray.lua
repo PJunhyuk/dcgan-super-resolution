@@ -248,6 +248,9 @@ local fDx = function(x)
     -- change dataset rgb2gray
     for i = 1, opt.batchSize do
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
+    end
+
+    for i = 1, opt.batchSize do
         real_none = normalizeImg64(real_none[{ {i}, {}, {} }])
     end
 
