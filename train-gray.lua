@@ -295,7 +295,7 @@ local fDx = function(x)
         real_none[i] = normalizeImg2(real_none[i])
     end
 
-    real_none_temp[{ {}, {} }] = real_none[1]
+    real_none_temp = real_none[1]
 
     -- train with real
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
