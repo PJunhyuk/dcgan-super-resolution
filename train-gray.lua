@@ -11,7 +11,7 @@ opt = {
     batchSize = 100,
     loadSize = 96,
     fineSize = 64,
-    ngf = 12,               -- #  of gen filters in first conv layer
+    ngf = 48,               -- #  of gen filters in first conv layer
     ndf = 64,               -- #  of discrim filters in first conv layer
     nThreads = 4,           -- #  of data loading threads to use
     niter = 1,             -- #  of iter at starting learning rate
@@ -147,7 +147,7 @@ netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 2, 2, 2, 2))
 netG:add(nn.Tanh())
-netG:add(SpatialBatchNormalization(nc))
+netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
 -- nc x 64 x 64
 
 ---- 
