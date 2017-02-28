@@ -95,6 +95,7 @@ local ngf = opt.ngf
 local SpatialBatchNormalization = nn.SpatialBatchNormalization
 local SpatialConvolution = nn.SpatialConvolution
 local SpatialFullConvolution = nn.SpatialFullConvolution
+local SpatialMaxPooling = nn.SpatialMaxPooling
 
 -- set network of Generator
 -- local netG = nn.Sequential()
