@@ -254,7 +254,7 @@ local fDx = function(x)
     end
 
     for i = 1, opt.batchSize do
-        real_none = normalizeImg3(real_none[{ {i}, {}, {} }])
+        real_none = normalizeImg3(real_none[i])
     end
 
     -- train with real
