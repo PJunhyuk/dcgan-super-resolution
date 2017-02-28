@@ -387,8 +387,3 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
 print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
 print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
-
-image.save('fake_none_sample_3.png', image.toDisplayTensor(fake_none_sample))
-
-print(('fake_none_sample_3-max: %.8f  fake_none_sample_3-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
-print(('fake_none_sample_3-sum: %.8f  fake_none_sample_3-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
