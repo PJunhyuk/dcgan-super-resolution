@@ -292,7 +292,7 @@ local fDx = function(x)
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
     for i = 1, opt.batchSize do
-        fake_none[i] = normalizeImg2(fake_none[i])
+        fake_none[i] = normalizeImg3(fake_none[i])
     end
 
     -- calculate MSE
