@@ -270,6 +270,10 @@ local fDx = function(x)
 
     -- print('outputD')
     -- print(outputD)
+    print(('inputD[1]-max: %.8f  inputD[1]-min: %.8f'):format(inputD[1]:max(), inputD[1]:min()))
+    print(('inputD[1]-sum: %.8f  inputD[1]-std: %.8f'):format(inputD[1]:sum(), inputD[1]:std()))
+    print(('outputD[1]-max: %.8f  outputD[1]-min: %.8f'):format(outputD[1]:max(), outputD[1]:min()))
+    print(('outputD[1]-sum: %.8f  outputD[1]-std: %.8f'):format(outputD[1]:sum(), outputD[1]:std()))
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -278,6 +282,10 @@ local fDx = function(x)
         for j = 1, opt.fineSize/2 do
             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
+    end
+
+    for i = 1, opt.batchSize do
+        real_reduced[i] = normalizeImg2(real_reduced[i])
     end
 
     -- generate fake_none
@@ -296,6 +304,11 @@ local fDx = function(x)
     local errD_fake = criterion:forward(outputD, label) -- output_fake & errVal_MSE
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
+
+    print(('inputD[1]-max: %.8f  inputD[1]-min: %.8f'):format(inputD[1]:max(), inputD[1]:min()))
+    print(('inputD[1]-sum: %.8f  inputD[1]-std: %.8f'):format(inputD[1]:sum(), inputD[1]:std()))
+    print(('outputD[1]-max: %.8f  outputD[1]-min: %.8f'):format(outputD[1]:max(), outputD[1]:min()))
+    print(('outputD[1]-sum: %.8f  outputD[1]-std: %.8f'):format(outputD[1]:sum(), outputD[1]:std()))
 
     -- print('outputD')
     -- print(outputD)
