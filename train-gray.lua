@@ -449,7 +449,7 @@ print(real_none_temp)
 local real_reduced_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
     for j = 1, opt.fineSize/2 do
-        real_reduced_temp[{ {i}, {j} }] = (real_none_temp[{ {2*i-1}, {2*j-1} }] + real_none_temp[{ {2*i}, {2*j-1} }] + real_none_temp[{ {2*i-1}, {2*j} }] + real_none_temp[{ {2*i}, {2*j} }]) / 4
+        real_reduced_temp[{ {i}, {j} }] = (real_none_temp[{ {2*i-1}, {2*j-1} }]:float() + real_none_temp[{ {2*i}, {2*j-1} }]:float() + real_none_temp[{ {2*i-1}, {2*j} }]:float() + real_none_temp[{ {2*i}, {2*j} }]:float()) / 4
     end
 end
 image.save('real_reduced_temp.png', image.toDisplayTensor(real_reduced_temp))
