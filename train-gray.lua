@@ -11,7 +11,7 @@ opt = {
     batchSize = 100,
     loadSize = 96,
     fineSize = 64,
-    ngf = 48,               -- #  of gen filters in first conv layer
+    ngf = 32,               -- #  of gen filters in first conv layer
     ndf = 64,               -- #  of discrim filters in first conv layer
     nThreads = 4,           -- #  of data loading threads to use
     niter = 1,             -- #  of iter at starting learning rate
@@ -255,8 +255,6 @@ local fDx = function(x)
     end
 
     for i = 1, opt.batchSize do
-        print(#real_none)
-        print(#real_none[i])
         real_none[i] = normalizeImg2(real_none[i])
     end
 
@@ -268,8 +266,8 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    print('outputD')
-    print(outputD)
+    -- print('outputD')
+    -- print(outputD)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
@@ -297,10 +295,10 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    print('outputD')
-    print(outputD)
-    print('errVal_MSE')
-    print(errVal_MSE)
+    -- print('outputD')
+    -- print(outputD)
+    -- print('errVal_MSE')
+    -- print(errVal_MSE)
 
     print(('errD_real: %.8f  errD_fake: %.8f'):format(errD_real, errD_fake))
 
