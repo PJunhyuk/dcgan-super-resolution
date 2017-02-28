@@ -75,8 +75,8 @@ function rgb2gray(im)
     return z
 end
 
-function normalizeImg(img1)
-    local img_avg = img1:sum() / (img1:size(3)*img1:size(4))
+function normalizeImg64(img1)
+    local img_avg = img1:sum() / (64 * 64)
     img1:add(-img_avg):div(img1:std())
     return img1
 end
@@ -248,6 +248,7 @@ local fDx = function(x)
     -- change dataset rgb2gray
     for i = 1, opt.batchSize do
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
+        real_none = normalizeImg64(real_none[{ {i}, {}, {} }])
     end
 
     -- train with real
@@ -352,6 +353,7 @@ image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_s
 
 local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
+real_none_sample = normalizeImg64(real_none_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
 print(('real_none_sample-max: %.8f  real_none_sample-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
@@ -378,8 +380,6 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
 print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
 print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
-
-fake_none_sample = normalizeImg(fake_none_sample)
 
 image.save('fake_none_sample_3.png', image.toDisplayTensor(fake_none_sample))
 
