@@ -75,8 +75,14 @@ function rgb2gray(im)
     return z
 end
 
-function normalizeImg64(img1)
-    local img_avg = img1:sum() / (64 * 64)
+function normalizeImg3(img1)
+    local img_avg = img1:sum() / (img1:size(2) * img1:size(3))
+    img1:add(-img_avg):div(img1:std())
+    return img1
+end
+
+function normalizeImg2(img1)
+    local img_avg = img1:sum() / (img1:size(1) * img1:size(2))
     img1:add(-img_avg):div(img1:std())
     return img1
 end
@@ -226,9 +232,6 @@ function calMSE(img1, img2)
     return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
 end
 
--- function calMSENEW(img1, img2)
---     return (((img1[{ {1}, {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (4*img1:size(2)*img1:size(3))
--- end
 ----------------------------------------------------------------------------
 
 local parametersD, gradParametersD = netD:getParameters()
@@ -251,7 +254,7 @@ local fDx = function(x)
     end
 
     for i = 1, opt.batchSize do
-        real_none = normalizeImg64(real_none[{ {i}, {}, {} }])
+        real_none = normalizeImg3(real_none[{ {i}, {}, {} }])
     end
 
     -- train with real
@@ -356,7 +359,7 @@ image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_s
 
 local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
 real_none_sample = rgb2gray(real_none_color_sample)
-real_none_sample = normalizeImg64(real_none_sample)
+real_none_sample = normalizeImg2(real_none_sample)
 image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
 print(('real_none_sample-max: %.8f  real_none_sample-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
