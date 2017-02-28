@@ -300,7 +300,7 @@ local fDx = function(x)
     -- train with real
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
-    label:fill(0)
+    label:fill(0.01)
     local errD_real = criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
@@ -443,8 +443,6 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
 real_none_temp = normalizeImg2(real_none_temp)
 image.save('real_none_temp.png', image.toDisplayTensor(real_none_temp))
-
-print(real_none_temp)
 
 local real_reduced_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
 for i = 1, opt.fineSize/2 do
