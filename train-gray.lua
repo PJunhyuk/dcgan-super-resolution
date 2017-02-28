@@ -256,7 +256,7 @@ local fDx = function(x)
     for i = 1, opt.batchSize do
         print(#real_none)
         print(#real_none[i])
-        real_none = normalizeImg2(real_none[i])
+        real_none[i] = normalizeImg2(real_none[i])
     end
 
     -- train with real
