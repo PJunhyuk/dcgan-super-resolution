@@ -140,13 +140,15 @@ netG:add(SpatialBatchNormalization(ngf*8))
 netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4))
 -- ngf*4 x 128 x 128
-netG:add(SpatialFullConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(nc))
--- nc x 256 x 256
-netG:add(SpatialMaxPooling(2, 2, 2, 2))
--- nc x 128 x 128
-netG:add(SpatialMaxPooling(2, 2, 2, 2))
-netG:add(nn.Tanh())
+netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*2))
+-- ngf*2 x 256 x 256
+netG:add(SpatialConvolution(ngf*2, ngf, 2, 2, 2, 2))
+-- netG:add(SpatialMaxPooling(2, 2, 2, 2))
+-- ngf x 128 x 128
+netG:add(SpatialConvolution(ngf, nc, 2, 2, 2, 2))
+-- netG:add(SpatialMaxPooling(2, 2, 2, 2))
+-- netG:add(nn.Tanh())
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
