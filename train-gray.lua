@@ -147,7 +147,7 @@ netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 2, 2, 2, 2))
 netG:add(nn.Tanh())
-netG:add(SpatialBatchNormalization(nc)
+netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
 ---- 
