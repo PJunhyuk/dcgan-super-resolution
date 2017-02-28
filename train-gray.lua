@@ -76,13 +76,13 @@ function rgb2gray(im)
 end
 
 function normalizeImg3(img1)
-    local img_avg = img1:sum() / (img1:size(2) * img1:size(3))
+    local img_avg = img1:sum() / (img1:size()[2] * img1:size()[3])
     img1:add(-img_avg):div(img1:std())
     return img1
 end
 
 function normalizeImg2(img1)
-    local img_avg = img1:sum() / (img1:size(1) * img1:size(2))
+    local img_avg = img1:sum() / (img1:size()[1] * img1:size()[2])
     img1:add(-img_avg):div(img1:std())
     return img1
 end
@@ -254,7 +254,9 @@ local fDx = function(x)
     end
 
     for i = 1, opt.batchSize do
-        real_none = normalizeImg2(real_none[i])
+        print(#real_none)
+        print(#real_none[i])
+        real_none = normalizeImg3(real_none[i])
     end
 
     -- train with real
