@@ -159,15 +159,15 @@ local SpatialAveragePooling = nn.SpatialAveragePooling
 local netG = nn.Sequential()
 -- nc x 32 x 32
 
--- netG:add(nn.SpatialUpSamplingNearest(2))
--- netG:add(SpatialBatchNormalization(nc))
+netG:add(nn.SpatialUpSamplingNearest(2))
+netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
-netG:add(SpatialFullConvolution(nc, ngf, 2, 2, 2, 2))
-netG:add(SpatialBatchNormalization(ngf))
+-- netG:add(SpatialFullConvolution(nc, ngf, 2, 2, 2, 2))
+-- netG:add(SpatialBatchNormalization(ngf))
 -- ngf x 64 x 64
 
-netG:add(SpatialFullConvolution(ngf, ngf*2, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf*2))
 -- ngf*2 x 130 x 130
 
