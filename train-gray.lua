@@ -171,10 +171,10 @@ netG:add(SpatialBatchNormalization(ngf*4))
 netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf*2))
 -- ngf*2 x 264 x 264
-netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
+netG:add(SpatialFullConvolution(ngf*2, ngf/2, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialBatchNormalization(ngf/2))
 -- ngf x 532 x 532
-netG:add(SpatialConvolution(ngf, ngf, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialConvolution(ngf/2, ngf, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf))
 -- ngf x 264 x 264
 netG:add(SpatialConvolution(ngf, ngf, 4, 4, 2, 2, 0, 0))
