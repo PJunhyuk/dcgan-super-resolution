@@ -164,52 +164,17 @@ netG:add(SpatialBatchNormalization(nc))
 netG:add(nn.SpatialUpSamplingNearest(2))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 128 x 128
-netG:add(SpatialConvolution(nc, ngf, 5, 5, 1, 1, 0, 0))
+netG:add(nn.SpatialUpSamplingNearest(2))
+netG:add(SpatialBatchNormalization(nc))
+-- nc x 256 x 256
+-- netG:add(SpatialConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialConvolution(nc, ngf, 2, 2, 2, 2))
+netG:add(SpatialConvolution(nc, ngf, 8, 8, 2, 2, 3, 3))
 netG:add(SpatialBatchNormalization(ngf))
--- ngf x 124 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 120 x 120
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 116 x 116
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 112 x 112
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 108 x 108
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 104 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 100 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 96 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 92 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 88 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 84 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 80 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 76 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 72 x 124
-netG:add(SpatialConvolution(ngf, ngf, 5, 5, 1, 1, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 68 x 124
-netG:add(SpatialConvolution(ngf, nc, 5, 5, 1, 1, 0, 0))
+-- ngf x 128 x 128
+netG:add(SpatialConvolution(ngf, nc, 8, 8, 2, 2, 3, 3))
+-- netG:add(SpatialConvolution(nc, ngf, 2, 2, 2, 2))
+-- netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
