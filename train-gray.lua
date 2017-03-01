@@ -42,10 +42,10 @@ print("Dataset: " .. opt.dataset, " Size: ", data:size())
 local function weights_init(m)
     local name = torch.type(m)
     if name:find('Convolution') then
-        m.weight:normal(0.0, 0.02)
+        m.weight:normal(0.0, 1)
         m:noBias()
     elseif name:find('BatchNormalization') then
-        if m.weight then m.weight:normal(1.0, 0.02) end
+        if m.weight then m.weight:normal(1.0, 0.0) end
         if m.bias then m.bias:fill(0) end
     end
 end
@@ -156,54 +156,30 @@ local SpatialAveragePooling = nn.SpatialAveragePooling
 -- -- nc x 64 x 64
 
 -- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 32 x 32
-
--- netG:add(nn.SpatialUpSamplingNearest(2))
--- netG:add(SpatialBatchNormalization(nc))
--- -- nc x 64 x 64
-
--- -- netG:add(SpatialFullConvolution(nc, ngf, 2, 2, 2, 2))
--- -- netG:add(SpatialBatchNormalization(ngf))
--- -- ngf x 64 x 64
-
--- netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 0, 0))
--- netG:add(SpatialBatchNormalization(ngf*2))
--- -- ngf*2 x 130 x 130
-
--- netG:add(SpatialFullConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 0, 0))
--- netG:add(SpatialBatchNormalization(ngf*4))
--- -- ngf*4 x 262 x 262
-
--- netG:add(SpatialConvolution(ngf*4, ngf*8, 4, 4, 2, 2, 0, 0))
--- netG:add(SpatialBatchNormalization(ngf*8))
--- -- ngf*8 x 130 x 130
-
--- netG:add(SpatialConvolution(ngf*8, nc, 4, 4, 2, 2, 0, 0))
--- netG:add(SpatialBatchNormalization(nc))
--- -- nc x 64 x 64
-
--- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
 
-netG:add(SpatialFullConvolution(nc, ngf, 4, 4, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 66 x 66
+netG:add(nn.SpatialUpSamplingNearest(2))
+netG:add(SpatialBatchNormalization(nc))
+-- nc x 64 x 64
 
-netG:add(SpatialFullConvolution(ngf, ngf*2, 4, 4, 2, 2, 0, 0))
+-- netG:add(SpatialFullConvolution(nc, ngf, 2, 2, 2, 2))
+-- netG:add(SpatialBatchNormalization(ngf))
+-- ngf x 64 x 64
+
+netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf*2))
--- ngf*2 x 134 x 134
+-- ngf*2 x 130 x 130
 
 netG:add(SpatialFullConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf*4))
--- ngf*4 x 270 x 270
+-- ngf*4 x 262 x 262
 
-netG:add(SpatialConvolution(ngf*4, ngf*2, 5, 5, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf*2))
--- ngf*2 x 133 x 133
+netG:add(SpatialConvolution(ngf*4, ngf*8, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialBatchNormalization(ngf*8))
+-- ngf*8 x 130 x 130
 
-netG:add(SpatialConvolution(ngf*2, nc, 6, 6, 2, 2, 0, 0))
+netG:add(SpatialConvolution(ngf*8, nc, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
