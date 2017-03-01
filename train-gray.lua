@@ -165,9 +165,9 @@ local netG = nn.Sequential()
 -- netG:add(nn.SpatialUpSamplingNearest(2))
 -- netG:add(SpatialBatchNormalization(nc))
 
+netG:add(nn.SpatialUpSamplingBilinear(2))
 netG:add(SpatialBatchNormalization(nc))
-netG:add(nn.SpatialFractionalMaxPooling(32, 32, 64, 64))
-netG:add(SpatialBatchNormalization(nc))
+
 -- nc x 64 x 64
 netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf*4))
