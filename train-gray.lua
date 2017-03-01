@@ -256,7 +256,7 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 -- end
 
 function calMSE(img1, img2)
-    return 10*(((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
+    return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
 end
 
 ----------------------------------------------------------------------------
@@ -289,7 +289,7 @@ local fDx = function(x)
     -- train with real
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
-    label:fill(0.01)
+    label:fill(0)
     local errD_real = criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
