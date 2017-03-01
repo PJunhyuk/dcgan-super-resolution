@@ -171,7 +171,7 @@ netG:add(SpatialBatchNormalization(nc))
 netG:add(SpatialConvolution(nc, ngf, 2, 2, 2, 2))
 netG:add(SpatialBatchNormalization(ngf))
 -- ngf x 128 x 128
-netG:add(SpatialConvolution(nc, ngf, 2, 2, 2, 2))
+netG:add(SpatialConvolution(ngf, nc, 2, 2, 2, 2))
 -- netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
