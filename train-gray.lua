@@ -161,26 +161,25 @@ local netG = nn.Sequential()
 
 -- netG:add(nn.SpatialUpSamplingNearest(2))
 -- netG:add(SpatialBatchNormalization(nc))
+-- nc x 64 x 64
 
-netG:add(SpatialFullConvolution(nc, ngf*8, 2, 2, 2, 2))
-netG:add(SpatialBatchNormalization(ngf*8))
--- ngf*8 x 64 x 64
-netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf*4))
--- ngf*4 x 130 x 130
-netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialFullConvolution(nc, ngf, 2, 2, 2, 2))
+netG:add(SpatialBatchNormalization(ngf))
+-- ngf x 64 x 64
+
+netG:add(SpatialFullConvolution(ngf, ngf*2, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(ngf*2))
--- ngf*2 x 264 x 264
-netG:add(SpatialFullConvolution(ngf*2, ngf/2, 4, 4, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf/2))
--- ngf x 532 x 532
-netG:add(SpatialConvolution(ngf/2, ngf, 4, 4, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 264 x 264
-netG:add(SpatialConvolution(ngf, ngf, 4, 4, 2, 2, 0, 0))
-netG:add(SpatialBatchNormalization(ngf))
--- ngf x 130 x 130
-netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 0, 0))
+-- ngf*2 x 130 x 130
+
+netG:add(SpatialFullConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialBatchNormalization(ngf*4))
+-- ngf*4 x 264 x 264
+
+netG:add(SpatialConvolution(ngf*4, ngf*8, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialBatchNormalization(ngf*8))
+-- ngf*8 x 130 x 130
+
+netG:add(SpatialConvolution(ngf*8, nc, 4, 4, 2, 2, 0, 0))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
