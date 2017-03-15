@@ -163,8 +163,8 @@ netG:add(nn.SpatialUpSamplingNearest(2))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
-netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*2))
+netG:add(nn.SpatialUpSamplingNearest(2))
+netG:add(SpatialBatchNormalization(nc))
 -- ngf*2 x 128 x 128
 
 netG:add(SpatialFullConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 1, 1))
