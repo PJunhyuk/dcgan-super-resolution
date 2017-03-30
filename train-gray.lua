@@ -42,7 +42,7 @@ print("Dataset: " .. opt.dataset, " Size: ", data:size())
 local function weights_init(m)
     local name = torch.type(m)
     if name:find('Convolution') then
-        m.weight:normal(0.0, 1)
+        m.weight:normal(0.0, 0.02)
         m:noBias()
     elseif name:find('BatchNormalization') then
         if m.weight then m.weight:normal(1.0, 0.02) end
@@ -104,16 +104,16 @@ local netG = nn.Sequential()
 netG:add(nn.SpatialUpSamplingNearest(2))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
-netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4))
 -- ngf*4 x 128 x 128
-netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*2))
 -- ngf*2 x 256 x 256
-netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf))
 -- ngf x 128 x 128
-netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 0, 0))
+netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
 
