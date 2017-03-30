@@ -99,82 +99,20 @@ local SpatialMaxPooling = nn.SpatialMaxPooling
 local SpatialAveragePooling = nn.SpatialAveragePooling
 
 -- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 32 x 32
--- netG:add(SpatialFullConvolution(nc, ngf * 8, 9, 9, 1, 1, 0, 0))
--- netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.ReLU(true))
--- -- ngf*8 x 40 x 40
--- netG:add(SpatialFullConvolution(ngf * 8, ngf * 4, 9, 9, 1, 1, 0, 0))
--- netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
--- -- ngf*4 x 48 x 48
--- netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 9, 9, 1, 1, 0, 0))
--- netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
--- -- ngf*2 x 56 x 56
--- netG:add(SpatialFullConvolution(ngf * 2, nc, 9, 9, 1, 1, 0, 0))
--- netG:add(nn.Tanh())
--- -- nc x 64 x 64
-
--- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 32 x 32
--- netG:add(SpatialConvolution(nc, ngf, 5, 5))
--- -- ngf x 28 x 28
--- netG:add(SpatialConvolution(ngf, ngf * 2, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.LeakyReLU(0.2, true))
--- -- ngf*2 x 14 x 14
--- netG:add(SpatialFullConvolution(ngf * 2, ngf * 4, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
--- -- ngf*4 x 28 x 28
--- netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 5, 5))
--- netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
--- -- ngf*2 x 32 x 32
--- netG:add(SpatialFullConvolution(ngf * 2, nc, 4, 4, 2, 2, 1, 1))
--- netG:add(nn.Tanh())
--- -- nc x 64 x 64
-
--- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 32 x 32
--- netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*8))
--- -- ngf*8 x 64 x 64
--- netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*4))
--- -- ngf*4 x 128 x 128
--- netG:add(SpatialFullConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(nc))
--- -- ngf*2 x 256 x 256
--- -- netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
--- -- netG:add(SpatialMaxPooling(2, 2, 2, 2))
--- netG:add(SpatialAveragePooling(2, 2, 2, 2))
--- -- ngf x 128 x 128
--- -- netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
--- -- netG:add(SpatialMaxPooling(2, 2, 2, 2))
--- netG:add(SpatialAveragePooling(2, 2, 2, 2))
--- -- netG:add(nn.Tanh())
--- netG:add(SpatialBatchNormalization(nc))
--- -- nc x 64 x 64
-
--- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
-
 netG:add(nn.SpatialUpSamplingNearest(2))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
-
 netG:add(nn.SpatialUpSamplingNearest(2))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 128 x 128
-
 netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4))
 -- ngf*4 x 256 x 256
-
 netG:add(SpatialConvolution(ngf*4, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf))
 -- ngf x 128 x 128
-
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(nc))
 -- nc x 64 x 64
@@ -403,6 +341,7 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
+-- test
 local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
 real_none_color_sample = data:getBatch()[1]
 image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_sample))
