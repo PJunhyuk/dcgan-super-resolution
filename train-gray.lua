@@ -188,6 +188,7 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 -- calPSNR function
 function calPSNR(img1, img2)
     local MSE = (((img1[{ {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (img2:size(1)*img2:size(2))
+    print(('MSE: %.4f'):format(MSE))
     if MSE > 0 then
         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
     else
