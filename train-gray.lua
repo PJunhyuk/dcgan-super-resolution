@@ -186,15 +186,15 @@ end
 netD:cuda();           netG:cuda();           criterion:cuda()
 ----------------------------------------------------------------------------
 -- calPSNR function
--- function calPSNR(img1, img2)
---     local MSE = (((img1[{ {1}, {}, {}, {} }] - img2[{ {1}, {}, {}, {} }]):pow(2)):sum()) / (img2:size(2)*img2:size(3)*img2:size(4))
---     if MSE > 0 then
---         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
---     else
---         PSNR = 99
---     end
---     return PSNR
--- end
+function calPSNR(img1, img2)
+    local MSE = (((img1[{ {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (img2:size(1)*img2:size(2))
+    if MSE > 0 then
+        PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
+    else
+        PSNR = 99
+    end
+    return PSNR
+end
 
 function calMSE(img1, img2)
     return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
@@ -382,8 +382,16 @@ function testSample(real_none_color_sample)
     local fake_none_sample = netG:forward(inputG_sample)
     image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
-    -- print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
-    -- print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
+    print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
+    print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
+
+    print(('PSNR btwn real_none_sample & real_none_2x_sample: %.4f'):format(calPSNR(real_none_sample, real_none_2x_sample)))
+
+    local fake_none_sample_2 = torch.Tensor(opt.fineSize, opt.fineSize)
+    fake_none_sample_2[{ {}, {} }] = fake_none_sample[{ {1}, {1}, {}, {} }]
+
+    print(('PSNR btwn real_none_sample & fake_none_sample: %.4f'):format(calPSNR(real_none_sample, fake_none_sample_2)))
+    
 end
 
 -- test
