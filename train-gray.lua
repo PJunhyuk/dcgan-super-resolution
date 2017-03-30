@@ -338,35 +338,41 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
--- test
-local real_none_color_sample = torch.Tensor(3, opt.fineSize, opt.fineSize)
-real_none_color_sample = data:getBatch()[1]
-image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_sample))
+-- set testSample function for test
+function testSample(real_none_color_sample)
+    image.save('real_none_color_sample.png', image.toDisplayTensor(real_none_color_sample))
 
-local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
-real_none_sample = rgb2gray(real_none_color_sample)
-real_none_sample = normalizeImg2(real_none_sample)
-image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
+    local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
+    real_none_sample = rgb2gray(real_none_color_sample)
+    real_none_sample = normalizeImg2(real_none_sample)
+    image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
--- print(('real_none_sample-max: %.8f  real_none_sample-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
--- print(('real_none_sample-sum: %.8f  real_none_sample-std: %.8f'):format(real_none_sample:sum(), real_none_sample:std()))
+    -- print(('real_none_sample-max: %.8f  real_none_sample-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
+    -- print(('real_none_sample-sum: %.8f  real_none_sample-std: %.8f'):format(real_none_sample:sum(), real_none_sample:std()))
 
-local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
-for i = 1, opt.fineSize/2 do
-    for j = 1, opt.fineSize/2 do
-        real_reduced_sample[{ {i}, {j} }] = (real_none_sample[{ {2*i-1}, {2*j-1} }] + real_none_sample[{ {2*i}, {2*j-1} }] + real_none_sample[{ {2*i-1}, {2*j} }] + real_none_sample[{ {2*i}, {2*j} }]) / 4
+    local real_reduced_sample = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+    for i = 1, opt.fineSize/2 do
+        for j = 1, opt.fineSize/2 do
+            real_reduced_sample[{ {i}, {j} }] = (real_none_sample[{ {2*i-1}, {2*j-1} }] + real_none_sample[{ {2*i}, {2*j-1} }] + real_none_sample[{ {2*i-1}, {2*j} }] + real_none_sample[{ {2*i}, {2*j} }]) / 4
+        end
     end
+    image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
+
+    -- print(('real_reduced_sample-max: %.8f  real_reduced_sample-min: %.8f'):format(real_reduced_sample:max(), real_reduced_sample:min()))
+    -- print(('real_reduced_sample-sum: %.8f  real_reduced_sample-std: %.8f'):format(real_reduced_sample:sum(), real_reduced_sample:std()))
+
+    local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
+    inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
+    inputG_sample = inputG_sample:cuda()
+    local fake_none_sample = netG:forward(inputG_sample)
+    image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
+
+    -- print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
+    -- print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
 end
-image.save('real_reduced_sample.png', image.toDisplayTensor(real_reduced_sample))
 
--- print(('real_reduced_sample-max: %.8f  real_reduced_sample-min: %.8f'):format(real_reduced_sample:max(), real_reduced_sample:min()))
--- print(('real_reduced_sample-sum: %.8f  real_reduced_sample-std: %.8f'):format(real_reduced_sample:sum(), real_reduced_sample:std()))
+-- test
+local real_none_color_test = torch.Tensor(3, opt.fineSize, opt.fineSize)
+real_none_color_test = data:getBatch()[1]
 
-local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
-inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
-inputG_sample = inputG_sample:cuda()
-local fake_none_sample = netG:forward(inputG_sample)
-image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
-
--- print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
--- print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
+testSample(real_none_color_test)
