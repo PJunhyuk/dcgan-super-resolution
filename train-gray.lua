@@ -198,7 +198,7 @@ function calPSNR(img1, img2)
 end
 
 function calMSE(img1, img2)
-    return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (4 * img2:size(3) * img2:size(4))
+    return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (img2:size(3) * img2:size(4))
 end
 
 ----------------------------------------------------------------------------
@@ -235,13 +235,6 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    -- print('outputD')
-    -- print(outputD)
-    -- print(('inputD[1]-max: %.8f  inputD[1]-min: %.8f'):format(inputD[1]:max(), inputD[1]:min()))
-    -- print(('inputD[1]-sum: %.8f  inputD[1]-std: %.8f'):format(inputD[1]:sum(), inputD[1]:std()))
-    -- print(('outputD[1]-max: %.8f  outputD[1]-min: %.8f'):format(outputD[1]:max(), outputD[1]:min()))
-    -- print(('outputD[1]-sum: %.8f  outputD[1]-std: %.8f'):format(outputD[1]:sum(), outputD[1]:std()))
-
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
     real_reduced = real_reduced:cuda()
@@ -274,16 +267,6 @@ local fDx = function(x)
     local errD_fake = criterion:forward(outputD, label) -- output_fake & errVal_MSE
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
-
-    -- print(('inputD[1]-max: %.8f  inputD[1]-min: %.8f'):format(inputD[1]:max(), inputD[1]:min()))
-    -- print(('inputD[1]-sum: %.8f  inputD[1]-std: %.8f'):format(inputD[1]:sum(), inputD[1]:std()))
-    -- print(('outputD[1]-max: %.8f  outputD[1]-min: %.8f'):format(outputD[1]:max(), outputD[1]:min()))
-    -- print(('outputD[1]-sum: %.8f  outputD[1]-std: %.8f'):format(outputD[1]:sum(), outputD[1]:std()))
-
-    -- print('outputD')
-    -- print(outputD)
-    -- print('errVal_MSE')
-    -- print(errVal_MSE)
 
     print(('errD_real: %.8f  errD_fake: %.8f'):format(errD_real, errD_fake))
 
