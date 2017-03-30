@@ -101,10 +101,10 @@ local SpatialAveragePooling = nn.SpatialAveragePooling
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
-netG:add(nn.SpatialUpSamplingNearest(2))
-netG:add(SpatialBatchNormalization(nc))
--- nc x 64 x 64
-netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*8))
+-- ngf*8 x 64 x 64
+netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4))
 -- ngf*4 x 128 x 128
 netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
