@@ -166,8 +166,6 @@ local epoch_tm = torch.Timer()
 local tm = torch.Timer()
 local data_tm = torch.Timer()
 
-local real_none_temp = torch.Tensor(opt.fineSize, opt.fineSize)
-
 local label = torch.Tensor(opt.batchSize)
 local real_label = 1
 local fake_label = 0
@@ -222,7 +220,6 @@ local fDx = function(x)
     for i = 1, opt.batchSize do
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
-    real_none_temp = real_none[1]
 
     for i = 1, opt.batchSize do
         real_none[i] = normalizeImg2(real_none[i])
@@ -373,20 +370,3 @@ image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
 
 -- print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
 -- print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
-
-real_none_temp = normalizeImg2(real_none_temp)
-image.save('real_none_temp.png', image.toDisplayTensor(real_none_temp))
-
-local real_reduced_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
-for i = 1, opt.fineSize/2 do
-    for j = 1, opt.fineSize/2 do
-        real_reduced_temp[{ {i}, {j} }] = (real_none_temp[{ {2*i-1}, {2*j-1} }]:float() + real_none_temp[{ {2*i}, {2*j-1} }]:float() + real_none_temp[{ {2*i-1}, {2*j} }]:float() + real_none_temp[{ {2*i}, {2*j} }]:float()) / 4
-    end
-end
-image.save('real_reduced_temp.png', image.toDisplayTensor(real_reduced_temp))
-
-local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
-inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_temp[{ {}, {}}]
-inputG_sample = inputG_sample:cuda()
-local fake_none_temp = netG:forward(inputG_sample)
-image.save('fake_none_temp.png', image.toDisplayTensor(fake_none_temp))
