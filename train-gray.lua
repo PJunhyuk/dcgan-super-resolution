@@ -388,7 +388,10 @@ function testSample(real_none_color_sample)
     print(('PSNR btwn real_none_sample & real_none_2x_sample: %.4f'):format(calPSNR(real_none_sample, real_none_2x_sample)))
 
     local fake_none_sample_2 = torch.Tensor(opt.fineSize, opt.fineSize)
-    fake_none_sample_2[{ {}, {} }] = fake_none_sample[{ {1}, {1}, {}, {} }]
+
+    print(fake_none_sample)
+    
+    fake_none_sample_2[{ {}, {} }] = fake_none_sample[{ {1}, {}, {} }]
 
     print(('PSNR btwn real_none_sample & fake_none_sample: %.4f'):format(calPSNR(real_none_sample, fake_none_sample_2)))
     
