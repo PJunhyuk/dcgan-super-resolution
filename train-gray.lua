@@ -392,7 +392,7 @@ function testSample(real_none_color_sample)
     print(real_none_2x_sample)
     print(fake_none_sample)
 
-    fake_none_sample_2[{ {}, {} }] = fake_none_sample[{ {1}, {1}, {}, {} }]
+    fake_none_sample_2[{ {}, {} }] = fake_none_sample[{ {1}, {1}, {}, {} }]:float()
 
     print(fake_none_sample_2)
 
