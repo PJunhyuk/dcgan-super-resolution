@@ -115,7 +115,6 @@ netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
-netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
 -- nc x 64 x 64
 
 ---- 
