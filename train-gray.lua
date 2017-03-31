@@ -75,17 +75,17 @@ function rgb2gray(im)
     return z
 end
 
-function normalizeImg3(img1)
-    local img_avg = img1:sum() / (img1:size()[2] * img1:size()[3])
-    img1:add(-img_avg):div(img1:std())
-    return img1
-end
+-- function normalizeImg3(img1)
+--     local img_avg = img1:sum() / (img1:size()[2] * img1:size()[3])
+--     img1:add(-img_avg):div(img1:std())
+--     return img1
+-- end
 
-function normalizeImg2(img1)
-    local img_avg = img1:sum() / (img1:size()[1] * img1:size()[2])
-    img1:add(-img_avg):div(img1:std())
-    return img1
-end
+-- function normalizeImg2(img1)
+--     local img_avg = img1:sum() / (img1:size()[1] * img1:size()[2])
+--     img1:add(-img_avg):div(img1:std())
+--     return img1
+-- end
 
 local nc = 1
 local ndf = opt.ndf
@@ -114,7 +114,7 @@ netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
+netG:add(nn.Tanh())
 -- nc x 64 x 64
 
 ---- 
@@ -222,9 +222,9 @@ local fDx = function(x)
         real_none[{ {i}, {}, {} }] = rgb2gray(real_color[i])
     end
 
-    for i = 1, opt.batchSize do
-        real_none[i] = normalizeImg2(real_none[i])
-    end
+    -- for i = 1, opt.batchSize do
+    --     real_none[i] = normalizeImg2(real_none[i])
+    -- end
 
 
     -- train with real
@@ -243,17 +243,17 @@ local fDx = function(x)
             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
     end
-    for i = 1, opt.batchSize do
-        real_reduced[i] = normalizeImg2(real_reduced[i])
-    end
+    -- for i = 1, opt.batchSize do
+    --     real_reduced[i] = normalizeImg2(real_reduced[i])
+    -- end
 
 
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG)
-    for i = 1, opt.batchSize do
-        fake_none[i] = normalizeImg3(fake_none[i])
-    end
+    -- for i = 1, opt.batchSize do
+    --     fake_none[i] = normalizeImg3(fake_none[i])
+    -- end
 
     -- calculate MSE
     for i = 1, opt.batchSize do
@@ -329,10 +329,7 @@ function testSample(real_none_color_sample)
     local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
     real_none_sample = rgb2gray(real_none_color_sample)
 
-    print(('real_none_sample_original-max: %.8f  real_none_sample_original-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
-    print(('real_none_sample_original-sum: %.8f  real_none_sample_original-std: %.8f'):format(real_none_sample:sum(), real_none_sample:std()))
-    
-    real_none_sample = normalizeImg2(real_none_sample)
+    -- real_none_sample = normalizeImg2(real_none_sample)
     image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
     print(('real_none_sample-max: %.8f  real_none_sample-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
@@ -358,7 +355,7 @@ function testSample(real_none_color_sample)
             real_none_2x_sample[{ {2*i-1}, {2*j-1} }] = real_reduced_sample[{ {i}, {j} }]
         end
     end
-    real_none_2x_sample = normalizeImg2(real_none_2x_sample)
+    -- real_none_2x_sample = normalizeImg2(real_none_2x_sample)
     image.save('real_none_2x_sample.png', image.toDisplayTensor(real_none_2x_sample))
 
     print(('real_none_2x_sample-max: %.8f  real_none_2x_sample-min: %.8f'):format(real_none_2x_sample:max(), real_none_2x_sample:min()))
