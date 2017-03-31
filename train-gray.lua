@@ -114,7 +114,7 @@ netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
-netG:add(nn.Sigmoid())
+netG:add(nn.Tanh())
 -- nc x 64 x 64
 
 ---- 
