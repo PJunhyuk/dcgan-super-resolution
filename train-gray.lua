@@ -328,6 +328,10 @@ function testSample(real_none_color_sample)
 
     local real_none_sample = torch.Tensor(opt.fineSize, opt.fineSize)
     real_none_sample = rgb2gray(real_none_color_sample)
+
+    print(('real_none_sample_original-max: %.8f  real_none_sample_original-min: %.8f'):format(real_none_sample:max(), real_none_sample:min()))
+    print(('real_none_sample_original-sum: %.8f  real_none_sample_original-std: %.8f'):format(real_none_sample:sum(), real_none_sample:std()))
+    
     real_none_sample = normalizeImg2(real_none_sample)
     image.save('real_none_sample.png', image.toDisplayTensor(real_none_sample))
 
