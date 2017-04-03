@@ -345,7 +345,8 @@ function testSample(real_none_color_sample)
     print(('real_reduced_sample-max: %.8f  real_reduced_sample-min: %.8f'):format(real_reduced_sample:max(), real_reduced_sample:min()))
     print(('real_reduced_sample-sum: %.8f  real_reduced_sample-std: %.8f'):format(real_reduced_sample:sum(), real_reduced_sample:std()))
 
-    local real_none_2x_sample = torch.Tensor(opt.fineSize, opt.fineSize)
+
+    local real_none_bilinear_sample = torch.Tensor(opt.fineSize, opt.fineSize)
     -- for i = 1, opt.fineSize/2 do
     --     for j = 1, opt.fineSize/2 do
     --         real_none_2x_sample[{ {2*i}, {2*j} }] = real_reduced_sample[{ {i}, {j} }]
@@ -356,12 +357,12 @@ function testSample(real_none_color_sample)
     -- end
     -- -- real_none_2x_sample = normalizeImg2(real_none_2x_sample)
 
-    real_none_2x_sample = image.scale(real_reduced_sample, opt.fineSize, opt.fineSize, bilinear)
+    real_none_bilinear_sample = image.scale(real_reduced_sample, opt.fineSize, opt.fineSize, bilinear)
 
-    image.save('real_none_2x_sample.png', image.toDisplayTensor(real_none_2x_sample))
+    image.save('real_none_bilinear_sample.png', image.toDisplayTensor(real_none_bilinear_sample))
 
-    print(('real_none_2x_sample-max: %.8f  real_none_2x_sample-min: %.8f'):format(real_none_2x_sample:max(), real_none_2x_sample:min()))
-    print(('real_none_2x_sample-sum: %.8f  real_none_2x_sample-std: %.8f'):format(real_none_2x_sample:sum(), real_none_2x_sample:std()))
+    print(('real_none_bilinear_sample-max: %.8f  real_none_bilinear_sample-min: %.8f'):format(real_none_bilinear_sample:max(), real_none_bilinear_sample:min()))
+    print(('real_none_bilinear_sample-sum: %.8f  real_none_bilinear_sample-std: %.8f'):format(real_none_bilinear_sample:sum(), real_none_bilinear_sample:std()))
 
 
     local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
