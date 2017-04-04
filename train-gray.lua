@@ -364,23 +364,23 @@ function testSample(real_none_color_sample)
     print(('real_none_bilinear_sample-max: %.8f  real_none_bilinear_sample-min: %.8f'):format(real_none_bilinear_sample:max(), real_none_bilinear_sample:min()))
     print(('real_none_bilinear_sample-sum: %.8f  real_none_bilinear_sample-std: %.8f'):format(real_none_bilinear_sample:sum(), real_none_bilinear_sample:std()))
 
+    print(('PSNR btwn real_none_sample & real_none_bilinear_sample: %.4f'):format(calPSNR(real_none_sample, real_none_bilinear_sample)))
+
 
     local inputG_sample = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
     inputG_sample[{{1}, {1}, {}, {}}] = real_reduced_sample[{ {}, {}}]
     inputG_sample = inputG_sample:cuda()
     local fake_none_sample = netG:forward(inputG_sample)
-    image.save('fake_none_sample.png', image.toDisplayTensor(fake_none_sample))
-
-    print(('fake_none_sample-max: %.8f  fake_none_sample-min: %.8f'):format(fake_none_sample:max(), fake_none_sample:min()))
-    print(('fake_none_sample-sum: %.8f  fake_none_sample-std: %.8f'):format(fake_none_sample:sum(), fake_none_sample:std()))
-
-    print(('PSNR btwn real_none_sample & real_none_2x_sample: %.4f'):format(calPSNR(real_none_sample, real_none_2x_sample)))
 
     local fake_none_sample_2 = torch.Tensor(opt.fineSize, opt.fineSize)
-
     fake_none_sample_2[{ {}, {} }] = fake_none_sample[{ {1}, {1}, {}, {} }]:float()
 
-    print(('PSNR btwn real_none_sample & fake_none_sample: %.4f'):format(calPSNR(real_none_sample, fake_none_sample_2)))
+    image.save('fake_none_sample_2.png', image.toDisplayTensor(fake_none_sample_2))
+
+    print(('fake_none_sample_2-max: %.8f  fake_none_sample_2-min: %.8f'):format(fake_none_sample_2:max(), fake_none_sample_2:min()))
+    print(('fake_none_sample_2-sum: %.8f  fake_none_sample_2-std: %.8f'):format(fake_none_sample_2:sum(), fake_none_sample_2:std()))
+
+    print(('PSNR btwn real_none_sample & fake_none_sample_2: %.4f'):format(calPSNR(real_none_sample, fake_none_sample_2)))
     
 end
 
