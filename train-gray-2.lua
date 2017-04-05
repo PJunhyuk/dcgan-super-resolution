@@ -43,9 +43,9 @@ end
 local netG = nn.Sequential()
 -- nc x 32 x 32
 netG:add(nn.SpatialUpSamplingNearest(2))
-netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
+netG:add(SpatialBatchNormalization(1)):add(nn.ReLU(true))
 -- nc x 64 x 64
-netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialFullConvolution(1, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
 -- ngf*4 x 128 x 128
 netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
@@ -53,7 +53,7 @@ netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
 -- ngf*2 x 256 x 256
 netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 -- ngf x 128 x 128
-netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialConvolution(ngf, 1, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
 -- nc x 64 x 64
 
@@ -62,7 +62,7 @@ netG:apply(weights_init)
 -- set network of Discriminator
 local netD = nn.Sequential()
 ---- input is (nc) x 64 x 64
-netD:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
+netD:add(SpatialConvolution(1, ndf, 4, 4, 2, 2, 1, 1))
 netD:add(nn.LeakyReLU(0.2, true))
 ---- state size: (ndf) x 32 x 32
 netD:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
