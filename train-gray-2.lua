@@ -70,7 +70,7 @@ netG:add(nn.SpatialUpSamplingNearest(2))
 netG:add(nn.SpatialUpSamplingNearest(2))
 -- nc x 256 x 256
 netG:add(SpatialConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Sigmoid())
