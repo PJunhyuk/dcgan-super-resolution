@@ -12,7 +12,7 @@ opt = {
     niter = 1,             -- #  of iter at starting learning rate
     lr = 0.0002,            -- initial learning rate for adam
     beta1 = 0.5,            -- momentum term of adam
-    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
+    ntrain = 10000,     -- #  of examples per epoch. math.huge for full dataset
     name = 'dcgan-sr-test-1',
 }
 
