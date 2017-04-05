@@ -304,9 +304,6 @@ image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train)
 print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
 print(('real_bilinear_train-sum: %.8f  real_bilinear_train-std: %.8f'):format(real_bilinear_train:sum(), real_bilinear_train:std()))
 
-print(real_none_train)
-print(real_bilinear_train)
-
 print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
 
 local inputG_train = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
@@ -317,6 +314,7 @@ local fake_none_train_temp = netG:forward(inputG_train)
 local fake_none_train = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_train[{ {}, {} }] = fake_none_train_temp[{ {1}, {1}, {}, {} }]:float()
 
+fake_none_train = fake_none_train:float()
 image.save('fake_none_train.jpg', image.toDisplayTensor(fake_none_train))
 
 print(('fake_none_train-max: %.8f  fake_none_train-min: %.8f'):format(fake_none_train:max(), fake_none_train:min()))
@@ -349,6 +347,7 @@ local real_bilinear_test = torch.Tensor(opt.fineSize, opt.fineSize)
 
 real_bilinear_test = image.scale(real_reduced_test, opt.fineSize, opt.fineSize, bilinear)
 
+real_bilinear_test = real_bilinear_test:float()
 image.save('real_bilinear_test.jpg', image.toDisplayTensor(real_bilinear_test))
 
 print(('real_bilinear_test-max: %.8f  real_bilinear_test-min: %.8f'):format(real_bilinear_test:max(), real_bilinear_test:min()))
@@ -364,6 +363,7 @@ local fake_none_test_temp = netG:forward(inputG_test)
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_test[{ {}, {} }] = fake_none_test_temp[{ {1}, {1}, {}, {} }]:float()
 
+fake_none_test = fake_none_test:float()
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 
 print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
