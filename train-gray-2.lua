@@ -191,7 +191,7 @@ local fDx = function(x)
 
     -- train with real
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
-    label:fill(0)
+    label:fill(0.001)
     local errD_real = criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
@@ -235,7 +235,7 @@ end
 local fGx = function(x)
     gradParametersG:zero()
 
-    label:fill(0)
+    label:fill(0.001)
     local outputD = netD.output -- outputD: output_fake
     errG = criterion:forward(outputD, label) -- output_fake & 0
     local df_do = criterion:backward(outputD, label)
