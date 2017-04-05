@@ -101,8 +101,8 @@ optimStateD = {
 }
 ----------------------------------------------------------------------------
 local input = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
-local inputG = torch.Tensor(opt.batchSize, 1, opt.fineSize, opt.fineSize)
-local inputD = torch.Tensor(opt.batchSize, 1, opt.fineSize, opt.fineSize)
+local inputG = torch.Tensor(opt.batchSize, nc, opt.fineSize/2, opt.fineSize/2)
+local inputD = torch.Tensor(opt.batchSize, nc, opt.fineSize, opt.fineSize)
 local real_none = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 local real_color = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
 local errD, errG
@@ -158,7 +158,6 @@ local fDx = function(x)
     data_tm:stop()
 
     for i = 1, opt.batchSize do
-        print('file_set_num: ' .. file_set_num)
         file_num = file_set_num * opt.batchSize + i
         
         local file_name
@@ -210,7 +209,7 @@ local fDx = function(x)
     
     print(real_reduced:size())
     print(inputG:size())
-    
+
     local fake_none = netG:forward(inputG)
 
     -- calculate MSE
