@@ -187,9 +187,9 @@ local fDx = function(x)
         real_none[{ {i}, {}, {} }] = image_input_gray[{ {}, {} }]
 
         inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
-
-        file_set_num = file_set_num + 1
     end
+
+    file_set_num = file_set_num + 1
 
     -- train with real
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
