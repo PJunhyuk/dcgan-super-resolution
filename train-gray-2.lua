@@ -150,6 +150,8 @@ end
 local parametersD, gradParametersD = netD:getParameters()
 local parametersG, gradParametersG = netG:getParameters()
 
+local errVal_MSE = torch.Tensor(opt.batchSize)
+
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
     gradParametersD:zero()
