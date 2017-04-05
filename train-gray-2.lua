@@ -243,7 +243,7 @@ end
 -- train
 for epoch = 1, opt.niter do
     epoch_tm:reset()
-    for i = 1, math.min(data:size(), opt.ntrain), opt.batchSize do
+    for i = 1, opt.ntrain, opt.batchSize do
         tm:reset()
         -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         optim.adam(fDx, parametersD, optimStateD)
@@ -256,7 +256,7 @@ for epoch = 1, opt.niter do
          print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
                    .. '  Err_G: %.16f  Err_D: %.4f'):format(
                  epoch, ((i-1) / opt.batchSize),
-                 math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
+                 math.floor(opt.ntrain / opt.batchSize),
                  tm:time().real, data_tm:time().real,
                  errG and errG or -1, errD and errD or -1))
         end
