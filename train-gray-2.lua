@@ -143,6 +143,9 @@ function calPSNR(img1, img2)
 end
 
 function calMSE(img1, img2)
+    print(img2:size())
+    print(img2:size(3))
+    print(img2:size(4))
     return (((img1[{ {1}, {}, {} }] - img2[{ {1}, {}, {} }]):pow(2)):sum()) / (img2:size(3) * img2:size(4))
 end
 
