@@ -150,6 +150,9 @@ local parametersG, gradParametersG = netG:getParameters()
 local fDx = function(x)
     gradParametersD:zero()
 
+    data_tm:reset(); data_tm:resume()
+    data_tm:stop()
+
     for i = 1, opt.batchSize do
         print('file_set_num: ' .. file_set_num)
         file_num = file_set_num * opt.batchSize + i
