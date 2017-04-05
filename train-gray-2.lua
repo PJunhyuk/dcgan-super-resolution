@@ -215,6 +215,8 @@ local fDx = function(x)
         errVal_MSE[i] = calMSE(real_none[{ {i}, {}, {} }]:float(), fake_none[{ {i}, {}, {} }]:float())
     end
 
+    print(('errVal_MSE-max: %.8f  errVal_MSE-min: %.8f'):format(errVal_MSE:max(), errVal_MSE:min()))
+
     -- train with fake
     inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: fake_none / outputD: output_fake
