@@ -192,7 +192,7 @@ local fDx = function(x)
     -- train with real
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
     label:fill(0)
-    local errD_real = criterion:forward(outputD, label) -- output_real & 0
+    local errD_real = 100000 * criterion:forward(outputD, label) -- output_real & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
