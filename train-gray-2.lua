@@ -324,7 +324,7 @@ print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_
 
 -----------------------------------------------
 
-local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/000000.jpg', 1, 'float')
+local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/100001.jpg', 1, 'float')
 real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
 
 image.save('real_none_test.jpg', image.toDisplayTensor(real_none_test))
