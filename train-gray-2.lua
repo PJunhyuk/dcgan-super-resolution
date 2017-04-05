@@ -131,7 +131,7 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 ----------------------------------------------------------------------------
 -- calPSNR function
 function calPSNR(img1, img2)
-    local MSE = (((img1[{ {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (opt.fineSize * opt.fineSize)
+    local MSE = (((img1[{ {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (img1:size(1) * img1:size(2))
     print(('MSE: %.4f'):format(MSE))
     if MSE > 0 then
         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
@@ -276,6 +276,7 @@ end
 --------------------------------------------
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
+real_none_train = image.scale(real_none_train, opt.fineSize, opt.fineSize)
 
 image.save('real_none_train.jpg', image.toDisplayTensor(real_none_train))
 
@@ -302,9 +303,6 @@ image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train)
 print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
 print(('real_bilinear_train-sum: %.8f  real_bilinear_train-std: %.8f'):format(real_bilinear_train:sum(), real_bilinear_train:std()))
 
-print(real_none_train:size())
-print(real_bilinear_train:size())
-
 print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
 
 local inputG_train = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
@@ -324,7 +322,8 @@ print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_
 
 -----------------------------------------------
 
-local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
+local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/000000.jpg', 1, 'float')
+real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
 
 image.save('real_none_test.jpg', image.toDisplayTensor(real_none_test))
 
