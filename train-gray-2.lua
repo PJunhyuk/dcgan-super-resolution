@@ -177,8 +177,6 @@ local fDx = function(x)
         else
             file_name = file_name_route .. tostring(file_num) .. '.jpg'
         end
-        
-        print('file_num: ' .. file_num)
 
         local image_input_gray = image.load(file_name, 1, 'float')
         image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
@@ -208,9 +206,6 @@ local fDx = function(x)
 
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
-    
-    print(real_reduced:size())
-    print(inputG:size())
 
     local fake_none = netG:forward(inputG)
 
@@ -277,3 +272,95 @@ for epoch = 1, opt.niter do
     print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
             epoch, opt.niter, epoch_tm:time().real))
 end
+
+--------------------------------------------
+
+local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
+
+image.save('real_none_train.png', image.toDisplayTensor(real_none_train))
+
+print(('real_none_train-max: %.8f  real_none_train-min: %.8f'):format(real_none_train:max(), real_none_train:min()))
+print(('real_none_train-sum: %.8f  real_none_train-std: %.8f'):format(real_none_train:sum(), real_none_train:std()))
+
+local real_reduced_train = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+for i = 1, opt.fineSize/2 do
+    for j = 1, opt.fineSize/2 do
+        real_reduced_train[{ {i}, {j} }] = (real_none_train[{ {2*i-1}, {2*j-1} }] + real_none_train[{ {2*i}, {2*j-1} }] + real_none_train[{ {2*i-1}, {2*j} }] + real_none_train[{ {2*i}, {2*j} }]) / 4
+    end
+end
+image.save('real_reduced_train.png', image.toDisplayTensor(real_reduced_train))
+
+print(('real_reduced_train-max: %.8f  real_reduced_train-min: %.8f'):format(real_reduced_train:max(), real_reduced_train:min()))
+print(('real_reduced_train-sum: %.8f  real_reduced_train-std: %.8f'):format(real_reduced_train:sum(), real_reduced_train:std()))
+
+local real_bilinear_train = torch.Tensor(opt.fineSize, opt.fineSize)
+
+real_bilinear_train = image.scale(real_reduced_train, opt.fineSize, opt.fineSize, bilinear)
+
+image.save('real_bilinear_train.png', image.toDisplayTensor(real_bilinear_train))
+
+print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
+print(('real_bilinear_train-sum: %.8f  real_bilinear_train-std: %.8f'):format(real_bilinear_train:sum(), real_bilinear_train:std()))
+
+print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
+
+local inputG_train = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
+inputG_train[{{1}, {1}, {}, {}}] = real_reduced_train[{ {}, {}}]
+inputG_train = inputG_train:cuda()
+local fake_none_train_temp = netG:forward(inputG_train)
+
+local fake_none_train = torch.Tensor(opt.fineSize, opt.fineSize)
+fake_none_train[{ {}, {} }] = fake_none_train_temp[{ {1}, {1}, {}, {} }]:float()
+
+image.save('fake_none_train.png', image.toDisplayTensor(fake_none_train))
+
+print(('fake_none_train-max: %.8f  fake_none_train-min: %.8f'):format(fake_none_train:max(), fake_none_train:min()))
+print(('fake_none_train-sum: %.8f  fake_none_train-std: %.8f'):format(fake_none_train:sum(), fake_none_train:std()))
+
+print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_none_train, fake_none_train)))
+
+-----------------------------------------------
+
+local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
+
+image.save('real_none_test.png', image.toDisplayTensor(real_none_test))
+
+print(('real_none_test-max: %.8f  real_none_test-min: %.8f'):format(real_none_test:max(), real_none_test:min()))
+print(('real_none_test-sum: %.8f  real_none_test-std: %.8f'):format(real_none_test:sum(), real_none_test:std()))
+
+local real_reduced_test = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+for i = 1, opt.fineSize/2 do
+    for j = 1, opt.fineSize/2 do
+        real_reduced_test[{ {i}, {j} }] = (real_none_test[{ {2*i-1}, {2*j-1} }] + real_none_test[{ {2*i}, {2*j-1} }] + real_none_test[{ {2*i-1}, {2*j} }] + real_none_test[{ {2*i}, {2*j} }]) / 4
+    end
+end
+image.save('real_reduced_test.png', image.toDisplayTensor(real_reduced_test))
+
+print(('real_reduced_test-max: %.8f  real_reduced_test-min: %.8f'):format(real_reduced_test:max(), real_reduced_test:min()))
+print(('real_reduced_test-sum: %.8f  real_reduced_test-std: %.8f'):format(real_reduced_test:sum(), real_reduced_test:std()))
+
+local real_bilinear_test = torch.Tensor(opt.fineSize, opt.fineSize)
+
+real_bilinear_test = image.scale(real_reduced_test, opt.fineSize, opt.fineSize, bilinear)
+
+image.save('real_bilinear_test.png', image.toDisplayTensor(real_bilinear_test))
+
+print(('real_bilinear_test-max: %.8f  real_bilinear_test-min: %.8f'):format(real_bilinear_test:max(), real_bilinear_test:min()))
+print(('real_bilinear_test-sum: %.8f  real_bilinear_test-std: %.8f'):format(real_bilinear_test:sum(), real_bilinear_test:std()))
+
+print(('PSNR btwn real_none_test & real_bilinear_test: %.4f'):format(calPSNR(real_none_test, real_bilinear_test)))
+
+local inputG_test = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
+inputG_test[{{1}, {1}, {}, {}}] = real_reduced_test[{ {}, {}}]
+inputG_test = inputG_test:cuda()
+local fake_none_test_temp = netG:forward(inputG_test)
+
+local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
+fake_none_test[{ {}, {} }] = fake_none_test_temp[{ {1}, {1}, {}, {} }]:float()
+
+image.save('fake_none_test.png', image.toDisplayTensor(fake_none_test))
+
+print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
+print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
+
+print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
