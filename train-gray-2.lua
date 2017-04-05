@@ -160,19 +160,21 @@ local fDx = function(x)
     for i = 1, opt.batchSize do
         print('file_set_num: ' .. file_set_num)
         file_num = file_set_num * opt.batchSize + i
+        
+        local file_name
 
         if file_num < 10 then
-            local file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
+            file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
         elseif file_num < 100 then
-            local file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
+            file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
         elseif file_num < 1000 then
-            local file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
+            file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
         elseif file_num < 10000 then
-            local file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
+            file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
         elseif file_num < 100000 then
-            local file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
+            file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
         else
-            local file_name = file_name_route .. tostring(file_num) .. '.jpg'
+            file_name = file_name_route .. tostring(file_num) .. '.jpg'
         end
         
         print(file_name_route)
