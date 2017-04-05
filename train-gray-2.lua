@@ -298,6 +298,7 @@ local real_bilinear_train = torch.Tensor(opt.fineSize, opt.fineSize)
 
 real_bilinear_train = image.scale(real_reduced_train, opt.fineSize, opt.fineSize, bilinear)
 
+real_bilinear_train = real_bilinear_train:float()
 image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train))
 
 print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
