@@ -36,7 +36,7 @@ local file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
 
 local image_input_gray = image.load(file_name, 1, 'float')
 
-image.scale(image_input_gray, sample_size, sample_size)
+image_input_gray = image.scale(image_input_gray, sample_size, sample_size)
 
 image.save('image_input_gray.jpg', image.toDisplayTensor(image_input_gray))
 
