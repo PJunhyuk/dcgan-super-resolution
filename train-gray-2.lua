@@ -131,7 +131,7 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 ----------------------------------------------------------------------------
 -- calPSNR function
 function calPSNR(img1, img2)
-    local MSE = (((img1[{ {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (img2:size(1)*img2:size(2))
+    local MSE = (((img1[{ {}, {} }] - img2[{ {}, {} }]):pow(2)):sum()) / (opt.fineSize * opt.fineSize)
     print(('MSE: %.4f'):format(MSE))
     if MSE > 0 then
         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
@@ -301,6 +301,9 @@ image.save('real_bilinear_train.png', image.toDisplayTensor(real_bilinear_train)
 
 print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
 print(('real_bilinear_train-sum: %.8f  real_bilinear_train-std: %.8f'):format(real_bilinear_train:sum(), real_bilinear_train:std()))
+
+print(real_none_train:size())
+print(real_bilinear_train:size())
 
 print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
 
