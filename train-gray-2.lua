@@ -303,6 +303,9 @@ image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train)
 print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
 print(('real_bilinear_train-sum: %.8f  real_bilinear_train-std: %.8f'):format(real_bilinear_train:sum(), real_bilinear_train:std()))
 
+print(real_none_train)
+print(real_bilinear_train)
+
 print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
 
 local inputG_train = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
