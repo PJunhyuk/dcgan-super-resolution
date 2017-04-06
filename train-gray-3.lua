@@ -7,7 +7,7 @@ require 'optim'
 opt = {
     batchSize = 100,
     fineSize = 64,
-    ngf = 32,               -- #  of gen filters in first conv layer
+    ngf = 24,               -- #  of gen filters in first conv layer
     ndf = 64,               -- #  of discrim filters in first conv layer
     niter = 1,             -- #  of iter at starting learning rate
     lr = 0.0002,            -- initial learning rate for adam
