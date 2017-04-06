@@ -16,6 +16,10 @@ opt = {
     name = 'dcgan-sr-test-1',
 }
 
+-- one-line argument parser. parses enviroment variables to override the defaults
+for k,v in pairs(opt) do opt[k] = tonumber(os.getenv(k)) or os.getenv(k) or opt[k] end
+print(opt)
+
 local file_name_route = '/CelebA/Img/img_align_celeba/Img/'
 
 local file_num = 1
