@@ -70,7 +70,6 @@ local ngf = opt.ngf
 local netG = nn.Sequential()
 -- nc x 32
 netG:add(nn.SpatialUpSamplingNearest(2))
-netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
 -- nc x 64
 netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
@@ -82,10 +81,10 @@ netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
 -- ngf x 512
 netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
+netG:add(SpatialBatchNormalization(ngf*2)):add(nn.LeakyReLU(0.2, true))
 -- ngf*2 x 256
 netG:add(SpatialConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
+netG:add(SpatialBatchNormalization(ngf*4)):add(nn.LeakyReLU(0.2, true))
 -- ngf*4 x 128
 netG:add(SpatialConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Sigmoid())
