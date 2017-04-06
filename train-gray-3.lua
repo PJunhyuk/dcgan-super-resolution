@@ -69,10 +69,9 @@ local ngf = opt.ngf
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32
-netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*8)):add(nn.ReLU(true))
--- ngf*8 x 64
-netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(nn.SpatialUpSamplingNearest(2))
+-- nc x 64
+netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
 -- ngf*4 x 128
 netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
