@@ -71,14 +71,17 @@ local ngf = opt.ngf
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 32 x 32
-netG:add(nn.SpatialUpSamplingNearest(16))
-netG:add(SpatialBatchNormalization(nc)):add(nn.ReLU(true))
+netG:add(SpatialFullConvolution(nc, ngf * 8, 4, 4))
+netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.ReLU(true))
+-- ngf*8 x 64 x 64
+netG:add(SpatialFullConvolution(ngf * 4, ngf * 4, 4, 4))
+netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
+-- ngf*4 x 128 x 128
+netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 4, 4))
+netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
 -- ngf*2 x 256 x 256
-netG:add(SpatialConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf*2)):add(nn.LeakyReLU(0.2, true))
--- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf)):add(nn.LeakyReLU(0.2, true))
+netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
 -- ngf x 128 x 128
 netG:add(SpatialConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Sigmoid())
@@ -214,7 +217,7 @@ local fDx = function(x)
     -- train with real
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
     label:fill(1)
-    local errD_real = criterion:forward(outputD, label) -- output_real & 0
+    local errD_real = criterion:forward(outputD, label) -- output_real & 1
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
@@ -243,8 +246,7 @@ local fDx = function(x)
     inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: fake_none / outputD: output_fake
     label:fill(0)
-    -- label:copy(errVal_MSE)
-    local errD_fake = criterion:forward(outputD, label) -- output_fake & errVal_MSE
+    local errD_fake = criterion:forward(outputD, label) -- output_fake & 0
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
@@ -262,7 +264,7 @@ local fGx = function(x)
 
     label:fill(1)
     local outputD = netD.output -- outputD: output_fake
-    errG = criterion:forward(outputD, label) -- output_fake & 0
+    errG = criterion:forward(outputD, label) -- output_fake & 1
     local df_do = criterion:backward(outputD, label)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
     netG:backward(inputG, df_dg) -- inputG: real_reduced
