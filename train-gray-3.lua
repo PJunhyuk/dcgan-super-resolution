@@ -22,6 +22,7 @@ print(opt)
 
 local file_name_route = '/CelebA/Img/img_align_celeba/Img/'
 
+local file_set_num = 0
 local file_num = 1
 
 -- simplify library of nn
