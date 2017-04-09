@@ -275,7 +275,7 @@ end
 -- train
 for epoch = 1, opt.niter do
     epoch_tm:reset()
-    local file_set_num = 0
+    file_set_num = 0
     for i = 1, opt.ntrain, opt.batchSize do
         tm:reset()
         -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
