@@ -296,10 +296,10 @@ for epoch = 1, opt.niter do
                  errG and errG or -1, errD and errD or -1))
         end
     end
-    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
-    parametersG, gradParametersG = nil, nil
-    parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
-    parametersG, gradParametersG = netG:getParameters()
+    -- parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
+    -- parametersG, gradParametersG = nil, nil
+    -- parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
+    -- parametersG, gradParametersG = netG:getParameters()
     print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
             epoch, opt.niter, epoch_tm:time().real))
 end
