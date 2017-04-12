@@ -380,9 +380,6 @@ print(('real_bilinear_test-sum: %.8f  real_bilinear_test-std: %.8f'):format(real
 
 print(('PSNR btwn real_none_test & real_bilinear_test: %.4f'):format(calPSNR(real_none_test, real_bilinear_test)))
 
-print('real_bilinear_test')
-print(real_bilinear_test)
-
 local inputG_test = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
 inputG_test[{{1}, {1}, {}, {}}] = real_reduced_test[{ {}, {}}]
 inputG_test = inputG_test:cuda()
@@ -393,9 +390,6 @@ fake_none_test[{ {}, {} }] = fake_none_test_temp[{ {1}, {1}, {}, {} }]:float()
 
 fake_none_test = fake_none_test:float()
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
-
-print('fake_none_test')
-print(fake_none_test)
 
 print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
 print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
