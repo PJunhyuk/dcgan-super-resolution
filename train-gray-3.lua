@@ -322,9 +322,6 @@ for i = 1, opt.fineSize/2 do
 end
 image.save('real_reduced_train.jpg', image.toDisplayTensor(real_reduced_train))
 
-print(('real_reduced_train-max: %.8f  real_reduced_train-min: %.8f'):format(real_reduced_train:max(), real_reduced_train:min()))
-print(('real_reduced_train-sum: %.8f  real_reduced_train-std: %.8f'):format(real_reduced_train:sum(), real_reduced_train:std()))
-
 local real_bilinear_train = torch.Tensor(opt.fineSize, opt.fineSize)
 
 real_bilinear_train = image.scale(real_reduced_train, opt.fineSize, opt.fineSize, bilinear)
@@ -370,9 +367,6 @@ for i = 1, opt.fineSize/2 do
     end
 end
 image.save('real_reduced_test.jpg', image.toDisplayTensor(real_reduced_test))
-
-print(('real_reduced_test-max: %.8f  real_reduced_test-min: %.8f'):format(real_reduced_test:max(), real_reduced_test:min()))
-print(('real_reduced_test-sum: %.8f  real_reduced_test-std: %.8f'):format(real_reduced_test:sum(), real_reduced_test:std()))
 
 local real_bilinear_test = torch.Tensor(opt.fineSize, opt.fineSize)
 
