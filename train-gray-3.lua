@@ -187,6 +187,8 @@ local fDx = function(x)
     data_tm:reset(); data_tm:resume()
     data_tm:stop()
 
+    print('file_set_num' .. file_set_num)
+
     for i = 1, opt.batchSize do
         file_num = file_set_num * opt.batchSize + i
         
