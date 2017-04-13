@@ -301,6 +301,37 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
+-- train 1 more time, only for netG
+for epoch = 1, opt.niter do
+    epoch_tm:reset()
+    file_set_num = 0
+    for i = 1, opt.ntrain, opt.batchSize do
+        tm:reset()
+        -- (2) Update G network: maximize log(D(G(z)))
+        optim.adam(fGx, parametersG, optimStateG)
+
+        -- logging
+        if ((i-1) / opt.batchSize) % 1 == 0 then
+         print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
+                   .. '  Err_G: %.16f  Err_D: %.4f'):format(
+                 epoch, ((i-1) / opt.batchSize),
+                 math.floor(opt.ntrain / opt.batchSize),
+                 tm:time().real, data_tm:time().real,
+                 errG and errG or -1, errD and errD or -1))
+        end
+    end
+
+   parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
+   parametersG, gradParametersG = nil, nil
+   netG:clearState()
+   netD:clearState()
+   parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
+   parametersG, gradParametersG = netG:getParameters()
+
+    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
+            epoch, opt.niter, epoch_tm:time().real))
+end
+
 --------------------------------------------
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
