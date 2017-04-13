@@ -301,6 +301,75 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
+
+-- create closure to evaluate f(X) and df/dX of generator
+local fGx = function(x)
+    gradParametersG:zero()
+
+    data_tm:reset(); data_tm:resume()
+    data_tm:stop()
+
+    print('file_set_num' .. file_set_num)
+
+    for i = 1, opt.batchSize do
+        file_num = file_set_num * opt.batchSize + i
+        
+        local file_name
+
+        if file_num < 10 then
+            file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100 then
+            file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 1000 then
+            file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 10000 then
+            file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100000 then
+            file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
+        else
+            file_name = file_name_route .. tostring(file_num) .. '.jpg'
+        end
+
+        local image_input_gray = image.load(file_name, 1, 'float')
+        image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+
+        real_none[{ {i}, {}, {} }] = image_input_gray[{ {}, {} }]
+
+        inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
+    end
+
+    file_set_num = file_set_num + 1
+
+
+    -- generate real_reduced
+    local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
+    real_reduced = real_reduced:cuda()
+    for i = 1, opt.fineSize/2 do
+        for j = 1, opt.fineSize/2 do
+            real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
+        end
+    end
+
+    -- generate fake_none
+    inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
+
+    local fake_none = netG:forward(inputG) -- inputG: real_reduced
+
+    -- train with fake
+    inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
+    local outputD = netD:forward(inputD) -- inputD: fake_none / outputD: output_fake
+
+
+    label:fill(1)
+
+    errG = criterion:forward(outputD, label) -- output_fake & 1
+    local df_do = criterion:backward(outputD, label)
+    local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
+    netG:backward(inputG, df_dg) -- inputG: real_reduced
+
+    return errG, gradParametersG
+end
+
 -- train 1 more time, only for netG
 for epoch = 1, opt.niter do
     epoch_tm:reset()
