@@ -178,8 +178,6 @@ end
 local parametersD, gradParametersD = netD:getParameters()
 local parametersG, gradParametersG = netG:getParameters()
 
-local errVal_MSE = torch.Tensor(opt.batchSize)
-
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
     gradParametersD:zero()
@@ -237,12 +235,7 @@ local fDx = function(x)
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
 
-    local fake_none = netG:forward(inputG)
-
-    -- calculate MSE
-    for i = 1, opt.batchSize do
-        errVal_MSE[i] = calMSE(real_none[{ {i}, {}, {} }]:float(), fake_none[{ {i}, {}, {} }]:float())
-    end
+    local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
     -- train with fake
     inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
@@ -296,10 +289,14 @@ for epoch = 1, opt.niter do
                  errG and errG or -1, errD and errD or -1))
         end
     end
-    -- parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
-    -- parametersG, gradParametersG = nil, nil
-    -- parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
-    -- parametersG, gradParametersG = netG:getParameters()
+
+   parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
+   parametersG, gradParametersG = nil, nil
+   netG:clearState()
+   netD:clearState()
+   parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
+   parametersG, gradParametersG = netG:getParameters()
+
     print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
             epoch, opt.niter, epoch_tm:time().real))
 end
