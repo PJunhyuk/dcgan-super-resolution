@@ -467,6 +467,7 @@ for file_set_num = 0, opt.ntrain/100 - 1 do
     rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
 end
 
+rn_rb_PSNR_average = rn_rb_PSNR_average / opt.ntrain
 rn_fn_PSNR_average = rn_fn_PSNR_average / opt.ntrain
 
 print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain))
@@ -535,6 +536,7 @@ for file_set_num = 2000, 2020 do -- 200001 ~ 202100
     rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
 end
 
+rn_rb_PSNR_average = rn_rb_PSNR_average / 2100
 rn_fn_PSNR_average = rn_fn_PSNR_average / 2100
 
 print(('[Test-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, 2100))
