@@ -402,7 +402,7 @@ end
 
 --------------------------------------------
 -- Calculate Performance(Avrg. PSNR) of Train-set
-local rn_rb_PSNR_average = 0
+rn_rb_PSNR_average = 0
 
 for file_set_num = 0, opt.ntrain - 1 do
     for i = 1, opt.batchSize do
