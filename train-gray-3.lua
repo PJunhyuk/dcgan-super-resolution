@@ -445,20 +445,21 @@ for file_set_num = 0, opt.ntrain - 1 do
     local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
     local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.batchSize do
-        print((real_reduced:float())[i])
         real_bilinear_temp[{ {}, {} }] = (real_reduced:float())[i]
         real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
     end
-    real_bilinear = real_bilinear:float()
 
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
+    print(#real_none)
+    print(#real_bilinear)
+
     -- calculate PSNR
     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_rb_PSNR[i] = calPSNR(real_none[i], real_bilinear[i])
+        rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
     end
     rn_rb_PSNR_average = rn_rb_PSNR_average + rr_rb_PSNR:sum()
 end
