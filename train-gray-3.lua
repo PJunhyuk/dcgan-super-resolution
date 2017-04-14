@@ -443,8 +443,9 @@ for file_set_num = 0, opt.ntrain - 1 do
 
     -- generate real_bilinear
     local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
-    local real_bilinear_temp = torch.Tensor(opt.fineSize, opt.fineSize)
+    local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.batchSize do
+        print(real_reduced)
         real_bilinear_temp[{ {}, {} }] = real_reduced[i]
         real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
     end
