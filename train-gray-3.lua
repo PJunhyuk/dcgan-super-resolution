@@ -402,7 +402,7 @@ end
 
 --------------------------------------------
 -- Calculate Performance(Avrg. PSNR) of Train-set
-rn_rb_PSNR_average = 0
+local rn_rb_PSNR_average = 0
 
 for file_set_num = 0, opt.ntrain - 1 do
     for i = 1, opt.batchSize do
@@ -460,7 +460,7 @@ for file_set_num = 0, opt.ntrain - 1 do
     for i = 1, opt.batchSize do
         rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
     end
-    rn_rb_PSNR_average = rn_rb_PSNR_average + rr_rb_PSNR:sum()
+    rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
 end
 
 rn_rb_PSNR_average = rn_rb_PSNR_average / (opt.ntrain * opt.batchSize)
