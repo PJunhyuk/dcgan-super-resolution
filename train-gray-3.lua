@@ -402,6 +402,68 @@ for epoch = 1, opt.niter do
 end
 
 --------------------------------------------
+-- Calculate 
+local rn_rb_PSNR_average
+
+for file_set_num = 0, opt.ntrain - 1 do
+    for i = 1, opt.batchSize do
+        file_num = file_set_num * opt.batchSize + i
+        
+        local file_name
+
+        if file_num < 10 then
+            file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100 then
+            file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 1000 then
+            file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 10000 then
+            file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100000 then
+            file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
+        else
+            file_name = file_name_route .. tostring(file_num) .. '.jpg'
+        end
+
+        local image_input_gray = image.load(file_name, 1, 'float')
+        image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+
+        real_none[{ {i}, {}, {} }] = image_input_gray[{ {}, {} }]
+    end
+
+    -- generate real_reduced
+    local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
+    real_reduced = real_reduced:cuda()
+    for i = 1, opt.fineSize/2 do
+        for j = 1, opt.fineSize/2 do
+            real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
+        end
+    end
+
+    -- generate real_bilinear
+    local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+    for i = 1, opt.batchSize do
+        real_bilinear[i] = image.scale(real_reduced[i], opt.fineSize, opt.fineSize, bilinear)
+    end
+    real_bilinear = real_bilinear:float()
+
+    -- generate fake_none
+    inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
+    local fake_none = netG:forward(inputG) -- inputG: real_reduced
+
+    -- calculate PSNR
+    local rn_rb_PSNR = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_rb_PSNR[i] = calPSNR(real_none[i], real_bilinear[i])
+    end
+    rn_rb_PSNR_average = rn_rb_PSNR_average + rr_rb_PSNR:sum()
+end
+
+rn_rb_PSNR_average = rn_rb_PSNR_average / (opt.ntrain * opt.batchSize)
+
+print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain * opt.batchSize))
+
+--------------------------------------------
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
 real_none_train = image.scale(real_none_train, opt.fineSize, opt.fineSize)
