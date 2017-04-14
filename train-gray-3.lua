@@ -160,7 +160,6 @@ netD:cuda();           netG:cuda();           criterion:cuda()
 -- calPSNR function
 function calPSNR(img1, img2)
     local MSE = (((img1 - img2):pow(2)):sum()) / (img1:size(1) * img1:size(2))
-    print(('MSE: %.4f'):format(MSE))
     if MSE > 0 then
         PSNR = 10 * torch.log(1*1/MSE) / torch.log(10)
     else
@@ -403,7 +402,7 @@ end
 
 --------------------------------------------
 -- Calculate Performance(Avrg. PSNR) of Train-set
-local rn_rb_PSNR_average
+local rn_rb_PSNR_average = 0
 
 for file_set_num = 0, opt.ntrain - 1 do
     for i = 1, opt.batchSize do
