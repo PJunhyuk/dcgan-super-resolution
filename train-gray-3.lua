@@ -404,7 +404,7 @@ end
 -- Calculate Performance(Avrg. PSNR) of Train-set
 local rn_rb_PSNR_average = 0
 
-for file_set_num = 0, opt.ntrain - 1 do
+for file_set_num = 0, opt.ntrain/100 - 1 do
     for i = 1, opt.batchSize do
         file_num = file_set_num * opt.batchSize + i
         
@@ -428,7 +428,6 @@ for file_set_num = 0, opt.ntrain - 1 do
         image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
 
         real_none[{ {i}, {}, {} }] = image_input_gray[{ {}, {} }]
-
     end
 
     -- generate real_reduced
@@ -452,9 +451,6 @@ for file_set_num = 0, opt.ntrain - 1 do
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
-    print(#real_none)
-    print(#real_bilinear)
-
     -- calculate PSNR
     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
@@ -463,9 +459,9 @@ for file_set_num = 0, opt.ntrain - 1 do
     rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
 end
 
-rn_rb_PSNR_average = rn_rb_PSNR_average / (opt.ntrain * opt.batchSize)
+rn_rb_PSNR_average = rn_rb_PSNR_average / opt.ntrain
 
-print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain * opt.batchSize))
+print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain))
 
 --------------------------------------------
 
