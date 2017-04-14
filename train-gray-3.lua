@@ -403,6 +403,7 @@ end
 --------------------------------------------
 -- Calculate Performance(Avrg. PSNR) of Train-set
 local rn_rb_PSNR_average = 0
+local rn_fn_PSNR_average = 0
 
 for file_set_num = 0, opt.ntrain/100 - 1 do
     for i = 1, opt.batchSize do
@@ -457,12 +458,19 @@ for file_set_num = 0, opt.ntrain/100 - 1 do
         rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
     end
     rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
+
+    -- calculate PSNR
+    local rn_fn_PSNR = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_fn_PSNR[i] = calPSNR(real_none[i]:float(), fake_none[i]:float())
+    end
+    rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
 end
 
-rn_rb_PSNR_average = rn_rb_PSNR_average / opt.ntrain
+rn_fn_PSNR_average = rn_fn_PSNR_average / opt.ntrain
 
 print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain))
-
+print(('[Train-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, opt.ntrain))
 --------------------------------------------
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
