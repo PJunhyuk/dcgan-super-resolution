@@ -213,6 +213,7 @@ function calSSIM(img1, img2)
     local window = image.gaussian(11, 1.5/11,0.0708);
 
     local window = window:div(torch.sum(window));
+    window = window:float()
 
     local mu1 = image.convolve(img1, window, 'full')
     local mu2 = image.convolve(img2, window, 'full')
