@@ -739,4 +739,4 @@ print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_te
 
 print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
 
-print(('Total time: %.3f'):format(total_tm:time().real)
+print(('Total time: %.3f'):format(total_tm:time().real))
