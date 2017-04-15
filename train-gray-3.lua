@@ -626,8 +626,8 @@ rn_fn_SSIM_average = rn_fn_SSIM_average / 2100
 print(('[Test-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, 2100))
 print(('[Test-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, 2100))
 
-print(('[Test-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, opt.ntrain))
-print(('[Test-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, opt.ntrain))
+print(('[Test-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, 2100))
+print(('[Test-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, 2100))
 --------------------------------------------
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
