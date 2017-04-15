@@ -184,9 +184,12 @@ function calSSIM(img1, img2)
 %            quality measure of the other image.
 %            If img1 = img2, then mssim = 1.]]
 
+    img1_temp = img1
+    img2_temp = img2
+
     -- place images between 0 and 255.
-    img1:add(1):div(2):mul(255)
-    img2:add(1):div(2):mul(255)
+    img1_temp:add(1):div(2):mul(255)
+    img2_temp:add(1):div(2):mul(255)
 
     local K1 = 0.01;
     local K2 = 0.03;
@@ -199,16 +202,16 @@ function calSSIM(img1, img2)
     local window = window:div(torch.sum(window));
     window = window:float()
 
-    local mu1 = image.convolve(img1, window, 'full')
-    local mu2 = image.convolve(img2, window, 'full')
+    local mu1 = image.convolve(img1_temp, window, 'full')
+    local mu2 = image.convolve(img2_temp, window, 'full')
 
     local mu1_sq = torch.cmul(mu1,mu1);
     local mu2_sq = torch.cmul(mu2,mu2);
     local mu1_mu2 = torch.cmul(mu1,mu2);
 
-    local sigma1_sq = image.convolve(torch.cmul(img1,img1),window,'full')-mu1_sq
-    local sigma2_sq = image.convolve(torch.cmul(img2,img2),window,'full')-mu2_sq
-    local sigma12 =  image.convolve(torch.cmul(img1,img2),window,'full')-mu1_mu2
+    local sigma1_sq = image.convolve(torch.cmul(img1_temp,img1_temp),window,'full')-mu1_sq
+    local sigma2_sq = image.convolve(torch.cmul(img2_temp,img2_temp),window,'full')-mu2_sq
+    local sigma12 =  image.convolve(torch.cmul(img1_temp,img2_temp),window,'full')-mu1_mu2
 
     local ssim_map = torch.cdiv( torch.cmul((mu1_mu2*2 + C1),(sigma12*2 + C2)), torch.cmul((mu1_sq + mu2_sq + C1),(sigma1_sq + sigma2_sq + C2)));
     local mssim = torch.mean(ssim_map);
