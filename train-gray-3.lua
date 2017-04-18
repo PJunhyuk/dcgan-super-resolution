@@ -151,10 +151,6 @@ function calPSNR(img1, img2)
     return PSNR
 end
 
-function calMSE(img1, img2)
-    return (((img1 - img2):pow(2)):sum()) / (img2:size(3) * img2:size(4))
-end
-
 ----------------------------------------------------------------------------
 -- Calculate SSIM
 -- Reference: https://github.com/coupriec/VideoPredictionICLR2016
@@ -717,11 +713,11 @@ local fake_none_test_temp = netG:forward(inputG_test)
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_test[{ {}, {} }] = fake_none_test_temp[{ {1}, {1}, {}, {} }]:float()
 
-fake_none_test = fake_none_test:float()
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 
 print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
 print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
+print(#fake_none_test)
 
 print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
 print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
