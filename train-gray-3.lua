@@ -180,8 +180,11 @@ function calSSIM(img1, img2)
 %            quality measure of the other image.
 %            If img1 = img2, then mssim = 1.]]
 
-    img1_temp = img1
-    img2_temp = img2
+    img1_temp = torch.Tensor(opt.fineSize, opt.fineSize)
+    img2_temp = torch.Tensor(opt.fineSize, opt.fineSize)
+
+    img1_temp[{ {}, {} }] = img1[{ {}, {} }]
+    img2_temp[{ {}, {} }] = img2[{ {}, {} }]
 
     -- place images between 0 and 255.
     img1_temp:add(1):div(2):mul(255)
