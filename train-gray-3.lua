@@ -668,14 +668,14 @@ fake_none_train[{ {}, {} }] = fake_none_train_temp[{ {1}, {1}, {}, {} }]:float()
 
 fake_none_train = fake_none_train:float()
 
-print(real_none_train[{ {1:8}, {1} }])
-print(fake_none_train[{ {1:8}, {1} }])
+print(real_none_train[{ {}, {1} }])
+print(fake_none_train[{ {}, {1} }])
 
 print(('fake_none_train-max: %.8f  fake_none_train-min: %.8f'):format(fake_none_train:max(), fake_none_train:min()))
 print(('fake_none_train-sum: %.8f  fake_none_train-std: %.8f'):format(fake_none_train:sum(), fake_none_train:std()))
 
-print(real_none_train[{ {1:8}, {1} }])
-print(fake_none_train[{ {1:8}, {1} }])
+print(real_none_train[{ {}, {1} }])
+print(fake_none_train[{ {}, {1} }])
 
 print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_none_train, fake_none_train)))
 print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_none_train, fake_none_train)))
