@@ -186,6 +186,9 @@ function calSSIM(img1, img2)
     img1_temp[{ {}, {} }] = img1[{ {}, {} }]
     img2_temp[{ {}, {} }] = img2[{ {}, {} }]
 
+    img1_temp = img1_temp:float()
+    img2_temp = img2_temp:float()
+
     -- place images between 0 and 255.
     img1_temp:add(1):div(2):mul(255)
     img2_temp:add(1):div(2):mul(255)
