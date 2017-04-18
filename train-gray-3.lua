@@ -667,13 +667,13 @@ local fake_none_train = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_train[{ {}, {} }] = fake_none_train_temp[{ {1}, {1}, {}, {} }]:float()
 
 fake_none_train = fake_none_train:float()
+print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_none_train, fake_none_train)))
+print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_none_train, fake_none_train)))
 image.save('fake_none_train.jpg', image.toDisplayTensor(fake_none_train))
 
 print(('fake_none_train-max: %.8f  fake_none_train-min: %.8f'):format(fake_none_train:max(), fake_none_train:min()))
 print(('fake_none_train-sum: %.8f  fake_none_train-std: %.8f'):format(fake_none_train:sum(), fake_none_train:std()))
 
-print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_none_train, fake_none_train)))
-print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_none_train, fake_none_train)))
 -----------------------------------------------
 
 local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/100001.jpg', 1, 'float')
@@ -713,11 +713,11 @@ local fake_none_test_temp = netG:forward(inputG_test)
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_test[{ {}, {} }] = fake_none_test_temp[{ {1}, {1}, {}, {} }]:float()
 
+fake_none_test = fake_none_test:float()
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 
 print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
 print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
-print(#fake_none_test)
 
 print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
 print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
