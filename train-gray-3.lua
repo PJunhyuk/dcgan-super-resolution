@@ -312,7 +312,7 @@ local fGx = function(x)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
     netG:backward(inputG, df_dg) -- inputG: real_reduced
 
-    errG = errG * 10
+    errG = errG * 0.1
 
     return errG, gradParametersG
 end
