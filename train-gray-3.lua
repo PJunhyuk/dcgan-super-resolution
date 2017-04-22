@@ -558,9 +558,6 @@ real_bilinear_train = image.scale(real_reduced_train, opt.fineSize, opt.fineSize
 real_bilinear_train = real_bilinear_train:float()
 image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train))
 
-print(('real_bilinear_train-max: %.8f  real_bilinear_train-min: %.8f'):format(real_bilinear_train:max(), real_bilinear_train:min()))
-print(('real_bilinear_train-sum: %.8f  real_bilinear_train-std: %.8f'):format(real_bilinear_train:sum(), real_bilinear_train:std()))
-
 print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
 print(('SSIM btwn real_none_train & real_bilinear_train: %.4f'):format(calSSIM(real_none_train, real_bilinear_train)))
 
@@ -606,9 +603,6 @@ real_bilinear_test = image.scale(real_reduced_test, opt.fineSize, opt.fineSize, 
 
 real_bilinear_test = real_bilinear_test:float()
 image.save('real_bilinear_test.jpg', image.toDisplayTensor(real_bilinear_test))
-
-print(('real_bilinear_test-max: %.8f  real_bilinear_test-min: %.8f'):format(real_bilinear_test:max(), real_bilinear_test:min()))
-print(('real_bilinear_test-sum: %.8f  real_bilinear_test-std: %.8f'):format(real_bilinear_test:sum(), real_bilinear_test:std()))
 
 print(('PSNR btwn real_none_test & real_bilinear_test: %.4f'):format(calPSNR(real_none_test, real_bilinear_test)))
 print(('SSIM btwn real_none_test & real_bilinear_test: %.4f'):format(calSSIM(real_none_test, real_bilinear_test)))
