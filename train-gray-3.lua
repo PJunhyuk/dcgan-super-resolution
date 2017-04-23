@@ -15,7 +15,6 @@ opt = {
     lr = 0.0002,            -- initial learning rate for adam
     beta1 = 0.5,            -- momentum term of adam
     ntrain = 10000,     -- #  of examples per epoch. math.huge for full dataset
-    name = 'dcgan-sr-test-1',
 }
 
 -- one-line argument parser. parses enviroment variables to override the defaults
