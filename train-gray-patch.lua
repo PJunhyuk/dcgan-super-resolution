@@ -534,7 +534,7 @@ print(('real_none_train-sum: %.8f  real_none_train-std: %.8f'):format(real_none_
 for i = 1, opt.batchSize do
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
-            real_none_patch_train[{ {i}, {a}, {b} }] = real_none_train[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize + b } }]
+            real_none_patch_train[{ {i}, {a}, {b} }] = real_none_train[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
         end
     end
 end
