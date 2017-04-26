@@ -18,7 +18,7 @@ opt = {
     patchSize = 8,
 }
 
-opt.batchSize = (opt.fineSize / opt.patchSize) ** 2
+opt.batchSize = (opt.fineSize / opt.patchSize) * (opt.fineSize / opt.patchSize)
 
 -- one-line argument parser. parses enviroment variables to override the defaults
 for k,v in pairs(opt) do opt[k] = tonumber(os.getenv(k)) or os.getenv(k) or opt[k] end
