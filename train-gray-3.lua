@@ -296,6 +296,8 @@ local fDx = function(x)
 
     -- conclusion
     errD = errD_real + errD_fake
+    errD = 1000 * errD;
+
     -- print('errD'); print(errD)
     return errD, gradParametersD
 end
