@@ -250,7 +250,7 @@ local fDx = function(x)
     for i = 1, opt.batchSize do
         for a = 1, opt.patchSize do
             for b = 1, opt.patchSize do
-                real_none[{ {i}, {a}, {b} }] = image_input_gray[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize + b } }]
+                real_none[{ {i}, {a}, {b} }] = image_input_gray[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
             end
         end
     end
@@ -572,7 +572,7 @@ local fake_none_train = torch.Tensor(opt.fineSize, opt.fineSize)
 for i = 1, opt.batchSize do
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
-            fake_none_train[{ {math.floor((i-1) / opt.patchSize) * opt.patchSize + a}, {i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize + b} }]   = fake_none_patch_train[{ {i}, {1}, {a}, {b} }]
+            fake_none_train[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none_patch_train[{ {i}, {1}, {a}, {b} }]
         end
     end
 end
