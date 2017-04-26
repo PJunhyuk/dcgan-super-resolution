@@ -323,7 +323,7 @@ for epoch = 1, opt.niter do
         optim.adam(fGx, parametersG, optimStateG)
 
         -- logging
-        print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  ' .. '  Err_G: %.16f  Err_D: %.4f'):format(epoch, i, opt.ntrain, tm:time().real, data_tm:time().real, errG and errG or -1, errD and errD or -1))
+        print(('Epoch: [%d][%6d / %6d]\t Time: %.3f  ' .. '  Err_G: %.8f  Err_D: %.4f'):format(epoch, i, opt.ntrain, tm:time().real, data_tm:time().real, errG and errG or -1, errD and errD or -1))
     end
 
    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
@@ -540,7 +540,6 @@ for i = 1, opt.batchSize do
 end
 
 local real_reduced_patch_train = torch.Tensor(opt.batchSize, opt.patchSize/2, opt.patchSize/2)
-real_reduced_patch_train = real_reduced_patch_train:cuda()
 for i = 1, opt.patchSize/2 do
     for j = 1, opt.patchSize/2 do
         real_reduced_patch_train[{ {}, {i}, {j} }] = (real_none_patch_train[{ {}, {2*i-1}, {2*j-1} }] + real_none_patch_train[{ {}, {2*i}, {2*j-1} }] + real_none_patch_train[{ {}, {2*i-1}, {2*j} }] + real_none_patch_train[{ {}, {2*i}, {2*j} }]) / 4
