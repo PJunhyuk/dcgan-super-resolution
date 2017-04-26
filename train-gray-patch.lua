@@ -226,7 +226,7 @@ local fDx = function(x)
     data_tm:reset(); data_tm:resume()
     data_tm:stop()
 
-    print('file_num' .. file_num)
+    print('file_num: ' .. file_num)
 
     local file_name
 
@@ -547,10 +547,16 @@ for i = 1, opt.patchSize/2 do
     end
 end
 
+local real_reduced_train = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+for i = 1, opt.fineSize/2 do
+    for j = 1, opt.fineSize/2 do
+        real_reduced_train[{ {i}, {j} }] = (real_none_train[{ {2*i-1}, {2*j-1} }] + real_none_train[{ {2*i}, {2*j-1} }] + real_none_train[{ {2*i-1}, {2*j} }] + real_none_train[{ {2*i}, {2*j} }]) / 4
+    end
+end
+image.save('real_reduced_train.jpg', image.toDisplayTensor(real_reduced_train))
+
 local real_bilinear_train = torch.Tensor(opt.fineSize, opt.fineSize)
-
 real_bilinear_train = image.scale(real_reduced_train, opt.fineSize, opt.fineSize, bilinear)
-
 real_bilinear_train = real_bilinear_train:float()
 image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train))
 
