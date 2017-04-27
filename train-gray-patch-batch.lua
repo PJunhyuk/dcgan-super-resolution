@@ -350,7 +350,7 @@ for epoch = 1, opt.niter do
         if ((i-1) / opt.batchSize) % 1 == 0 then
          print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
                    .. '  Err_G: %.16f  Err_D: %.4f'):format(
-                 epoch, ((i-1) / opt.batchSize),
+                 epoch, ((i-1) / opt.batchSize) + 1,
                  math.floor(opt.ntrain / opt.batchSize),
                  tm:time().real, data_tm:time().real,
                  errG and errG or -1, errD and errD or -1))
