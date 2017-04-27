@@ -556,14 +556,14 @@ end
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
 real_none_train = image.scale(real_none_train, opt.fineSize, opt.fineSize)
-real_none_patch_train = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+real_none_patch_train = torch.Tensor(patchNumber, opt.fineSize, opt.fineSize)
 
 image.save('real_none_train.jpg', image.toDisplayTensor(real_none_train))
 
 print(('real_none_train-max: %.8f  real_none_train-min: %.8f'):format(real_none_train:max(), real_none_train:min()))
 print(('real_none_train-sum: %.8f  real_none_train-std: %.8f'):format(real_none_train:sum(), real_none_train:std()))
 
-for i = 1, opt.batchSize do
+for i = 1, patchNumber do
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
             real_none_patch_train[{ {i}, {a}, {b} }] = real_none_train[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
@@ -571,7 +571,7 @@ for i = 1, opt.batchSize do
     end
 end
 
-local real_reduced_patch_train = torch.Tensor(opt.batchSize, opt.patchSize/2, opt.patchSize/2)
+local real_reduced_patch_train = torch.Tensor(patchNumber, opt.patchSize/2, opt.patchSize/2)
 for i = 1, opt.patchSize/2 do
     for j = 1, opt.patchSize/2 do
         real_reduced_patch_train[{ {}, {i}, {j} }] = (real_none_patch_train[{ {}, {2*i-1}, {2*j-1} }] + real_none_patch_train[{ {}, {2*i}, {2*j-1} }] + real_none_patch_train[{ {}, {2*i-1}, {2*j} }] + real_none_patch_train[{ {}, {2*i}, {2*j} }]) / 4
@@ -594,14 +594,14 @@ image.save('real_bilinear_train.jpg', image.toDisplayTensor(real_bilinear_train)
 print(('PSNR btwn real_none_train & real_bilinear_train: %.4f'):format(calPSNR(real_none_train, real_bilinear_train)))
 print(('SSIM btwn real_none_train & real_bilinear_train: %.4f'):format(calSSIM(real_none_train, real_bilinear_train)))
 
-local inputG_train = torch.Tensor(opt.batchSize, 1, opt.patchSize/2, opt.patchSize/2)
+local inputG_train = torch.Tensor(patchNumber, 1, opt.patchSize/2, opt.patchSize/2)
 inputG_train[{{}, {1}, {}, {}}] = real_reduced_patch_train[{ {}, {}, {}}]
 inputG_train = inputG_train:cuda()
 local fake_none_patch_train = netG:forward(inputG_train)
 fake_none_patch_train = fake_none_patch_train:float()
 
 local fake_none_train = torch.Tensor(opt.fineSize, opt.fineSize)
-for i = 1, opt.batchSize do
+for i = 1, patchNumber do
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
             fake_none_train[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none_patch_train[{ {i}, {1}, {a}, {b} }]
