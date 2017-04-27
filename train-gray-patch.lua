@@ -291,7 +291,7 @@ local fDx = function(x)
     netD:backward(inputD, df_do)
 
     -- generate real_reduced
-    local real_reduced = torch.Tensor(opt.batchSize, opt.patchSize/2, opt.patchSize/2)
+    local real_reduced = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
     real_reduced = real_reduced:cuda()
     for i = 1, opt.patchSize/2 do
         for j = 1, opt.patchSize/2 do
