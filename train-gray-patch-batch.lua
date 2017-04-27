@@ -7,9 +7,9 @@ local total_tm = torch.Timer()
 
 -- set default option
 opt = {
-    batchSize = 64,
+    batchSize = 25,
     fineSize = 64,
-    ngf = 16,               -- #  of gen filters in first conv layer
+    ngf = 8,               -- #  of gen filters in first conv layer
     ndf = 64,               -- #  of discrim filters in first conv layer
     niter = 1,             -- #  of iter at starting learning rate
     lr = 0.0002,            -- initial learning rate for adam
@@ -18,7 +18,7 @@ opt = {
     patchSize = 8,
 }
 
-opt.batchSize = (opt.fineSize / opt.patchSize) * (opt.fineSize / opt.patchSize)
+local patchNumber = (opt.fineSize / opt.patchSize) * (opt.fineSize / opt.patchSize)
 
 -- one-line argument parser. parses enviroment variables to override the defaults
 for k,v in pairs(opt) do opt[k] = tonumber(os.getenv(k)) or os.getenv(k) or opt[k] end
@@ -26,6 +26,7 @@ print(opt)
 
 local file_name_route = '/CelebA/Img/img_align_celeba/Img/'
 
+local file_set_num = 0
 local file_num = 1
 
 -- simplify library of nn
@@ -122,16 +123,16 @@ optimStateD = {
     beta1 = opt.beta1,
 }
 ----------------------------------------------------------------------------
-local input = torch.Tensor(opt.batchSize, opt.patchSize, opt.patchSize)
-local inputG = torch.Tensor(opt.batchSize, nc, opt.patchSize/2, opt.patchSize/2)
-local inputD = torch.Tensor(opt.batchSize, nc, opt.patchSize, opt.patchSize)
-local real_none = torch.Tensor(opt.batchSize, opt.patchSize, opt.patchSize)
+local input = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize, opt.patchSize)
+local inputG = torch.Tensor(opt.batchSize * patchNumber, nc, opt.patchSize/2, opt.patchSize/2)
+local inputD = torch.Tensor(opt.batchSize * patchNumber, nc, opt.patchSize, opt.patchSize)
+local real_none = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize, opt.patchSize)
 local errD, errG
 local epoch_tm = torch.Timer()
 local tm = torch.Timer()
 local data_tm = torch.Timer()
 
-local label = torch.Tensor(opt.batchSize)
+local label = torch.Tensor(opt.batchSize * patchNumber)
 local real_label = 1
 local fake_label = 0
 ----------------------------------------------------------------------------
@@ -243,38 +244,44 @@ local fDx = function(x)
     data_tm:reset(); data_tm:resume()
     data_tm:stop()
 
-    print('file_num: ' .. file_num)
+    print('file_set_num: ' .. file_set_num)
 
-    local file_name
+    for k = 1, opt.batchSize do
+        file_num = file_set_num * opt.batchSize + k
 
-    if file_num < 10 then
-        file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
-    elseif file_num < 100 then
-        file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
-    elseif file_num < 1000 then
-        file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
-    elseif file_num < 10000 then
-        file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
-    elseif file_num < 100000 then
-        file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
-    else
-        file_name = file_name_route .. tostring(file_num) .. '.jpg'
-    end
+        local file_name
 
-    local image_input_gray = image.load(file_name, 1, 'float')
-    image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+        if file_num < 10 then
+            file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100 then
+            file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 1000 then
+            file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 10000 then
+            file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100000 then
+            file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
+        else
+            file_name = file_name_route .. tostring(file_num) .. '.jpg'
+        end
 
-    for i = 1, opt.batchSize do
-        for a = 1, opt.patchSize do
-            for b = 1, opt.patchSize do
-                real_none[{ {i}, {a}, {b} }] = image_input_gray[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
+        print('file_name: ' .. file_name)
+
+        local image_input_gray = image.load(file_name, 1, 'float')
+        image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+
+        for i = 1, patchNumber do
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
+                    real_none[{ {(k-1) * patchNumber + i}, {a}, {b} }] = image_input_gray[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
+                end
             end
         end
+
+        inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     end
 
-    inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
-
-    file_num = file_num + 1
+    file_set_num = file_set_num + 1
 
     -- train with real
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
@@ -284,7 +291,7 @@ local fDx = function(x)
     netD:backward(inputD, df_do)
 
     -- generate real_reduced
-    local real_reduced = torch.Tensor(opt.batchSize, opt.patchSize/2, opt.patchSize/2)
+    local real_reduced = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
     real_reduced = real_reduced:cuda()
     for i = 1, opt.patchSize/2 do
         for j = 1, opt.patchSize/2 do
@@ -330,8 +337,8 @@ end
 -- train
 for epoch = 1, opt.niter do
     epoch_tm:reset()
-    file_num = 1
-    for i = 1, opt.ntrain do
+    file_set_num = 0
+    for i = 1, opt.ntrain, opt.batchSize do
         tm:reset()
         -- (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         optim.adam(fDx, parametersD, optimStateD)
@@ -340,7 +347,14 @@ for epoch = 1, opt.niter do
         optim.adam(fGx, parametersG, optimStateG)
 
         -- logging
-        print(('Epoch: [%d][%6d / %6d]\t Time: %.3f  ' .. '  Err_G: %.8f  Err_D: %.4f'):format(epoch, i, opt.ntrain, tm:time().real, data_tm:time().real, errG and errG or -1, errD and errD or -1))
+        if ((i-1) / opt.batchSize) % 1 == 0 then
+         print(('Epoch: [%d][%8d / %8d]\t Time: %.3f  DataTime: %.3f  '
+                   .. '  Err_G: %.16f  Err_D: %.4f'):format(
+                 epoch, ((i-1) / opt.batchSize),
+                 math.floor(opt.ntrain / opt.batchSize),
+                 tm:time().real, data_tm:time().real,
+                 errG and errG or -1, errD and errD or -1))
+        end
     end
 
    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
@@ -350,7 +364,8 @@ for epoch = 1, opt.niter do
    parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
    parametersG, gradParametersG = netG:getParameters()
 
-    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(epoch, opt.niter, epoch_tm:time().real))
+    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
+            epoch, opt.niter, epoch_tm:time().real))
 end
 
 --------------------------------------------
