@@ -377,7 +377,9 @@ local rn_fn_SSIM_average = 0
 
 local real_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 
-for file_set_num = 0, 500/opt.batchSize - 1 do
+local train_size = 500
+
+for file_set_num = 0, train_size/opt.batchSize - 1 do
 
     for k = 1, opt.batchSize do
         file_num = file_set_num * opt.batchSize + k
@@ -487,17 +489,17 @@ for file_set_num = 0, 500/opt.batchSize - 1 do
     rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
 end
 
-rn_rb_PSNR_average = rn_rb_PSNR_average / opt.ntrain
-rn_fn_PSNR_average = rn_fn_PSNR_average / opt.ntrain
+rn_rb_PSNR_average = rn_rb_PSNR_average / train_size
+rn_fn_PSNR_average = rn_fn_PSNR_average / train_size
 
-rn_rb_SSIM_average = rn_rb_SSIM_average / opt.ntrain
-rn_fn_SSIM_average = rn_fn_SSIM_average / opt.ntrain
+rn_rb_SSIM_average = rn_rb_SSIM_average / train_size
+rn_fn_SSIM_average = rn_fn_SSIM_average / train_size
 
-print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain))
-print(('[Train-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, opt.ntrain))
+print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, train_size))
+print(('[Train-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, train_size))
 
-print(('[Train-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, opt.ntrain))
-print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, opt.ntrain))
+print(('[Train-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, train_size))
+print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, train_size))
 
 -- --------------------------------------------
 -- -- Calculate Performance(Avrg. PSNR) of Test-set
