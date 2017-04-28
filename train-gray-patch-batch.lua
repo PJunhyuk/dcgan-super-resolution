@@ -368,100 +368,122 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
---------------------------------------------
+------------------------------------------
 -- Calculate Performance(Avrg. PSNR) of Train-set
--- local rn_rb_PSNR_average = 0
--- local rn_fn_PSNR_average = 0
--- local rn_rb_SSIM_average = 0
--- local rn_fn_SSIM_average = 0
+local rn_rb_PSNR_average = 0
+local rn_fn_PSNR_average = 0
+local rn_rb_SSIM_average = 0
+local rn_fn_SSIM_average = 0
 
--- for file_set_num = 0, opt.ntrain/100 - 1 do
---     for i = 1, opt.batchSize do
---         file_num = file_set_num * opt.batchSize + i
+local real_none_full = torch.Tensor(real_none_full, opt.fineSize, opt.fineSize)
+
+for file_set_num = 0, 500/opt.batchSize - 1 do
+
+    for k = 1, opt.batchSize do
+        file_num = file_set_num * opt.batchSize + k
+
+        local file_name
+
+        if file_num < 10 then
+            file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100 then
+            file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 1000 then
+            file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 10000 then
+            file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100000 then
+            file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
+        else
+            file_name = file_name_route .. tostring(file_num) .. '.jpg'
+        end
+
+        local image_input_gray = image.load(file_name, 1, 'float')
+        image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+
+        for i = 1, patchNumber do
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
+                    real_none[{ {(k-1) * patchNumber + i}, {a}, {b} }] = image_input_gray[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
+                end
+            end
+        end
+
+        inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
         
---         local file_name
+        real_none_full[{ {k}, {}, {} }] = image_input_gray[{ {}, {} }]
+    end
 
---         if file_num < 10 then
---             file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 100 then
---             file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 1000 then
---             file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 10000 then
---             file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 100000 then
---             file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
---         else
---             file_name = file_name_route .. tostring(file_num) .. '.jpg'
---         end
+    -- generate real_reduced
+    local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
+    real_reduced = real_reduced:cuda()
+    for i = 1, opt.fineSize/2 do
+        for j = 1, opt.fineSize/2 do
+            real_reduced[{ {}, {i}, {j} }] = (real_none_full[{ {}, {2*i-1}, {2*j-1} }] + real_none_full[{ {}, {2*i}, {2*j-1} }] + real_none_full[{ {}, {2*i-1}, {2*j} }] + real_none_full[{ {}, {2*i}, {2*j} }]) / 4
+        end
+    end
 
---         local image_input_gray = image.load(file_name, 1, 'float')
---         image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+    -- generate real_bilinear
+    local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+    local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+    for i = 1, opt.batchSize do
+        real_bilinear_temp[{ {}, {} }] = (real_reduced:float())[i]
+        real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
+    end
 
---         real_none[{ {i}, {}, {} }] = image_input_gray[{ {}, {} }]
---     end
+    -- generate real_reduced_patch
+    local real_reduced_patch = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
+    real_reduced_patch = real_reduced_patch:cuda()
+    for i = 1, opt.patchSize/2 do
+        for j = 1, opt.patchSize/2 do
+            real_reduced_patch[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
+        end
+    end
 
---     -- generate real_reduced
---     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
---     real_reduced = real_reduced:cuda()
---     for i = 1, opt.fineSize/2 do
---         for j = 1, opt.fineSize/2 do
---             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
---         end
---     end
+    -- generate fake_none
+    inputG[{ {}, {1}, {}, {} }] = real_reduced_patch[{ {}, {}, {} }]
+    local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
---     -- generate real_bilinear
---     local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
---     local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
---     for i = 1, opt.batchSize do
---         real_bilinear_temp[{ {}, {} }] = (real_reduced:float())[i]
---         real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
---     end
+    -- calculate PSNR
+    local rn_rb_PSNR = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
+    end
+    rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
 
---     -- generate fake_none
---     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
---     local fake_none = netG:forward(inputG) -- inputG: real_reduced
+    -- calculate SSIM
+    local rn_rb_SSIM = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_rb_SSIM[i] = calSSIM(real_none[i]:float(), real_bilinear[i]:float())
+    end
+    rn_rb_SSIM_average = rn_rb_SSIM_average + rn_rb_SSIM:sum()
 
---     -- calculate PSNR
---     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
---     end
---     rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
+    -- calculate PSNR
+    local rn_fn_PSNR = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_fn_PSNR[i] = calPSNR(real_none[i]:float(), fake_none[i]:float())
+    end
+    rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
 
---     -- calculate SSIM
---     local rn_rb_SSIM = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_rb_SSIM[i] = calSSIM(real_none[i]:float(), real_bilinear[i]:float())
---     end
---     rn_rb_SSIM_average = rn_rb_SSIM_average + rn_rb_SSIM:sum()
+    -- calculate SSIM
+    local rn_fn_SSIM = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_fn_SSIM[i] = calSSIM(real_none[i]:float(), fake_none[i]:float())
+    end
+    rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
+end
 
---     -- calculate PSNR
---     local rn_fn_PSNR = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_fn_PSNR[i] = calPSNR(real_none[i]:float(), fake_none[i]:float())
---     end
---     rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
+rn_rb_PSNR_average = rn_rb_PSNR_average / opt.ntrain
+rn_fn_PSNR_average = rn_fn_PSNR_average / opt.ntrain
 
---     -- calculate SSIM
---     local rn_fn_SSIM = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_fn_SSIM[i] = calSSIM(real_none[i]:float(), fake_none[i]:float())
---     end
---     rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
--- end
+rn_rb_SSIM_average = rn_rb_SSIM_average / opt.ntrain
+rn_fn_SSIM_average = rn_fn_SSIM_average / opt.ntrain
 
--- rn_rb_PSNR_average = rn_rb_PSNR_average / opt.ntrain
--- rn_fn_PSNR_average = rn_fn_PSNR_average / opt.ntrain
+print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain))
+print(('[Train-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, opt.ntrain))
 
--- rn_rb_SSIM_average = rn_rb_SSIM_average / opt.ntrain
--- rn_fn_SSIM_average = rn_fn_SSIM_average / opt.ntrain
-
--- print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, opt.ntrain))
--- print(('[Train-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, opt.ntrain))
-
--- print(('[Train-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, opt.ntrain))
--- print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, opt.ntrain))
+print(('[Train-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, opt.ntrain))
+print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, opt.ntrain))
 
 -- --------------------------------------------
 -- -- Calculate Performance(Avrg. PSNR) of Test-set
