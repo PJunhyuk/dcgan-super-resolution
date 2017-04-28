@@ -267,8 +267,6 @@ local fDx = function(x)
             file_name = file_name_route .. tostring(file_num) .. '.jpg'
         end
 
-        print('file_name: ' .. file_name)
-
         local image_input_gray = image.load(file_name, 1, 'float')
         image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
 
