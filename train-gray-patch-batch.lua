@@ -457,7 +457,6 @@ for file_set_num = 0, 500/opt.batchSize - 1 do
             end
         end
     end
-    fake_none_train = fake_none_train:float()
 
     -- calculate PSNR
     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
