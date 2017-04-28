@@ -447,28 +447,28 @@ for file_set_num = 0, 500/opt.batchSize - 1 do
     -- calculate PSNR
     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
+        rn_rb_PSNR[i] = calPSNR(real_none_full[i]:float(), real_bilinear[i]:float())
     end
     rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
 
     -- calculate SSIM
     local rn_rb_SSIM = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_rb_SSIM[i] = calSSIM(real_none[i]:float(), real_bilinear[i]:float())
+        rn_rb_SSIM[i] = calSSIM(real_none_full[i]:float(), real_bilinear[i]:float())
     end
     rn_rb_SSIM_average = rn_rb_SSIM_average + rn_rb_SSIM:sum()
 
     -- calculate PSNR
     local rn_fn_PSNR = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_fn_PSNR[i] = calPSNR(real_none[i]:float(), fake_none[i]:float())
+        rn_fn_PSNR[i] = calPSNR(real_none_full[i]:float(), fake_none[i]:float())
     end
     rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
 
     -- calculate SSIM
     local rn_fn_SSIM = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_fn_SSIM[i] = calSSIM(real_none[i]:float(), fake_none[i]:float())
+        rn_fn_SSIM[i] = calSSIM(real_none_full[i]:float(), fake_none[i]:float())
     end
     rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
 end
