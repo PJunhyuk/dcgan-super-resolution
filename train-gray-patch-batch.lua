@@ -375,7 +375,7 @@ local rn_fn_PSNR_average = 0
 local rn_rb_SSIM_average = 0
 local rn_fn_SSIM_average = 0
 
-local real_none_full = torch.Tensor(real_none_full, opt.fineSize, opt.fineSize)
+local real_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 
 for file_set_num = 0, 500/opt.batchSize - 1 do
 
