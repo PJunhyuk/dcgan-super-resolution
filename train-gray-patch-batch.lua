@@ -77,37 +77,39 @@ netG:add(nn.Sigmoid())
 netG:apply(weights_init)
 
 -- set network of Discriminator
-local netD = nn.Sequential()
----- input is (nc) x 8 x 8
-netD:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
-netD:add(nn.LeakyReLU(0.2, true))
----- state size: (ndf) x 4 x 4
-netD:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
-netD:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
----- state size: (ndf*2) x 2 x 2
-netD:add(SpatialConvolution(ndf * 2, 1, 4, 4, 2, 2, 1, 1))
-netD:add(nn.Sigmoid())
----- state size: 1 x 1 x 1
-netD:add(nn.View(1):setNumInputDims(3))
----- state size: 1
-netD:apply(weights_init)
-
+-- local netD = nn.Sequential()
 -- ---- input is (nc) x 8 x 8
--- netD:add(SpatialConvolution(nc, ndf, 3, 3, 1, 1, 0, 0))
+-- netD:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
 -- netD:add(nn.LeakyReLU(0.2, true))
--- ---- state size: (ndf) x 6 x 6
--- netD:add(SpatialConvolution(ndf, ndf * 2, 3, 3, 1, 1, 0, 0))
+-- ---- state size: (ndf) x 4 x 4
+-- netD:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
 -- netD:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
--- ---- state size: (ndf*2) x 4 x 4
--- netD:add(SpatialConvolution(ndf * 2, ndf * 4, 3, 3, 1, 1, 0, 0))
--- netD:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
--- ---- state size: (ndf*4) x 2 x 2
--- netD:add(SpatialConvolution(ndf * 4, 1, 2, 2))
+-- ---- state size: (ndf*2) x 2 x 2
+-- netD:add(SpatialConvolution(ndf * 2, 1, 4, 4, 2, 2, 1, 1))
 -- netD:add(nn.Sigmoid())
 -- ---- state size: 1 x 1 x 1
 -- netD:add(nn.View(1):setNumInputDims(3))
 -- ---- state size: 1
 -- netD:apply(weights_init)
+
+-- set network of Discriminator
+local netD = nn.Sequential()
+---- input is (nc) x 8 x 8
+netD:add(SpatialConvolution(nc, ndf, 3, 3, 1, 1, 0, 0))
+netD:add(nn.LeakyReLU(0.2, true))
+---- state size: (ndf) x 6 x 6
+netD:add(SpatialConvolution(ndf, ndf * 2, 3, 3, 1, 1, 0, 0))
+netD:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
+---- state size: (ndf*2) x 4 x 4
+netD:add(SpatialConvolution(ndf * 2, ndf * 4, 3, 3, 1, 1, 0, 0))
+netD:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
+---- state size: (ndf*4) x 2 x 2
+netD:add(SpatialConvolution(ndf * 4, 1, 2, 2))
+netD:add(nn.Sigmoid())
+---- state size: 1 x 1 x 1
+netD:add(nn.View(1):setNumInputDims(3))
+---- state size: 1
+netD:apply(weights_init)
 
 ----------------------------------------------------
 -- set criterion
