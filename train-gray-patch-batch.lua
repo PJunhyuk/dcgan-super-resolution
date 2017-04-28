@@ -446,6 +446,8 @@ for file_set_num = 0, 500/opt.batchSize - 1 do
 
     -- generate fake_none_full
     local fake_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+    fake_none = fake_none:float()
+    fake_none_full = fake_none_full:float()
     for k = 1, opt.batchSize do
         for i = 1, patchNumber do
             for a = 1, opt.patchSize do
