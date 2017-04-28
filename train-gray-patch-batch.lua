@@ -444,6 +444,19 @@ for file_set_num = 0, 500/opt.batchSize - 1 do
     inputG[{ {}, {1}, {}, {} }] = real_reduced_patch[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
+    -- generate fake_none_full
+    local fake_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+    for k = 1, opt.batchSize do
+        for i = 1, patchNumber do
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
+                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none_patch_train[{ {(k-1) * opt.batchSize + i}, {1}, {a}, {b} }]
+                end
+            end
+        end
+    end
+    fake_none_train = fake_none_train:float()
+
     -- calculate PSNR
     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
@@ -461,14 +474,14 @@ for file_set_num = 0, 500/opt.batchSize - 1 do
     -- calculate PSNR
     local rn_fn_PSNR = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_fn_PSNR[i] = calPSNR(real_none_full[i]:float(), fake_none[i]:float())
+        rn_fn_PSNR[i] = calPSNR(real_none_full[i]:float(), fake_none_full[i]:float())
     end
     rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
 
     -- calculate SSIM
     local rn_fn_SSIM = torch.Tensor(opt.batchSize)
     for i = 1, opt.batchSize do
-        rn_fn_SSIM[i] = calSSIM(real_none_full[i]:float(), fake_none[i]:float())
+        rn_fn_SSIM[i] = calSSIM(real_none_full[i]:float(), fake_none_full[i]:float())
     end
     rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
 end
