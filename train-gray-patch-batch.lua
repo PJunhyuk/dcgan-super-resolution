@@ -434,7 +434,7 @@ for file_set_num = 0, train_size/opt.batchSize - 1 do
         for i = 1, patchNumber do
             for a = 1, opt.patchSize do
                 for b = 1, opt.patchSize do
-                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * patchSize + i}, {1}, {a}, {b} }]
+                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * opt.patchSize + i}, {1}, {a}, {b} }]
                 end
             end
         end
@@ -556,7 +556,7 @@ for file_set_num = 10000, 10000 + test_size/opt.batchSize - 1 do -- 200001 ~ 200
         for i = 1, patchNumber do
             for a = 1, opt.patchSize do
                 for b = 1, opt.patchSize do
-                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * patchSize + i}, {1}, {a}, {b} }]
+                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * opt.patchSize + i}, {1}, {a}, {b} }]
                 end
             end
         end
