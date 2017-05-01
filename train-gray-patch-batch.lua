@@ -293,6 +293,7 @@ local fDx = function(x)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
+    real_none = real_none:float()
     for i = 1, opt.patchSize/2 do
         for j = 1, opt.patchSize/2 do
             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
