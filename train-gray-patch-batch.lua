@@ -77,22 +77,6 @@ netG:add(nn.Sigmoid())
 netG:apply(weights_init)
 
 -- set network of Discriminator
--- local netD = nn.Sequential()
--- ---- input is (nc) x 8 x 8
--- netD:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
--- netD:add(nn.LeakyReLU(0.2, true))
--- ---- state size: (ndf) x 4 x 4
--- netD:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
--- netD:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
--- ---- state size: (ndf*2) x 2 x 2
--- netD:add(SpatialConvolution(ndf * 2, 1, 4, 4, 2, 2, 1, 1))
--- netD:add(nn.Sigmoid())
--- ---- state size: 1 x 1 x 1
--- netD:add(nn.View(1):setNumInputDims(3))
--- ---- state size: 1
--- netD:apply(weights_init)
-
--- set network of Discriminator
 local netD = nn.Sequential()
 ---- input is (nc) x 8 x 8
 netD:add(SpatialConvolution(nc, ndf, 3, 3, 1, 1, 0, 0))
@@ -277,7 +261,6 @@ local fDx = function(x)
                 end
             end
         end
-
     end
 
     file_set_num = file_set_num + 1
@@ -500,93 +483,125 @@ print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):form
 
 -- --------------------------------------------
 -- -- Calculate Performance(Avrg. PSNR) of Test-set
--- for file_set_num = 2000, 2020 do -- 200001 ~ 202100
---     for i = 1, opt.batchSize do
---         file_num = file_set_num * opt.batchSize + i
-        
---         local file_name
+local test_size = 500
 
---         if file_num < 10 then
---             file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 100 then
---             file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 1000 then
---             file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 10000 then
---             file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
---         elseif file_num < 100000 then
---             file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
---         else
---             file_name = file_name_route .. tostring(file_num) .. '.jpg'
---         end
+for file_set_num = 10000, 10000 + test_size/opt.batchSize - 1 do -- 200001 ~ 200500
+    for k = 1, opt.batchSize do
+        file_num = file_set_num * opt.batchSize + k
 
---         local image_input_gray = image.load(file_name, 1, 'float')
---         image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
+        local file_name
 
---         real_none[{ {i}, {}, {} }] = image_input_gray[{ {}, {} }]
---     end
+        if file_num < 10 then
+            file_name = file_name_route .. '00000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100 then
+            file_name = file_name_route .. '0000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 1000 then
+            file_name = file_name_route .. '000' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 10000 then
+            file_name = file_name_route .. '00' .. tostring(file_num) .. '.jpg'
+        elseif file_num < 100000 then
+            file_name = file_name_route .. '0' .. tostring(file_num) .. '.jpg'
+        else
+            file_name = file_name_route .. tostring(file_num) .. '.jpg'
+        end
 
---     -- generate real_reduced
---     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
---     real_reduced = real_reduced:cuda()
---     for i = 1, opt.fineSize/2 do
---         for j = 1, opt.fineSize/2 do
---             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
---         end
---     end
+        local image_input_gray = image.load(file_name, 1, 'float')
+        image_input_gray = image.scale(image_input_gray, opt.fineSize, opt.fineSize)
 
---     -- generate real_bilinear
---     local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
---     local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
---     for i = 1, opt.batchSize do
---         real_bilinear_temp[{ {}, {} }] = (real_reduced:float())[i]
---         real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
---     end
+        for i = 1, patchNumber do
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
+                    real_none[{ {(k-1) * patchNumber + i}, {a}, {b} }] = image_input_gray[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
+                end
+            end
+        end
 
---     -- generate fake_none
---     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
---     local fake_none = netG:forward(inputG) -- inputG: real_reduced
+        real_none_full[{ {k}, {}, {} }] = image_input_gray[{ {}, {} }]
+    end
 
---     -- calculate PSNR
---     local rn_rb_PSNR = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_rb_PSNR[i] = calPSNR(real_none[i]:float(), real_bilinear[i]:float())
---     end
---     rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
+    -- generate real_reduced
+    local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
+    for i = 1, opt.fineSize/2 do
+        for j = 1, opt.fineSize/2 do
+            real_reduced[{ {}, {i}, {j} }] = (real_none_full[{ {}, {2*i-1}, {2*j-1} }] + real_none_full[{ {}, {2*i}, {2*j-1} }] + real_none_full[{ {}, {2*i-1}, {2*j} }] + real_none_full[{ {}, {2*i}, {2*j} }]) / 4
+        end
+    end
 
---     -- calculate SSIM
---     local rn_rb_SSIM = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_rb_SSIM[i] = calSSIM(real_none[i]:float(), real_bilinear[i]:float())
---     end
---     rn_rb_SSIM_average = rn_rb_SSIM_average + rn_rb_SSIM:sum()
+    -- generate real_bilinear
+    local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+    local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+    for i = 1, opt.batchSize do
+        real_bilinear_temp[{ {}, {} }] = (real_reduced)[i]
+        real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
+    end
 
---     -- calculate PSNR
---     local rn_fn_PSNR = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_fn_PSNR[i] = calPSNR(real_none[i]:float(), fake_none[i]:float())
---     end
---     rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
+    -- generate real_reduced_patch
+    local real_reduced_patch = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
+    for i = 1, opt.patchSize/2 do
+        for j = 1, opt.patchSize/2 do
+            real_reduced_patch[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
+        end
+    end
+    real_reduced_patch = real_reduced_patch:cuda()
 
---     -- calculate SSIM
---     local rn_fn_SSIM = torch.Tensor(opt.batchSize)
---     for i = 1, opt.batchSize do
---         rn_fn_SSIM[i] = calSSIM(real_none[i]:float(), fake_none[i]:float())
---     end
---     rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
--- end
+    -- generate fake_none
+    inputG[{ {}, {1}, {}, {} }] = real_reduced_patch[{ {}, {}, {} }]
+    local fake_none = netG:forward(inputG) -- inputG: real_reduced
+    fake_none = fake_none:float()
 
--- rn_rb_PSNR_average = rn_rb_PSNR_average / 2100
--- rn_fn_PSNR_average = rn_fn_PSNR_average / 2100
+    -- generate fake_none_full
+    local fake_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
+    fake_none_full = fake_none_full:float()
+    for k = 1, opt.batchSize do
+        for i = 1, patchNumber do
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
+                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * opt.batchSize + i}, {1}, {a}, {b} }]
+                end
+            end
+        end
+    end
 
--- rn_rb_SSIM_average = rn_rb_SSIM_average / 2100
--- rn_fn_SSIM_average = rn_fn_SSIM_average / 2100
+    -- calculate PSNR
+    local rn_rb_PSNR = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_rb_PSNR[i] = calPSNR(real_none_full[i]:float(), real_bilinear[i]:float())
+    end
+    rn_rb_PSNR_average = rn_rb_PSNR_average + rn_rb_PSNR:sum()
 
--- print(('[Test-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, 2100))
--- print(('[Test-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, 2100))
+    -- calculate SSIM
+    local rn_rb_SSIM = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_rb_SSIM[i] = calSSIM(real_none_full[i]:float(), real_bilinear[i]:float())
+    end
+    rn_rb_SSIM_average = rn_rb_SSIM_average + rn_rb_SSIM:sum()
 
--- print(('[Test-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, 2100))
--- print(('[Test-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, 2100))
+    -- calculate PSNR
+    local rn_fn_PSNR = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_fn_PSNR[i] = calPSNR(real_none_full[i]:float(), fake_none_full[i]:float())
+    end
+    rn_fn_PSNR_average = rn_fn_PSNR_average + rn_fn_PSNR:sum()
+
+    -- calculate SSIM
+    local rn_fn_SSIM = torch.Tensor(opt.batchSize)
+    for i = 1, opt.batchSize do
+        rn_fn_SSIM[i] = calSSIM(real_none_full[i]:float(), fake_none_full[i]:float())
+    end
+    rn_fn_SSIM_average = rn_fn_SSIM_average + rn_fn_SSIM:sum()
+end
+
+rn_rb_PSNR_average = rn_rb_PSNR_average / test_size
+rn_fn_PSNR_average = rn_fn_PSNR_average / test_size
+
+rn_rb_SSIM_average = rn_rb_SSIM_average / test_size
+rn_fn_SSIM_average = rn_fn_SSIM_average / test_size
+
+print(('[Train-set] PSNR btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_PSNR_average, test_size))
+print(('[Train-set] PSNR btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_PSNR_average, test_size))
+
+print(('[Train-set] SSIM btwn real_none & real_bilinear: %.8f, train-Size: %d'):format(rn_rb_SSIM_average, test_size))
+print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):format(rn_fn_SSIM_average, test_size))
 --------------------------------------------
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
@@ -655,48 +670,68 @@ image.save('fake_none_train.jpg', image.toDisplayTensor(fake_none_train))
 
 -----------------------------------------------
 
--- local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/100001.jpg', 1, 'float')
--- real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
+local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/202001.jpg', 1, 'float')
+real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
+real_none_patch_test = torch.Tensor(patchNumber, opt.fineSize, opt.fineSize)
 
--- image.save('real_none_test.jpg', image.toDisplayTensor(real_none_test))
+image.save('real_none_test.jpg', image.toDisplayTensor(real_none_test))
 
--- print(('real_none_test-max: %.8f  real_none_test-min: %.8f'):format(real_none_test:max(), real_none_test:min()))
--- print(('real_none_test-sum: %.8f  real_none_test-std: %.8f'):format(real_none_test:sum(), real_none_test:std()))
+print(('real_none_test-max: %.8f  real_none_test-min: %.8f'):format(real_none_test:max(), real_none_test:min()))
+print(('real_none_test-sum: %.8f  real_none_test-std: %.8f'):format(real_none_test:sum(), real_none_test:std()))
 
--- local real_reduced_test = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
--- for i = 1, opt.fineSize/2 do
---     for j = 1, opt.fineSize/2 do
---         real_reduced_test[{ {i}, {j} }] = (real_none_test[{ {2*i-1}, {2*j-1} }] + real_none_test[{ {2*i}, {2*j-1} }] + real_none_test[{ {2*i-1}, {2*j} }] + real_none_test[{ {2*i}, {2*j} }]) / 4
---     end
--- end
--- image.save('real_reduced_test.jpg', image.toDisplayTensor(real_reduced_test))
+for i = 1, patchNumber do
+    for a = 1, opt.patchSize do
+        for b = 1, opt.patchSize do
+            real_none_patch_test[{ {i}, {a}, {b} }] = real_none_test[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }]
+        end
+    end
+end
 
--- local real_bilinear_test = torch.Tensor(opt.fineSize, opt.fineSize)
+local real_reduced_patch_test = torch.Tensor(patchNumber, opt.patchSize/2, opt.patchSize/2)
+for i = 1, opt.patchSize/2 do
+    for j = 1, opt.patchSize/2 do
+        real_reduced_patch_test[{ {}, {i}, {j} }] = (real_none_patch_test[{ {}, {2*i-1}, {2*j-1} }] + real_none_patch_test[{ {}, {2*i}, {2*j-1} }] + real_none_patch_test[{ {}, {2*i-1}, {2*j} }] + real_none_patch_test[{ {}, {2*i}, {2*j} }]) / 4
+    end
+end
 
--- real_bilinear_test = image.scale(real_reduced_test, opt.fineSize, opt.fineSize, bilinear)
+local real_reduced_test = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
+for i = 1, opt.fineSize/2 do
+    for j = 1, opt.fineSize/2 do
+        real_reduced_test[{ {i}, {j} }] = (real_none_test[{ {2*i-1}, {2*j-1} }] + real_none_test[{ {2*i}, {2*j-1} }] + real_none_test[{ {2*i-1}, {2*j} }] + real_none_test[{ {2*i}, {2*j} }]) / 4
+    end
+end
+image.save('real_reduced_test.jpg', image.toDisplayTensor(real_reduced_test))
 
--- real_bilinear_test = real_bilinear_test:float()
--- image.save('real_bilinear_test.jpg', image.toDisplayTensor(real_bilinear_test))
+local real_bilinear_test = torch.Tensor(opt.fineSize, opt.fineSize)
+real_bilinear_test = image.scale(real_reduced_test, opt.fineSize, opt.fineSize, bilinear)
+real_bilinear_test = real_bilinear_test:float()
+image.save('real_bilinear_test.jpg', image.toDisplayTensor(real_bilinear_test))
 
--- print(('PSNR btwn real_none_test & real_bilinear_test: %.4f'):format(calPSNR(real_none_test, real_bilinear_test)))
--- print(('SSIM btwn real_none_test & real_bilinear_test: %.4f'):format(calSSIM(real_none_test, real_bilinear_test)))
+print(('PSNR btwn real_none_test & real_bilinear_test: %.4f'):format(calPSNR(real_none_test, real_bilinear_test)))
+print(('SSIM btwn real_none_test & real_bilinear_test: %.4f'):format(calSSIM(real_none_test, real_bilinear_test)))
 
--- local inputG_test = torch.Tensor(1, 1, opt.fineSize/2, opt.fineSize/2)
--- inputG_test[{{1}, {1}, {}, {}}] = real_reduced_test[{ {}, {}}]
--- inputG_test = inputG_test:cuda()
--- local fake_none_test_temp = netG:forward(inputG_test)
+local inputG_test = torch.Tensor(patchNumber, 1, opt.patchSize/2, opt.patchSize/2)
+inputG_test[{{}, {1}, {}, {}}] = real_reduced_patch_test[{ {}, {}, {}}]
+inputG_test = inputG_test:cuda()
+local fake_none_patch_test = netG:forward(inputG_test)
+fake_none_patch_test = fake_none_patch_test:float()
 
--- local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
--- fake_none_test[{ {}, {} }] = fake_none_test_temp[{ {1}, {1}, {}, {} }]:float()
+local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
+for i = 1, patchNumber do
+    for a = 1, opt.patchSize do
+        for b = 1, opt.patchSize do
+            fake_none_test[{ { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+        end
+    end
+end
+fake_none_test = fake_none_test:float()
 
--- fake_none_test = fake_none_test:float()
+print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
+print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
 
--- print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
--- print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
+print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
+print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
 
--- print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
--- print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
-
--- image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
+image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 
 print(('Total time: %.3f'):format(total_tm:time().real))
