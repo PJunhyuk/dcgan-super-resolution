@@ -278,10 +278,11 @@ local fDx = function(x)
             end
         end
 
-        inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
     end
 
     file_set_num = file_set_num + 1
+
+    inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
 
     -- train with real
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
@@ -292,16 +293,15 @@ local fDx = function(x)
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
-    real_reduced = real_reduced:cuda()
     for i = 1, opt.patchSize/2 do
         for j = 1, opt.patchSize/2 do
             real_reduced[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
     end
+    real_reduced = real_reduced:cuda()
 
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
-
     local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
     -- train with fake
@@ -380,7 +380,6 @@ local real_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
 local train_size = 500
 
 for file_set_num = 0, train_size/opt.batchSize - 1 do
-
     for k = 1, opt.batchSize do
         file_num = file_set_num * opt.batchSize + k
 
@@ -411,14 +410,11 @@ for file_set_num = 0, train_size/opt.batchSize - 1 do
             end
         end
 
-        inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
-        
         real_none_full[{ {k}, {}, {} }] = image_input_gray[{ {}, {} }]
     end
 
     -- generate real_reduced
     local real_reduced = torch.Tensor(opt.batchSize, opt.fineSize/2, opt.fineSize/2)
-    real_reduced = real_reduced:cuda()
     for i = 1, opt.fineSize/2 do
         for j = 1, opt.fineSize/2 do
             real_reduced[{ {}, {i}, {j} }] = (real_none_full[{ {}, {2*i-1}, {2*j-1} }] + real_none_full[{ {}, {2*i}, {2*j-1} }] + real_none_full[{ {}, {2*i-1}, {2*j} }] + real_none_full[{ {}, {2*i}, {2*j} }]) / 4
@@ -429,26 +425,26 @@ for file_set_num = 0, train_size/opt.batchSize - 1 do
     local real_bilinear = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
     local real_bilinear_temp = torch.Tensor(opt.fineSize/2, opt.fineSize/2)
     for i = 1, opt.batchSize do
-        real_bilinear_temp[{ {}, {} }] = (real_reduced:float())[i]
+        real_bilinear_temp[{ {}, {} }] = (real_reduced)[i]
         real_bilinear[i] = image.scale(real_bilinear_temp, opt.fineSize, opt.fineSize, bilinear)
     end
 
     -- generate real_reduced_patch
     local real_reduced_patch = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
-    real_reduced_patch = real_reduced_patch:cuda()
     for i = 1, opt.patchSize/2 do
         for j = 1, opt.patchSize/2 do
             real_reduced_patch[{ {}, {i}, {j} }] = (real_none[{ {}, {2*i-1}, {2*j-1} }] + real_none[{ {}, {2*i}, {2*j-1} }] + real_none[{ {}, {2*i-1}, {2*j} }] + real_none[{ {}, {2*i}, {2*j} }]) / 4
         end
     end
+    real_reduced_patch = real_reduced_patch:cuda()
 
     -- generate fake_none
     inputG[{ {}, {1}, {}, {} }] = real_reduced_patch[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG) -- inputG: real_reduced
+    fake_none = fake_none:float()
 
     -- generate fake_none_full
     local fake_none_full = torch.Tensor(opt.batchSize, opt.fineSize, opt.fineSize)
-    fake_none = fake_none:float()
     fake_none_full = fake_none_full:float()
     for k = 1, opt.batchSize do
         for i = 1, patchNumber do
@@ -656,7 +652,7 @@ print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_
 
 image.save('fake_none_train.jpg', image.toDisplayTensor(fake_none_train))
 
--- -----------------------------------------------
+-----------------------------------------------
 
 -- local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/100001.jpg', 1, 'float')
 -- real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
