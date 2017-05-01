@@ -51,49 +51,49 @@ local nc = 1
 local ndf = opt.ndf
 local ngf = opt.ngf
 
--- -- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 4
--- netG:add(nn.SpatialUpSamplingNearest(2))
--- -- nc x 8
--- netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
--- -- ngf*4 x 16
--- netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- -- ngf*2 x 32
--- netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- -- ngf x 64
--- netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- -- ngf*2 x 32
--- netG:add(SpatialConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
--- -- ngf*4 x 16
--- netG:add(SpatialConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
--- netG:add(nn.Sigmoid())
--- -- nc x 8
--- netG:apply(weights_init)
-
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 4
 netG:add(nn.SpatialUpSamplingNearest(2))
 -- nc x 8
-netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialFullConvolution(nc, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
+-- ngf*4 x 16
+netG:add(SpatialFullConvolution(ngf*4, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- ngf*2 x 16
+-- ngf*2 x 32
 netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- ngf x 32
+-- ngf x 64
 netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- ngf*2 x 16
-netG:add(SpatialConvolution(ngf*2, nc, 4, 4, 2, 2, 1, 1))
+-- ngf*2 x 32
+netG:add(SpatialConvolution(ngf*2, ngf*4, 4, 4, 2, 2, 1, 1))
+netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
+-- ngf*4 x 16
+netG:add(SpatialConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Sigmoid())
 -- nc x 8
 netG:apply(weights_init)
+
+-- -- set network of Generator
+-- local netG = nn.Sequential()
+-- -- nc x 4
+-- netG:add(nn.SpatialUpSamplingNearest(2))
+-- -- nc x 8
+-- netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
+-- -- ngf*2 x 16
+-- netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
+-- -- ngf x 32
+-- netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
+-- -- ngf*2 x 16
+-- netG:add(SpatialConvolution(ngf*2, nc, 4, 4, 2, 2, 1, 1))
+-- netG:add(nn.Sigmoid())
+-- -- nc x 8
+-- netG:apply(weights_init)
 
 -- set network of Discriminator
 local netD = nn.Sequential()
