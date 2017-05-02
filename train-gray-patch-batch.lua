@@ -76,6 +76,25 @@ netG:add(nn.Sigmoid())
 -- nc x 8
 netG:apply(weights_init)
 
+-- -- set network of Generator
+-- local netG = nn.Sequential()
+-- -- nc x 4
+-- netG:add(nn.SpatialUpSamplingNearest(2))
+-- -- nc x 8
+-- netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
+-- -- ngf*2 x 16
+-- netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
+-- -- ngf x 32
+-- netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
+-- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
+-- -- ngf*2 x 16
+-- netG:add(SpatialConvolution(ngf*2, nc, 4, 4, 2, 2, 1, 1))
+-- netG:add(nn.Sigmoid())
+-- -- nc x 8
+-- netG:apply(weights_init)
+
 -- set network of Discriminator
 local netD = nn.Sequential()
 ---- input is (nc) x 8 x 8
@@ -434,7 +453,7 @@ for file_set_num = 0, train_size/opt.batchSize - 1 do
         for i = 1, patchNumber do
             for a = 1, opt.patchSize do
                 for b = 1, opt.patchSize do
-                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * patchSize + i}, {1}, {a}, {b} }]
+                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * patchNumber + i}, {1}, {a}, {b} }]
                 end
             end
         end
@@ -556,7 +575,7 @@ for file_set_num = 10000, 10000 + test_size/opt.batchSize - 1 do -- 200001 ~ 200
         for i = 1, patchNumber do
             for a = 1, opt.patchSize do
                 for b = 1, opt.patchSize do
-                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * patchSize + i}, {1}, {a}, {b} }]
+                    fake_none_full[{ {k}, { math.floor((i-1) / opt.patchSize) * opt.patchSize + a }, { (i-1 - math.floor((i-1) / opt.patchSize) * opt.patchSize) * opt.patchSize + b } }] = fake_none[{ {(k-1) * patchNumber + i}, {1}, {a}, {b} }]
                 end
             end
         end
