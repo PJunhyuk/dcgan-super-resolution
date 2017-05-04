@@ -9,7 +9,7 @@ local total_tm = torch.Timer()
 opt = {
     batchSize = 20,
     fineSize = 64,
-    ngf = 64,               -- #  of gen filters in first conv layer
+    ngf = 16,               -- #  of gen filters in first conv layer
     ndf = 64,               -- #  of discrim filters in first conv layer
     niter = 1,             -- #  of iter at starting learning rate
     lr = 0.0002,            -- initial learning rate for adam
@@ -75,25 +75,6 @@ netG:add(SpatialConvolution(ngf*4, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Sigmoid())
 -- nc x 8
 netG:apply(weights_init)
-
--- -- set network of Generator
--- local netG = nn.Sequential()
--- -- nc x 4
--- netG:add(nn.SpatialUpSamplingNearest(2))
--- -- nc x 8
--- netG:add(SpatialFullConvolution(nc, ngf*2, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- -- ngf*2 x 16
--- netG:add(SpatialFullConvolution(ngf*2, ngf, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- -- ngf x 32
--- netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
--- netG:add(SpatialBatchNormalization(ngf*2)):add(nn.ReLU(true))
--- -- ngf*2 x 16
--- netG:add(SpatialConvolution(ngf*2, nc, 4, 4, 2, 2, 1, 1))
--- netG:add(nn.Sigmoid())
--- -- nc x 8
--- netG:apply(weights_init)
 
 -- set network of Discriminator
 local netD = nn.Sequential()
