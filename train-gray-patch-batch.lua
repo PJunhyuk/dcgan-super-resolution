@@ -56,8 +56,6 @@ local netG = nn.Sequential()
 -- nc x 4
 netG:add(SpatialFullConvolution(nc, ngf*8, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*8)):add(nn.ReLU(true))
--- netG:add(nn.SpatialUpSamplingNearest(2))
--- nc x 8
 -- ngf*8 x 8
 netG:add(SpatialFullConvolution(ngf*8, ngf*4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf*4)):add(nn.ReLU(true))
