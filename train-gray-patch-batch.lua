@@ -669,6 +669,16 @@ print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_
 
 image.save('fake_none_train.jpg', image.toDisplayTensor(fake_none_train))
 
+-- Reverse parts
+if calPSNR(real_none_train, fake_none_train) < 13
+    fake_none_train_reversed = 1 - fake_none_train
+
+    print(('PSNR btwn real_none_train & fake_none_train_reversed: %.4f'):format(calPSNR(real_none_train, fake_none_train_reversed)))
+    print(('SSIM btwn real_none_train & fake_none_train_reversed: %.4f'):format(calSSIM(real_none_train, fake_none_train_reversed)))
+
+    image.save('fake_none_train_reversed.jpg', image.toDisplayTensor(fake_none_train_reversed))
+end
+
 -----------------------------------------------
 
 local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/202001.jpg', 1, 'float')
@@ -734,5 +744,15 @@ print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_no
 print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
 
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
+
+-- Reverse parts
+if calPSNR(real_none_test, fake_none_test) < 13
+    fake_none_test_reversed = 1 - fake_none_test
+
+    print(('PSNR btwn real_none_test & fake_none_test_reversed: %.4f'):format(calPSNR(real_none_test, fake_none_test_reversed)))
+    print(('SSIM btwn real_none_test & fake_none_test_reversed: %.4f'):format(calSSIM(real_none_test, fake_none_test_reversed)))
+
+    image.save('fake_none_test_reversed.jpg', image.toDisplayTensor(fake_none_test_reversed))
+end
 
 print(('Total time: %.3f'):format(total_tm:time().real))
