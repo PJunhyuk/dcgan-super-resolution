@@ -670,7 +670,7 @@ print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_
 image.save('fake_none_train.jpg', image.toDisplayTensor(fake_none_train))
 
 -- Reverse parts
-if calPSNR(real_none_train, fake_none_train) < 13
+if calPSNR(real_none_train, fake_none_train) < 13 then
     fake_none_train_reversed = 1 - fake_none_train
 
     print(('PSNR btwn real_none_train & fake_none_train_reversed: %.4f'):format(calPSNR(real_none_train, fake_none_train_reversed)))
@@ -746,7 +746,7 @@ print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_no
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 
 -- Reverse parts
-if calPSNR(real_none_test, fake_none_test) < 13
+if calPSNR(real_none_test, fake_none_test) < 13 then
     fake_none_test_reversed = 1 - fake_none_test
 
     print(('PSNR btwn real_none_test & fake_none_test_reversed: %.4f'):format(calPSNR(real_none_test, fake_none_test_reversed)))
