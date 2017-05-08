@@ -747,6 +747,7 @@ for i = 1, overlapPatchNumber do
     y_index = math.floor((i-1) / overlapPatchLine)
 
     local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
+    local overlap_delta_path_x = torch.Tensor(opt.overlap, opt.patchSize)
 
     if x_index ~= 0 then
         for a = 1, opt.overlap do
@@ -754,9 +755,26 @@ for i = 1, overlapPatchNumber do
                 overlap_delta_x[{ {a}, {b} }] = math.abs(fake_none_patch_test[i-1][1][opt.patchSize - opt.overlap + a][b] - fake_none_patch_test[i][1][a][b])
             end
         end
+
+        for a = 1, opt.overlap do
+            for b = 1, opt.patchSize do
+                if b == 1 then
+                    overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[{ {a}, {b} }]
+                else
+                    if a == 1 then
+                        overlap_delta_path_x[{ {a}, {b} }] = math.min(overlap_delta_x[a][b-1], overlap_delta_x[a+1][b-1])
+                    elseif a == opt.overlap then
+                        overlap_delta_path_x[{ {a}, {b} }] = math.min(overlap_delta_x[a][b-1], overlap_delta_x[a-1][b-1])
+                    else
+                        overlap_delta_path_x[{ {a}, {b} }] = math.min(overlap_delta_x[a][b-1], overlap_delta_x[a-1][b-1], overlap_delta_x[a+1][b-1])
+                    end
+                end
+            end
+        end
     end
 
-    print(overlap_delta_x)
+    print('overlap_delta_x' .. overlap_delta_x)
+    print('overlap_delta_path_x' .. overlap_delta_path_x)
 
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
