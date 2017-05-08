@@ -753,8 +753,8 @@ for i = 1, overlapPatchNumber do
 
     if x_index == 0 then
         if y_index == 0 then
-            for a = 1, opt.patchSize then
-                for b = 1, opt.patchSize then
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
                     fake_none_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
                 end
             end
