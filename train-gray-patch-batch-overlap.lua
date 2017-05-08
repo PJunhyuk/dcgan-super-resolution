@@ -773,8 +773,10 @@ for i = 1, overlapPatchNumber do
         end
     end
 
-    print('overlap_delta_x' .. overlap_delta_x)
-    print('overlap_delta_path_x' .. overlap_delta_path_x)
+    print('overlap_delta_x')
+    print(overlap_delta_x)
+    print('overlap_delta_path_x')
+    print(overlap_delta_path_x)
 
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
