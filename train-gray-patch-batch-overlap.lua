@@ -756,8 +756,8 @@ for i = 1, overlapPatchNumber do
             end
         end
 
-        for a = 1, opt.overlap do
-            for b = 1, opt.patchSize do
+        for b = 1, opt.patchSize do
+            for a = 1, opt.overlap do
                 if b == 1 then
                     overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[{ {a}, {b} }]
                 else
