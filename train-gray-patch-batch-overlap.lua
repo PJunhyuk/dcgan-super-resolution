@@ -825,10 +825,10 @@ for i = 1, overlapPatchNumber do
         -- make fake_none_test which overlap applied, using overlap_index
         for b = 1, opt.patchSize do
             for a = 1, overlap_index[b] do
-                fake_none_test[{ {a}, {b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
+                fake_none_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
             end
             for a = overlap_index[b] + 1, opt.overlap do
-                fake_none_test[{ {a}, {b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
+                fake_none_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
             end
         end
     end
