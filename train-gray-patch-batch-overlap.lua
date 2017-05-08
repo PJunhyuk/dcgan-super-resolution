@@ -790,7 +790,6 @@ for i = 1, overlapPatchNumber do
         for a = 1, opt.overlap do
             if overlap_delta_path_x[a][b] == (overlap_delta_path_x[{ {}, {b} }]):min() then
                 overlap_index[b] = a
-                break
             end
         end
 
@@ -820,13 +819,16 @@ for i = 1, overlapPatchNumber do
             end
         end
 
+        print(i)
+        print(overlap_index)
+
         -- make fake_none_test which overlap applied, using overlap_index
         for b = 1, opt.patchSize do
             for a = 1, overlap_index[b] do
-                fake_none_test[a][b] = fake_none_patch_test[i-1][1][opt.patchSize - opt.overlap + a][b]
+                fake_none_test[{ {a}, {b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
             end
             for a = overlap_index[b] + 1, opt.overlap do
-                fake_none_test[a][b] = fake_none_patch_test[i][1][a][b]
+                fake_none_test[{ {a}, {b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
             end
         end
     end
