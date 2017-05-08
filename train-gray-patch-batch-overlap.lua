@@ -762,11 +762,11 @@ for i = 1, overlapPatchNumber do
                     overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[{ {a}, {b} }]
                 else
                     if a == 1 then
-                        overlap_delta_path_x[{ {a}, {b} }] = math.min(overlap_delta_x[a][b-1], overlap_delta_x[a+1][b-1])
+                        overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[a][b] + math.min(overlap_delta_x[a][b-1], overlap_delta_x[a+1][b-1])
                     elseif a == opt.overlap then
-                        overlap_delta_path_x[{ {a}, {b} }] = math.min(overlap_delta_x[a][b-1], overlap_delta_x[a-1][b-1])
+                        overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[a][b] + math.min(overlap_delta_x[a][b-1], overlap_delta_x[a-1][b-1])
                     else
-                        overlap_delta_path_x[{ {a}, {b} }] = math.min(overlap_delta_x[a][b-1], overlap_delta_x[a-1][b-1], overlap_delta_x[a+1][b-1])
+                        overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[a][b] + math.min(overlap_delta_x[a][b-1], overlap_delta_x[a-1][b-1], overlap_delta_x[a+1][b-1])
                     end
                 end
             end
