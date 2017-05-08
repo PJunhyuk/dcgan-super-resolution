@@ -692,7 +692,7 @@ print(('real_none_test-sum: %.8f  real_none_test-std: %.8f'):format(real_none_te
 
 -- image size: 64x64 / patchSize: 8x8 / overlap: 4
 -- overlap = 4 / overlapPatchLine = 15 / overlapPatchSize = 255
-local overlapPatchLine = (opt.fineSize - opt.overlap) / (patchSize - opt.overlap)
+local overlapPatchLine = (opt.fineSize - opt.overlap) / (opt.patchSize - opt.overlap)
 local overlapPatchNumber = overlapPatchLine * overlapPatchLine
 
 -- make real_none_patch_test
