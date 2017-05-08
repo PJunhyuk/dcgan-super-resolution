@@ -748,7 +748,7 @@ for i = 1, overlapPatchNumber do
 
     local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
 
-    if x_index != 0 then
+    if x_index ~= 0 then
         for a = 1, opt.overlap do
             for b = 1, opt.patchSize do
                 overlap_delta_x = math.abs(fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }] - fake_none_patch_test[{ {i}, {1}, {a}, {b} }])
