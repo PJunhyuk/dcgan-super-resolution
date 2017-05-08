@@ -739,8 +739,9 @@ inputG_test = inputG_test:cuda()
 local fake_none_patch_test = netG:forward(inputG_test)
 fake_none_patch_test = fake_none_patch_test:float()
 
--- make fake_none_test(ignore overlap)
+-- make fake_none_overlap_test(ignore overlap)
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
+local fake_none_overlap_test = torch.Tensor(opt.fineSize, opt.fineSize)
 for i = 1, overlapPatchNumber do
     -- _index: 0 to 14
     x_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
@@ -755,7 +756,7 @@ for i = 1, overlapPatchNumber do
         if y_index == 0 then
             for a = 1, opt.patchSize do
                 for b = 1, opt.patchSize do
-                    fake_none_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+                    fake_none_overlap_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
                 end
             end
         end
@@ -822,23 +823,22 @@ for i = 1, overlapPatchNumber do
         print(i)
         print(overlap_index)
 
-        -- make fake_none_test which overlap applied, using overlap_index
+        -- make fake_none_overlap_test which overlap applied, using overlap_index
         for b = 1, opt.patchSize do
             for a = 1, overlap_index[b] do
-                fake_none_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
+                fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
             end
             for a = overlap_index[b] + 1, opt.overlap do
-                fake_none_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+                fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
             end
         end
     end
 
-    -- for a = 1, opt.patchSize do
-    --     for b = 1, opt.patchSize do
-    --         -- fake_none_test[{ { ((i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine) * opt.overlap + a }, { math.floor((i-1) / overlapPatchLine) * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
-    --         fake_none_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
-    --     end
-    -- end
+    for a = 1, opt.patchSize do
+        for b = 1, opt.patchSize do
+            fake_none_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+        end
+    end
 end
 fake_none_test = fake_none_test:float()
 
@@ -849,6 +849,14 @@ print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_no
 print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
 
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
+
+print(('fake_none_overlap_test-max: %.8f  fake_none_overlap_test-min: %.8f'):format(fake_none_overlap_test:max(), fake_none_overlap_test:min()))
+print(('fake_none_overlap_test-sum: %.8f  fake_none_overlap_test-std: %.8f'):format(fake_none_overlap_test:sum(), fake_none_overlap_test:std()))
+
+print(('PSNR btwn real_none_test & fake_none_overlap_test: %.4f'):format(calPSNR(real_none_test, fake_none_overlap_test)))
+print(('SSIM btwn real_none_test & fake_none_overlap_test: %.4f'):format(calSSIM(real_none_test, fake_none_overlap_test)))
+
+image.save('fake_none_overlap_test.jpg', image.toDisplayTensor(fake_none_overlap_test))
 
 -- Reverse parts
 if calPSNR(real_none_test, fake_none_test) < 13 then
