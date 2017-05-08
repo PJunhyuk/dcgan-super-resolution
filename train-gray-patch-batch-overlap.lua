@@ -840,7 +840,9 @@ for i = 1, overlapPatchNumber do
         end
     end
 end
+
 fake_none_test = fake_none_test:float()
+fake_none_overlap_test = fake_none_overlap_test:float()
 
 print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
 print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
