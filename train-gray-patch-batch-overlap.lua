@@ -742,9 +742,26 @@ fake_none_patch_test = fake_none_patch_test:float()
 -- make fake_none_test(ignore overlap)
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
 for i = 1, overlapPatchNumber do
+    -- _index: 0 to 14
+    x_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
+    y_index = math.floor((i-1) / overlapPatchLine)
+
+    local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
+
+    if x_index != 0 then
+        for a = 1, opt.overlap do
+            for b = 1, opt.patchSize do
+                overlap_delta_x = math.abs(fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }] - fake_none_patch_test[{ {i}, {1}, {a}, {b} }])
+            end
+        end
+    end
+
+    print(overlap_delta_x)
+
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
-            fake_none_test[{ { ((i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine) * opt.overlap + a }, { math.floor((i-1) / overlapPatchLine) * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+            -- fake_none_test[{ { ((i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine) * opt.overlap + a }, { math.floor((i-1) / overlapPatchLine) * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+            fake_none_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
         end
     end
 end
