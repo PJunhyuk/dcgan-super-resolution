@@ -607,7 +607,7 @@ print(('[Train-set] SSIM btwn real_none & fake_none: %.8f, train-Size: %d'):form
 
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
 real_none_train = image.scale(real_none_train, opt.fineSize, opt.fineSize)
-real_none_patch_train = torch.Tensor(patchNumber, opt.fineSize, opt.fineSize)
+real_none_patch_train = torch.Tensor(patchNumber, opt.patchSize, opt.patchSize)
 
 image.save('real_none_train.jpg', image.toDisplayTensor(real_none_train))
 
@@ -683,7 +683,7 @@ end
 
 local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/202001.jpg', 1, 'float')
 real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
-real_none_patch_test = torch.Tensor(patchNumber, opt.fineSize, opt.fineSize)
+real_none_patch_test = torch.Tensor(patchNumber, opt.patchSize, opt.patchSize)
 
 image.save('real_none_test.jpg', image.toDisplayTensor(real_none_test))
 
