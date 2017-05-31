@@ -457,7 +457,7 @@ for i = 1, overlapPatchNumber do
     overlap_index:fill(0)
 
     -- row 1
-    if x_index == 0 then
+    -- if x_index == 0 then
         -- row 1 & column 1 -> ignore overlap
         if y_index == 0 then
             for a = 1, opt.patchSize do
@@ -534,7 +534,7 @@ for i = 1, overlapPatchNumber do
             print(i)
             print(overlap_index)
         end
-    end
+    -- end
 end
 
 -- print info about fake_none_overlap_test, and save it
