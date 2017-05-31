@@ -580,7 +580,7 @@ for i = 1, overlapPatchNumber do
                         overlap_index[b] = 2
                     end
                 elseif overlap_index[b+1] == opt.overlap then
-                    if overlap_delta_path_x[opt.overlab][b] == math.min(overlap_delta_path_x[opt.overlap][b], overlap_delta_path_x[opt.overlap-1][b]) then
+                    if overlap_delta_path_x[opt.overlap][b] == math.min(overlap_delta_path_x[opt.overlap][b], overlap_delta_path_x[opt.overlap-1][b]) then
                         overlap_index[b] = opt.overlap
                     else
                         overlap_index[b] = opt.overlap - 1
