@@ -534,8 +534,6 @@ for i = 1, overlapPatchNumber do
                     fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
                 end
             end
-            print(i)
-            print(overlap_index)
         end
     -- other rows
     else
@@ -738,8 +736,6 @@ for i = 1, overlapPatchNumber do
                     fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
                 end
             end
-            print(i)
-            print(overlap_index)
         end
     end
 end
@@ -748,8 +744,12 @@ end
 fake_none_overlap_test = fake_none_overlap_test:float()
 print(('fake_none_overlap_test-max: %.8f  fake_none_overlap_test-min: %.8f'):format(fake_none_overlap_test:max(), fake_none_overlap_test:min()))
 print(('fake_none_overlap_test-sum: %.8f  fake_none_overlap_test-std: %.8f'):format(fake_none_overlap_test:sum(), fake_none_overlap_test:std()))
+image.save('fake_none_overlap_test.jpg', image.toDisplayTensor(fake_none_overlap_test))
+
+-- print PSNR btwn real_none_test & fake_none_test / fake_none_overlap_test
+print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
+print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
 print(('PSNR btwn real_none_test & fake_none_overlap_test: %.4f'):format(calPSNR(real_none_test, fake_none_overlap_test)))
 print(('SSIM btwn real_none_test & fake_none_overlap_test: %.4f'):format(calSSIM(real_none_test, fake_none_overlap_test)))
-image.save('fake_none_overlap_test.jpg', image.toDisplayTensor(fake_none_overlap_test))
 
 print(('Total time: %.3f'):format(total_tm:time().real))
