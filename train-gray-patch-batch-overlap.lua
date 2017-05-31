@@ -401,7 +401,6 @@ image.save('real_reduced_test.jpg', image.toDisplayTensor(real_reduced_test))
 local real_bilinear_test = torch.Tensor(opt.fineSize, opt.fineSize)
 real_bilinear_test = image.scale(real_reduced_test, opt.fineSize, opt.fineSize, bilinear)
 real_bilinear_test = real_bilinear_test:float()
-
 image.save('real_bilinear_test.jpg', image.toDisplayTensor(real_bilinear_test))
 print(('PSNR btwn real_none_test & real_bilinear_test: %.4f'):format(calPSNR(real_none_test, real_bilinear_test)))
 print(('SSIM btwn real_none_test & real_bilinear_test: %.4f'):format(calSSIM(real_none_test, real_bilinear_test)))
@@ -413,100 +412,14 @@ inputG_test = inputG_test:cuda()
 local fake_none_patch_test = netG:forward(inputG_test)
 fake_none_patch_test = fake_none_patch_test:float()
 
--- make fake_none_overlap_test(ignore overlap)
+-- make fake_none_test(ignore overlap)
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
-local fake_none_overlap_test = torch.Tensor(opt.fineSize, opt.fineSize)
 for i = 1, overlapPatchNumber do
     -- _index: 0 to 14
+    -- (i, x_index) = (1, 0) (2, 1) (3, 2) (16, 0) (17, 1)
     x_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
+    -- (i, y_index) = (1, 0) (2, 0) (3, 0) (16, 1) (17, 1)
     y_index = math.floor((i-1) / overlapPatchLine)
-
-    local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
-    local overlap_delta_path_x = torch.Tensor(opt.overlap, opt.patchSize)
-    local overlap_label = 1
-    local overlap_index = torch.Tensor(opt.patchSize)
-
-    if x_index == 0 then
-        if y_index == 0 then
-            for a = 1, opt.patchSize do
-                for b = 1, opt.patchSize do
-                    fake_none_overlap_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
-                end
-            end
-        end
-    end
-
-
-    if x_index ~= 0 then
-        for a = 1, opt.overlap do
-            for b = 1, opt.patchSize do
-                overlap_delta_x[{ {a}, {b} }] = math.abs(fake_none_patch_test[i-1][1][opt.patchSize - opt.overlap + a][b] - fake_none_patch_test[i][1][a][b])
-            end
-        end
-
-        for b = 1, opt.patchSize do
-            for a = 1, opt.overlap do
-                if b == 1 then
-                    overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[{ {a}, {b} }]
-                else
-                    if a == 1 then
-                        overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[a][b] + math.min(overlap_delta_path_x[a][b-1], overlap_delta_path_x[a+1][b-1])
-                    elseif a == opt.overlap then
-                        overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[a][b] + math.min(overlap_delta_path_x[a][b-1], overlap_delta_path_x[a-1][b-1])
-                    else
-                        overlap_delta_path_x[{ {a}, {b} }] = overlap_delta_x[a][b] + math.min(overlap_delta_path_x[a][b-1], overlap_delta_path_x[a-1][b-1], overlap_delta_path_x[a+1][b-1])
-                    end
-                end
-            end
-        end
-        
-        -- calculate first line of overlap_index
-        b = opt.patchSize
-        for a = 1, opt.overlap do
-            if overlap_delta_path_x[a][b] == (overlap_delta_path_x[{ {}, {b} }]):min() then
-                overlap_index[b] = a
-            end
-        end
-
-        -- calculate other lines of overlap_index
-        for b = opt.patchSize-1, 1, -1 do
-            if overlap_index[b+1] == 1 then
-                if overlap_delta_path_x[1][b] == math.min(overlap_delta_path_x[1][b], overlap_delta_path_x[2][b]) then
-                    overlap_index[b] = 1
-                else
-                    overlap_index[b] = 2
-                end
-            elseif overlap_index[b+1] == opt.overlap then
-                if overlap_delta_path_x[opt.overlap][b] == math.min(overlap_delta_path_x[opt.overlap][b], overlap_delta_path_x[opt.overlap-1][b]) then
-                    overlap_index[b] = opt.overlap
-                else
-                    overlap_index[b] = opt.overlap - 1
-                end
-            else
-                a = overlap_index[b+1]
-                if overlap_delta_path_x[a][b] == math.min(overlap_delta_path_x[a][b], overlap_delta_path_x[a+1][b], overlap_delta_path_x[a-1][b]) then
-                    overlap_index[b] = a
-                elseif overlap_delta_path_x[a+1][b] == math.min(overlap_delta_path_x[a][b], overlap_delta_path_x[a+1][b], overlap_delta_path_x[a-1][b]) then
-                    overlap_index[b] = a + 1
-                else
-                    overlap_index[b] = a - 1
-                end
-            end
-        end
-
-        print(i)
-        print(overlap_index)
-
-        -- make fake_none_overlap_test which overlap applied, using overlap_index
-        for b = 1, opt.patchSize do
-            for a = 1, overlap_index[b] do
-                fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
-            end
-            for a = overlap_index[b] + 1, opt.overlap do
-                fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
-            end
-        end
-    end
 
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
@@ -515,23 +428,119 @@ for i = 1, overlapPatchNumber do
     end
 end
 
+-- print info about fake_none_test, and save it
 fake_none_test = fake_none_test:float()
-fake_none_overlap_test = fake_none_overlap_test:float()
-
 print(('fake_none_test-max: %.8f  fake_none_test-min: %.8f'):format(fake_none_test:max(), fake_none_test:min()))
 print(('fake_none_test-sum: %.8f  fake_none_test-std: %.8f'):format(fake_none_test:sum(), fake_none_test:std()))
-
 print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
 print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
-
 image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 
+-- make fake_none_overlap_test(apply overlap using algorithm)
+local fake_none_overlap_test = torch.Tensor(opt.fineSize, opt.fineSize)
+fake_none_overlap_test:fill(0)
+for i = 1, overlapPatchNumber do
+    -- _index: 0 to 14
+    x_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
+    y_index = math.floor((i-1) / overlapPatchLine)
+
+    local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
+    local overlap_delta_path_x = torch.Tensor(opt.overlap, opt.patchSize)
+    local overlap_delta_y = torch.Tensor(opt.patchSize, opt.overlap)
+    overlap_delta_y:fill(0)
+    local overlap_delta_path_y = torch.Tensor(opt.patchSize, opt.overlap)
+    overlap_delta_path_y:fill(0)
+    local overlap_label = 1
+    local overlap_index = torch.Tensor(opt.patchSize)
+    overlap_index:fill(0)
+
+    -- row 1
+    if x_index == 0 then
+        -- row 1 & column 1 -> ignore overlap
+        if y_index == 0 then
+            for a = 1, opt.patchSize do
+                for b = 1, opt.patchSize do
+                    fake_none_overlap_test[{ { x_index * opt.overlap + a }, { y_index * opt.overlap + b } }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+                end
+            end
+        -- row 1 & other column -> consider overlap on left side
+        else
+            -- make overlap_delta_y
+            for a = 1, opt.patchSize do
+                for b = 1, opt.overlap do
+                    overlap_delta_y[{ {a}, {b} }] = math.abs(fake_none_patch_test[i-1][1][a][opt.patchSize - opt.overlap + b] - fake_none_patch_test[i][1][a][b])
+                end
+            end
+            -- make overlap_delta_path_y
+            for a = 1, opt.patchSize do
+                for b = 1, opt.overlap do
+                    -- row 1
+                    if a == 1 then
+                        overlap_delta_path_y[{ {a}, {b} }] = overlap_delta_y[{ {a}, {b} }]
+                    else
+                        if b == 1 then
+                            overlap_delta_path_y[{ {a}, {b} }] = overlap_delta_y[a][b] + math.min(overlap_delta_path_y[a-1][b], overlap_delta_path_y[a-1][b+1])
+                        elseif b == opt.overlap then
+                            overlap_delta_path_y[{ {a}, {b} }] = overlap_delta_y[a][b] + math.min(overlap_delta_path_y[a-1][b-1], overlap_delta_path_y[a-1][b])
+                        else
+                            overlap_delta_path_y[{ {a}, {b} }] = overlap_delta_y[a][b] + math.min(overlap_delta_path_y[a-1][b-1], overlap_delta_path_y[a-1][b], overlap_delta_path_y[a-1][b+1])
+                        end
+                    end
+                end
+            end
+            -- calculate last row of overlap_index
+            a = opt.patchSize
+            for b = 1, opt.overlap do
+                if overlap_delta_path_y[a][b] == (overlap_delta_path_y[{ {a}, {} }]):min() then
+                    overlap_index[a] = b
+                end
+            end
+            -- calculate other rows of overlap_index
+            for a = opt.patchSize-1, 1, -1 do
+                if overlap_index[a+1] == 1 then
+                    if overlap_delta_path_y[a][1] == math.min(overlap_delta_path_y[a][1], overlap_delta_path_y[a][2]) then
+                        overlap_index[a] = 1
+                    else
+                        overlap_index[a] = 2
+                    end
+                elseif overlap_index[a+1] == opt.overlap then
+                    if overlap_delta_path_y[a][opt.overlap] == math.min(overlap_delta_path_y[a][opt.overlap], overlap_delta_path_y[a][opt.overlap-1]) then
+                        overlap_index[a] = opt.overlap
+                    else
+                        overlap_index[a] = opt.overlap - 1
+                    end
+                else
+                    b = overlap_index[a+1]
+                    if overlap_delta_path_y[a][b] == math.min(overlap_delta_path_y[a][b], overlap_delta_path_y[a][b-1], overlap_delta_path_y[a][b+1]) then
+                        overlap_index[a] = b
+                    elseif overlap_delta_path_y[a][b+1] == math.min(overlap_delta_path_y[a][b], overlap_delta_path_y[a][b-1], overlap_delta_path_y[a][b+1]) then
+                        overlap_index[a] = b + 1
+                    else
+                        overlap_index[a] = b - 1
+                    end
+                end
+            end
+            -- make fake_none_overlap_test which overlap applied, using overlap_index
+            for a = 1, opt.patchSize do
+                for b = 1, overlap_index[a] do
+                    fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {a}, {opt.patchSize - opt.overlap + b} }]
+                end
+                for b = overlap_index[a] + 1, opt.overlap do
+                    fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
+                end
+            end
+            print(i)
+            print(overlap_index)
+        end
+    end
+end
+
+-- print info about fake_none_overlap_test, and save it
+fake_none_overlap_test = fake_none_overlap_test:float()
 print(('fake_none_overlap_test-max: %.8f  fake_none_overlap_test-min: %.8f'):format(fake_none_overlap_test:max(), fake_none_overlap_test:min()))
 print(('fake_none_overlap_test-sum: %.8f  fake_none_overlap_test-std: %.8f'):format(fake_none_overlap_test:sum(), fake_none_overlap_test:std()))
-
 print(('PSNR btwn real_none_test & fake_none_overlap_test: %.4f'):format(calPSNR(real_none_test, fake_none_overlap_test)))
 print(('SSIM btwn real_none_test & fake_none_overlap_test: %.4f'):format(calSSIM(real_none_test, fake_none_overlap_test)))
-
 image.save('fake_none_overlap_test.jpg', image.toDisplayTensor(fake_none_overlap_test))
 
 print(('Total time: %.3f'):format(total_tm:time().real))
