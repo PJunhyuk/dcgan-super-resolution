@@ -527,7 +527,7 @@ for i = 1, overlapPatchNumber do
                 for b = 1, overlap_index[a] do
                     fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {a}, {opt.patchSize - opt.overlap + b} }]
                 end
-                for b = overlap_index[a] + 1, opt.overlap do
+                for b = overlap_index[a] + 1, opt.patchSize do
                     fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
                 end
             end
