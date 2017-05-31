@@ -439,6 +439,13 @@ image.save('fake_none_test.jpg', image.toDisplayTensor(fake_none_test))
 -- make fake_none_overlap_test(apply overlap using algorithm)
 local fake_none_overlap_test = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_overlap_test:fill(0)
+---- initialization
+local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
+local overlap_delta_path_x = torch.Tensor(opt.overlap, opt.patchSize)
+local overlap_delta_y = torch.Tensor(opt.patchSize, opt.overlap)
+local overlap_delta_path_y = torch.Tensor(opt.patchSize, opt.overlap)
+local overlap_index = torch.Tensor(opt.patchSize)
+---- for every i,
 for i = 1, overlapPatchNumber do
     -- _index: 0 to 14
     -- (i, x_index) = (1, 0) (2, 0) (3, 0) (16, 1) (17, 1)
@@ -446,18 +453,10 @@ for i = 1, overlapPatchNumber do
     -- (i, y_index) = (1, 0) (2, 1) (3, 2) (16, 0) (17, 1)
     y_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
 
-    local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
     overlap_delta_x:fill(0)
-    local overlap_delta_path_x = torch.Tensor(opt.overlap, opt.patchSize)
     overlap_delta_path_x:fill(0)
-
-    local overlap_delta_y = torch.Tensor(opt.patchSize, opt.overlap)
     overlap_delta_y:fill(0)
-    local overlap_delta_path_y = torch.Tensor(opt.patchSize, opt.overlap)
     overlap_delta_path_y:fill(0)
-
-    local overlap_label = 1
-    local overlap_index = torch.Tensor(opt.patchSize)
     overlap_index:fill(0)
 
     -- row 1
