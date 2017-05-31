@@ -604,7 +604,7 @@ for i = 1, overlapPatchNumber do
             end
         end
         -- not row 1 & not column 1 -> consider overlap on both top side and left side
-        if y_index != 0 then
+        if y_index ~= 0 then
             -- overlap of left side
             -- make overlap_delta_y
             for a = 1, opt.patchSize do
