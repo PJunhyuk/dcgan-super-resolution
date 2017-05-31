@@ -370,12 +370,12 @@ local overlapPatchLine = (opt.fineSize - opt.overlap) / (opt.patchSize - opt.ove
 local overlapPatchNumber = overlapPatchLine * overlapPatchLine
 
 -- make real_none_patch_test
--- 1 -> (0,0) / 2 -> (4,0) / 3 -> (8,0) / 15 -> (56,0) / 16 -> (0,4) / 17 -> (4,4) / 255 -> (56,56)
+-- 1 -> (0,0) / 2 -> (0,4) / 3 -> (0,8) / 15 -> (0,56) / 16 -> (4,0) / 17 -> (4,4) / 255 -> (56,56)
 local real_none_patch_test = torch.Tensor(overlapPatchNumber, opt.patchSize, opt.patchSize)
 for i = 1, overlapPatchNumber do
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
-            real_none_patch_test[{ {i}, {a}, {b} }] = real_none_test[{ { ((i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine) * opt.overlap + a }, { math.floor((i-1) / overlapPatchLine) * opt.overlap + b } }]
+            real_none_patch_test[{ {i}, {a}, {b} }] = real_none_test[{ { math.floor((i-1) / overlapPatchLine) * opt.overlap + a }, { ((i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine) * opt.overlap + b } }]
         end
     end
 end
