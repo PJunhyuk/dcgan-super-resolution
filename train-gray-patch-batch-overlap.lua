@@ -568,29 +568,29 @@ for i = 1, overlapPatchNumber do
             -- calculate last column of overlap_index
             b = opt.patchSize
             for a = 1, opt.overlap do
-                if overlap_delta_path_y[a][b] == (overlap_delta_path_y[{ {}, {b} }]):min() then
+                if overlap_delta_path_x[a][b] == (overlap_delta_path_x[{ {}, {b} }]):min() then
                     overlap_index[b] = a
                 end
             end
             -- calculate other columns of overlap_index
             for b = opt.patchSize-1, 1, -1 do
                 if overlap_index[b+1] == 1 then
-                    if overlap_delta_path_y[1][b] == math.min(overlap_delta_path_y[1][b], overlap_delta_path_y[2][b]) then
+                    if overlap_delta_path_x[1][b] == math.min(overlap_delta_path_x[1][b], overlap_delta_path_x[2][b]) then
                         overlap_index[b] = 1
                     else
                         overlap_index[b] = 2
                     end
                 elseif overlap_index[b+1] == opt.overlap then
-                    if overlap_delta_path_y[opt.overlab][b] == math.min(overlap_delta_path_y[opt.overlap][b], overlap_delta_path_y[opt.overlap-1][b]) then
+                    if overlap_delta_path_x[opt.overlab][b] == math.min(overlap_delta_path_x[opt.overlap][b], overlap_delta_path_x[opt.overlap-1][b]) then
                         overlap_index[b] = opt.overlap
                     else
                         overlap_index[b] = opt.overlap - 1
                     end
                 else
                     a = overlap_index[b+1]
-                    if overlap_delta_path_y[a][b] == math.min(overlap_delta_path_y[a][b], overlap_delta_path_y[a-1][b], overlap_delta_path_y[a+1][b]) then
+                    if overlap_delta_path_x[a][b] == math.min(overlap_delta_path_x[a][b], overlap_delta_path_x[a-1][b], overlap_delta_path_x[a+1][b]) then
                         overlap_index[b] = a
-                    elseif overlap_delta_path_y[a+1][b] == math.min(overlap_delta_path_y[a][b], overlap_delta_path_y[a-1][b], overlap_delta_path_y[a+1][b]) then
+                    elseif overlap_delta_path_x[a+1][b] == math.min(overlap_delta_path_x[a][b], overlap_delta_path_x[a-1][b], overlap_delta_path_x[a+1][b]) then
                         overlap_index[b] = a + 1
                     else
                         overlap_index[b] = a - 1
@@ -635,29 +635,29 @@ for i = 1, overlapPatchNumber do
             -- calculate last column of overlap_index
             b = opt.patchSize
             for a = 1, opt.overlap do
-                if overlap_delta_path_y[a][b] == (overlap_delta_path_y[{ {}, {b} }]):min() then
+                if overlap_delta_path_x[a][b] == (overlap_delta_path_x[{ {}, {b} }]):min() then
                     overlap_index[b] = a
                 end
             end
             -- calculate other columns of overlap_index
             for b = opt.patchSize-1, 1, -1 do
                 if overlap_index[b+1] == 1 then
-                    if overlap_delta_path_y[1][b] == math.min(overlap_delta_path_y[1][b], overlap_delta_path_y[2][b]) then
+                    if overlap_delta_path_x[1][b] == math.min(overlap_delta_path_x[1][b], overlap_delta_path_x[2][b]) then
                         overlap_index[b] = 1
                     else
                         overlap_index[b] = 2
                     end
                 elseif overlap_index[b+1] == opt.overlap then
-                    if overlap_delta_path_y[opt.overlab][b] == math.min(overlap_delta_path_y[opt.overlap][b], overlap_delta_path_y[opt.overlap-1][b]) then
+                    if overlap_delta_path_x[opt.overlab][b] == math.min(overlap_delta_path_x[opt.overlap][b], overlap_delta_path_x[opt.overlap-1][b]) then
                         overlap_index[b] = opt.overlap
                     else
                         overlap_index[b] = opt.overlap - 1
                     end
                 else
                     a = overlap_index[b+1]
-                    if overlap_delta_path_y[a][b] == math.min(overlap_delta_path_y[a][b], overlap_delta_path_y[a-1][b], overlap_delta_path_y[a+1][b]) then
+                    if overlap_delta_path_x[a][b] == math.min(overlap_delta_path_x[a][b], overlap_delta_path_x[a-1][b], overlap_delta_path_x[a+1][b]) then
                         overlap_index[b] = a
-                    elseif overlap_delta_path_y[a+1][b] == math.min(overlap_delta_path_y[a][b], overlap_delta_path_y[a-1][b], overlap_delta_path_y[a+1][b]) then
+                    elseif overlap_delta_path_x[a+1][b] == math.min(overlap_delta_path_x[a][b], overlap_delta_path_x[a-1][b], overlap_delta_path_x[a+1][b]) then
                         overlap_index[b] = a + 1
                     else
                         overlap_index[b] = a - 1
