@@ -416,10 +416,10 @@ fake_none_patch_test = fake_none_patch_test:float()
 local fake_none_test = torch.Tensor(opt.fineSize, opt.fineSize)
 for i = 1, overlapPatchNumber do
     -- _index: 0 to 14
-    -- (i, x_index) = (1, 0) (2, 1) (3, 2) (16, 0) (17, 1)
-    x_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
-    -- (i, y_index) = (1, 0) (2, 0) (3, 0) (16, 1) (17, 1)
-    y_index = math.floor((i-1) / overlapPatchLine)
+    -- (i, x_index) = (1, 0) (2, 0) (3, 0) (16, 1) (17, 1)
+    x_index = math.floor((i-1) / overlapPatchLine)
+    -- (i, y_index) = (1, 0) (2, 1) (3, 2) (16, 0) (17, 1)
+    y_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
 
     for a = 1, opt.patchSize do
         for b = 1, opt.patchSize do
@@ -441,8 +441,10 @@ local fake_none_overlap_test = torch.Tensor(opt.fineSize, opt.fineSize)
 fake_none_overlap_test:fill(0)
 for i = 1, overlapPatchNumber do
     -- _index: 0 to 14
-    x_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
-    y_index = math.floor((i-1) / overlapPatchLine)
+    -- (i, x_index) = (1, 0) (2, 0) (3, 0) (16, 1) (17, 1)
+    x_index = math.floor((i-1) / overlapPatchLine)
+    -- (i, y_index) = (1, 0) (2, 1) (3, 2) (16, 0) (17, 1)
+    y_index = (i-1) - math.floor((i-1) / overlapPatchLine) * overlapPatchLine
 
     local overlap_delta_x = torch.Tensor(opt.overlap, opt.patchSize)
     local overlap_delta_path_x = torch.Tensor(opt.overlap, opt.patchSize)
