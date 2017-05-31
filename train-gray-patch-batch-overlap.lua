@@ -746,9 +746,7 @@ print(('fake_none_overlap_test-max: %.8f  fake_none_overlap_test-min: %.8f'):for
 print(('fake_none_overlap_test-sum: %.8f  fake_none_overlap_test-std: %.8f'):format(fake_none_overlap_test:sum(), fake_none_overlap_test:std()))
 image.save('fake_none_overlap_test.jpg', image.toDisplayTensor(fake_none_overlap_test))
 
--- print PSNR btwn real_none_test & fake_none_test / fake_none_overlap_test
-print(('PSNR btwn real_none_test & fake_none_test: %.4f'):format(calPSNR(real_none_test, fake_none_test)))
-print(('SSIM btwn real_none_test & fake_none_test: %.4f'):format(calSSIM(real_none_test, fake_none_test)))
+-- print PSNR btwn real_none_test & fake_none_overlap_test
 print(('PSNR btwn real_none_test & fake_none_overlap_test: %.4f'):format(calPSNR(real_none_test, fake_none_overlap_test)))
 print(('SSIM btwn real_none_test & fake_none_overlap_test: %.4f'):format(calSSIM(real_none_test, fake_none_overlap_test)))
 
@@ -1146,9 +1144,7 @@ print(('fake_none_overlap_train-max: %.8f  fake_none_overlap_train-min: %.8f'):f
 print(('fake_none_overlap_train-sum: %.8f  fake_none_overlap_train-std: %.8f'):format(fake_none_overlap_train:sum(), fake_none_overlap_train:std()))
 image.save('fake_none_overlap_train.jpg', image.toDisplayTensor(fake_none_overlap_train))
 
--- print PSNR btwn real_none_train & fake_none_train / fake_none_overlap_train
-print(('PSNR btwn real_none_train & fake_none_train: %.4f'):format(calPSNR(real_none_train, fake_none_train)))
-print(('SSIM btwn real_none_train & fake_none_train: %.4f'):format(calSSIM(real_none_train, fake_none_train)))
+-- print PSNR btwn real_none_train & fake_none_overlap_train
 print(('PSNR btwn real_none_train & fake_none_overlap_train: %.4f'):format(calPSNR(real_none_train, fake_none_overlap_train)))
 print(('SSIM btwn real_none_train & fake_none_overlap_train: %.4f'):format(calSSIM(real_none_train, fake_none_overlap_train)))
 
