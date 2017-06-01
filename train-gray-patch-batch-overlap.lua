@@ -537,7 +537,7 @@ for i = 1, overlapPatchNumber do
         end
     -- other rows
     else
-        -- column 1 -> consider overlap on top side 
+        -- column 1 -> consider overlap on top side
         -- overlap of top side
         -- make overlap_delta_x
         for a = 1, opt.overlap do
@@ -597,12 +597,13 @@ for i = 1, overlapPatchNumber do
         -- make fake_none_overlap_test which overlap applied, using overlap_index
         for b = 1, opt.patchSize do
             for a = 1, overlap_index[b] do
-                fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
+                fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i-overlapPatchLine}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
             end
             for a = overlap_index[b] + 1, opt.patchSize do
                 fake_none_overlap_test[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_test[{ {i}, {1}, {a}, {b} }]
             end
         end
+        
         -- not row 1 & not column 1 -> consider overlap on both top side and left side
         if y_index ~= 0 then
             -- overlap of left side
