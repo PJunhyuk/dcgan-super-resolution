@@ -997,7 +997,7 @@ for i = 1, overlapPatchNumber do
             -- make fake_none_overlap_train which overlap applied, using overlap_index
             for b = 1, opt.patchSize do
                 for a = 1, overlap_index[b] do
-                    fake_none_overlap_train[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_train[{ {i-1}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
+                    fake_none_overlap_train[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_train[{ {i-overlapPatchLine}, {1}, {opt.patchSize - opt.overlap + a}, {b} }]
                 end
                 for a = overlap_index[b] + 1, opt.patchSize do
                     fake_none_overlap_train[{ {x_index * opt.overlap + a}, {y_index * opt.overlap + b} }] = fake_none_patch_train[{ {i}, {1}, {a}, {b} }]
