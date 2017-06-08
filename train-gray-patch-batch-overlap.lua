@@ -1,3 +1,5 @@
+---- 0. settings ------------------------------------------------------------------
+---- 0-1. basic settings ----------------------------------------------------------
 require 'torch'
 require 'image'
 require 'nn'
@@ -19,16 +21,33 @@ opt = {
     overlap = 4,
 }
 
-local patchNumber = (opt.fineSize / opt.patchSize) * (opt.fineSize / opt.patchSize)
-
 -- one-line argument parser. parses enviroment variables to override the defaults
 for k,v in pairs(opt) do opt[k] = tonumber(os.getenv(k)) or os.getenv(k) or opt[k] end
 print(opt)
+
+local patchNumber = (opt.fineSize / opt.patchSize) * (opt.fineSize / opt.patchSize)
 
 local file_name_route = '/CelebA/Img/img_align_celeba/Img/'
 
 local file_set_num = 0
 local file_num = 1
+
+local nc = 1
+local ndf = opt.ndf
+local ngf = opt.ngf
+
+local input = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize, opt.patchSize)
+local inputG = torch.Tensor(opt.batchSize * patchNumber, nc, opt.patchSize/2, opt.patchSize/2)
+local inputD = torch.Tensor(opt.batchSize * patchNumber, nc, opt.patchSize, opt.patchSize)
+local real_none = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize, opt.patchSize)
+local errD, errG
+local epoch_tm = torch.Timer()
+local tm = torch.Timer()
+local data_tm = torch.Timer()
+
+local label = torch.Tensor(opt.batchSize * patchNumber)
+local real_label = 1
+local fake_label = 0
 
 -- simplify library of nn
 local SpatialBatchNormalization = nn.SpatialBatchNormalization
@@ -37,21 +56,22 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 local SpatialMaxPooling = nn.SpatialMaxPooling
 local SpatialAveragePooling = nn.SpatialAveragePooling
 
-local function weights_init(m)
-    local name = torch.type(m)
-    if name:find('Convolution') then
-        m.weight:normal(0.0, 0.02)
-        m:noBias()
-    elseif name:find('BatchNormalization') then
-        if m.weight then m.weight:normal(1.0, 0.02) end
-        if m.bias then m.bias:fill(0) end
-    end
+-- to use GPU
+require 'cunn'
+cutorch.setDevice(1) -- use GPU
+input = input:cuda();
+inputG = inputG:cuda(); inputD = inputD:cuda(); label = label:cuda()
+real_none = real_none:cuda()
+
+if pcall(require, 'cudnn') then
+    require 'cudnn'
+    cudnn.benchmark = true
+    cudnn.convert(netG, cudnn)
+    cudnn.convert(netD, cudnn)
 end
+netD:cuda();           netG:cuda();           criterion:cuda()
 
-local nc = 1
-local ndf = opt.ndf
-local ngf = opt.ngf
-
+---- 0-2. set network of D&G ------------------------------------------------------
 -- set network of Generator
 local netG = nn.Sequential()
 -- nc x 4
@@ -101,11 +121,22 @@ netD:add(nn.View(1):setNumInputDims(3))
 ---- state size: 1
 netD:apply(weights_init)
 
-----------------------------------------------------
+---- 0-3. settings for train ------------------------------------------------------
+local function weights_init(m)
+    local name = torch.type(m)
+    if name:find('Convolution') then
+        m.weight:normal(0.0, 0.02)
+        m:noBias()
+    elseif name:find('BatchNormalization') then
+        if m.weight then m.weight:normal(1.0, 0.02) end
+        if m.bias then m.bias:fill(0) end
+    end
+end
+
 -- set criterion
 local criterion = nn.BCECriterion()
 -- criterion.sizeAverage = false
----------------------------------------------------------------------------
+
 optimStateG = {
     learningRate = opt.lr,
     beta1 = opt.beta1,
@@ -114,35 +145,11 @@ optimStateD = {
     learningRate = opt.lr,
     beta1 = opt.beta1,
 }
-----------------------------------------------------------------------------
-local input = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize, opt.patchSize)
-local inputG = torch.Tensor(opt.batchSize * patchNumber, nc, opt.patchSize/2, opt.patchSize/2)
-local inputD = torch.Tensor(opt.batchSize * patchNumber, nc, opt.patchSize, opt.patchSize)
-local real_none = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize, opt.patchSize)
-local errD, errG
-local epoch_tm = torch.Timer()
-local tm = torch.Timer()
-local data_tm = torch.Timer()
 
-local label = torch.Tensor(opt.batchSize * patchNumber)
-local real_label = 1
-local fake_label = 0
-----------------------------------------------------------------------------
--- to use GPU
-require 'cunn'
-cutorch.setDevice(1) -- use GPU
-input = input:cuda();
-inputG = inputG:cuda(); inputD = inputD:cuda(); label = label:cuda()
-real_none = real_none:cuda()
+local parametersD, gradParametersD = netD:getParameters()
+local parametersG, gradParametersG = netG:getParameters()
 
-if pcall(require, 'cudnn') then
-    require 'cudnn'
-    cudnn.benchmark = true
-    cudnn.convert(netG, cudnn)
-    cudnn.convert(netD, cudnn)
-end
-netD:cuda();           netG:cuda();           criterion:cuda()
-----------------------------------------------------------------------------
+---- 0-4. define functions --------------------------------------------------------
 -- calPSNR function
 function calPSNR(img1, img2)
     local MSE = (((img1 - img2):pow(2)):sum()) / (img1:size(1) * img1:size(2))
@@ -154,7 +161,6 @@ function calPSNR(img1, img2)
     return PSNR
 end
 
-----------------------------------------------------------------------------
 -- Calculate SSIM
 -- Reference: https://github.com/coupriec/VideoPredictionICLR2016
 function calSSIM(img1, img2)
@@ -224,13 +230,11 @@ function calSSIM(img1, img2)
     return mssim
 end
 
-----------------------------------------------------------------------------
-
-local parametersD, gradParametersD = netD:getParameters()
-local parametersG, gradParametersG = netG:getParameters()
-
+---- 1. set fDx and fGx ---------------------------------------------------------
+---- 1-1. set fDx ---------------------------------------------------------------
 -- create closure to evaluate f(X) and df/dX of discriminator
 local fDx = function(x)
+    ---- 1-1-1. settings --------------------------------------------------------
     gradParametersD:zero()
 
     data_tm:reset(); data_tm:resume()
@@ -238,6 +242,7 @@ local fDx = function(x)
 
     print('file_set_num: ' .. file_set_num)
 
+    ---- 1-1-2. load images -----------------------------------------------------
     for k = 1, opt.batchSize do
         file_num = file_set_num * opt.batchSize + k
 
@@ -273,14 +278,14 @@ local fDx = function(x)
 
     inputD[{ {}, {1}, {}, {} }] = real_none[{ {}, {}, {} }]
 
-    -- train with real
+    ---- 1-1-3. train with real ---------------------------------------------------
     local outputD = netD:forward(inputD) -- inputD: real_none / outputD: output_real
     label:fill(real_label) -- real_label = 1
     local errD_real = criterion:forward(outputD, label) -- output_real & 1
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
-    -- generate real_reduced
+    ---- 1-1-4. generate real_reduced ---------------------------------------------
     local real_reduced = torch.Tensor(opt.batchSize * patchNumber, opt.patchSize/2, opt.patchSize/2)
     real_none = real_none:float()
     for i = 1, opt.patchSize/2 do
@@ -290,11 +295,11 @@ local fDx = function(x)
     end
     real_reduced = real_reduced:cuda()
 
-    -- generate fake_none
+    ---- 1-1-5. generate fake_none ------------------------------------------------
     inputG[{ {}, {1}, {}, {} }] = real_reduced[{ {}, {}, {} }]
     local fake_none = netG:forward(inputG) -- inputG: real_reduced
 
-    -- train with fake
+    ---- 1-1-6. train with fake ---------------------------------------------------
     inputD[{ {}, {1}, {}, {} }] = fake_none[{ {}, {}, {} }]
     local outputD = netD:forward(inputD) -- inputD: fake_none / outputD: output_fake
     label:fill(fake_label) -- fake_label = 0
@@ -302,18 +307,20 @@ local fDx = function(x)
     local df_do = criterion:backward(outputD, label)
     netD:backward(inputD, df_do)
 
+    ---- 1-1-7. conclusion --------------------------------------------------------
     print(('errD_real: %.8f  errD_fake: %.8f'):format(errD_real, errD_fake))
 
-    -- conclusion
     errD = errD_real + errD_fake
-    -- print('errD'); print(errD)
     return errD, gradParametersD
 end
 
+---- 1-2. set fGx -----------------------------------------------------------------
 -- create closure to evaluate f(X) and df/dX of generator
 local fGx = function(x)
+    ---- 1-2-1. settings ----------------------------------------------------------
     gradParametersG:zero()
 
+    ---- 1-2-2. train -------------------------------------------------------------
     label:fill(real_label) -- real_label = 0
     local outputD = netD.output -- outputD: output_fake
     errG = criterion:forward(outputD, label) -- output_fake & 1
@@ -321,9 +328,11 @@ local fGx = function(x)
     local df_dg = netD:updateGradInput(inputD, df_do) -- inputD: fake_none
     netG:backward(inputG, df_dg) -- inputG: real_reduced
 
+    ---- 1-2-3. conclusion --------------------------------------------------------
     return errG, gradParametersG
 end
 
+---- 2. train ---------------------------------------------------------------------
 -- train
 for epoch = 1, opt.niter do
     epoch_tm:reset()
@@ -358,9 +367,11 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
------------------------------------------------
--- check real image: test
+---- 3. test ----------------------------------------------------------------------
+-- @TODO
 
+---- 4. make samples --------------------------------------------------------------
+-- check real image: test
 -- get real_none_test(size: 64x64)
 local real_none_test = image.load('/CelebA/Img/img_align_celeba/Img/202001.jpg', 1, 'float')
 real_none_test = image.scale(real_none_test, opt.fineSize, opt.fineSize)
@@ -691,9 +702,7 @@ print(('SSIM btwn real_none_test & fake_none_overlap_test: %.4f'):format(calSSIM
 
 --======================================================================================================================
 
------------------------------------------------
 -- check real image: train
-
 -- get real_none_train(size: 64x64)
 local real_none_train = image.load('/CelebA/Img/img_align_celeba/Img/000001.jpg', 1, 'float')
 real_none_train = image.scale(real_none_train, opt.fineSize, opt.fineSize)
